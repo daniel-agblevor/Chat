@@ -13,59 +13,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
+    <!-- Lucide Icons (optional) -->
     <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
 
     <!-- Custom Styles -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Slate 900 */
-            color: #e2e8f0; /* Slate 200 */
-            overflow: hidden; /* Prevent scroll on body */
-        }
-        
-        .glass-effect {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes blob {
-            0% { transform: translate(0px, 0px) scale(1); }
-            33% { transform: translate(80px, -100px) scale(1.2); }
-            66% { transform: translate(-40px, 40px) scale(0.8); }
-            100% { transform: translate(0px, 0px) scale(1); }
-        }
-        .animate-blob { animation: blob 12s infinite; }
-        .animation-delay-2000 { animation-delay: -2s; }
-        .animation-delay-4000 { animation-delay: -4s; }
-
-        #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
-        #chat-window::-webkit-scrollbar-track, .sidebar-scroll::-webkit-scrollbar-track, .modal-scroll::-webkit-scrollbar-track { background: transparent; }
-        #chat-window::-webkit-scrollbar-thumb, .sidebar-scroll::-webkit-scrollbar-thumb, .modal-scroll::-webkit-scrollbar-thumb {
-            background-color: rgba(124, 58, 237, 0.5);
-            border-radius: 20px;
-            border: 3px solid transparent;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        .dot { animation: bounce 1.2s infinite; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-
-        .flashcard-inner { transform-style: preserve-3d; transition: transform 0.6s; }
-        .is-flipped .flashcard-inner { transform: rotateY(180deg); }
-        .flashcard-front, .flashcard-back { 
-            -webkit-backface-visibility: hidden;
-            backface-visibility: hidden;
-        }
-        .flashcard-back { transform: rotateY(180deg); }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="antialiased relative">
 
@@ -76,7 +28,7 @@
         <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-sky-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
     
-    <div class="relative flex h-screen overflow-hidden">
+    <div class="relative flex flex-col md:flex-row h-screen overflow-hidden">
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col glass-effect p-4 border-r border-white/10 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="flex items-center space-x-2 pb-4 border-b border-white/10">
@@ -116,6 +68,10 @@
                         <span class="text-xs sm:text-sm text-slate-400 hidden md:inline">Your AI-Powered Data Assistant</span>
                         <div class="flex-grow"></div>
                         <div class="flex items-center gap-2">
+                            <button id="chat-button" class="flex items-center gap-2 py-2 px-3 bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle h-4 w-4 text-green-400"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                                <span class="hidden sm:inline">Chat</span>
+                            </button>
                             <button id="flashcards-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy h-4 w-4 text-violet-400"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
                                 <span class="hidden sm:inline">Flashcards</span>
@@ -129,7 +85,7 @@
                 </header>
 
                 <!-- Chat Container -->
-                <main class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="chat-view" class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div id="chat-window" class="flex-grow p-4 space-y-4 sm:p-6 sm:space-y-6 overflow-y-auto">
                         <div class="flex items-start gap-2.5 sm:gap-3">
                             <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
@@ -163,54 +119,120 @@
                 </main>
             </div>
         </div>
+        <!-- Right Sidebar for Chat History -->
+        <aside id="right-sidebar" class="hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
+            <h3 class="text-lg font-semibold mb-4">Chat History</h3>
+            <div id="chat-history-container" class="flex-grow overflow-y-auto">
+                <!-- Chat history will be rendered here -->
+                <div id="chat-history-loading" class="hidden">
+                    <p>Loading history...</p>
+                </div>
+                <div id="chat-history-empty" class="hidden">
+                    <p>No chat history for this file.</p>
+                </div>
+                <ul id="chat-history-list" class="space-y-2">
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Right Sidebar for Flashcards -->
+        <aside id="flashcards-right-sidebar" class="hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
+            <h3 class="text-lg font-semibold mb-4">Flashcard Options</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="flashcard-count" class="text-sm font-medium text-slate-300">Number of Flashcards</label>
+                    <select id="flashcard-count" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2 px-3 text-slate-100 mt-1">
+                        <option>5</option>
+                        <option>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                        <option>25</option>
+                    </select>
+                </div>
+                <button id="generate-flashcards-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
+                <div id="flashcard-generation-loading" class="hidden text-center">
+                    <p>Generating flashcards...</p>
+                </div>
+                <div id="flashcard-generation-success" class="hidden text-center text-green-400">
+                    <p>Flashcards generated successfully!</p>
+                </div>
+            </div>
+            <h3 class="text-lg font-semibold mt-6 mb-4">History</h3>
+            <div id="flashcard-history-container" class="flex-grow overflow-y-auto">
+                <ul id="flashcard-history-list" class="space-y-2">
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Right Sidebar for Quiz -->
+        <aside id="quiz-right-sidebar" class="hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
+            <h3 class="text-lg font-semibold mb-4">Quiz Options</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="quiz-question-count" class="text-sm font-medium text-slate-300">Number of Questions</label>
+                    <select id="quiz-question-count" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2 px-3 text-slate-100 mt-1">
+                        <option>5</option>
+                        <option>10</option>
+                        <option>15</option>
+                        <option>20</option>
+                        <option>25</option>
+                    </select>
+                </div>
+                <button id="generate-quiz-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
+                <div id="quiz-generation-loading" class="hidden text-center">
+                    <p>Generating quiz...</p>
+                </div>
+                <div id="quiz-generation-success" class="hidden text-center text-green-400">
+                    <p>Quiz generated successfully!</p>
+                </div>
+            </div>
+            <h3 class="text-lg font-semibold mt-6 mb-4">History</h3>
+            <div id="quiz-history-container" class="flex-grow overflow-y-auto">
+                <ul id="quiz-history-list" class="space-y-2">
+                </ul>
+            </div>
+        </aside>
     </div>
     
     <!-- Overlays -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
 
-    <!-- Modals -->
-    <div id="flashcards-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
-        <div class="glass-effect w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
-            <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
-                <div class="flashcard-inner relative w-full h-full">
-                    <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
-                        <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
+                <main id="flashcards-view" class="hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                    <div class="p-4 sm:p-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
+                        <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
+                            <div class="flashcard-inner relative w-full h-full">
+                                <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
+                                    <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
+                                </div>
+                                <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
+                                    <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
+                            <p id="card-counter" class="text-sm text-slate-400"></p>
+                            <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
+                        </div>
                     </div>
-                    <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
-                        <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
-                    </div>
-                </div>
-            </div>
-            <div class="flex justify-between items-center">
-                <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
-                <p id="card-counter" class="text-sm text-slate-400"></p>
-                <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
-            </div>
-            <button id="close-flashcards-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-    </div>
+                </main>
 
-    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
-        <div class="glass-effect w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
-            <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
-            <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
-                <div id="quiz-progress-bar" class="bg-violet-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
-            </div>
-            <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
-            <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
-            <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
-            <div class="flex justify-end items-center">
-                 <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
-            </div>
-            <button id="close-quiz-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-        </div>
-    </div>
+                <main id="quiz-view" class="hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                    <div class="p-4 sm:p-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
+                        <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
+                        <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
+                            <div id="quiz-progress-bar" class="bg-violet-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                        </div>
+                        <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
+                        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
+                        <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
+                        <div class="flex justify-end items-center">
+                             <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
+                        </div>
+                    </div>
+                </main>
 
     <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
@@ -218,7 +240,7 @@
             <div class="flex-shrink-0 flex items-center justify-between pb-4 border-b border-white/10">
                 <h2 class="text-xl sm:text-2xl font-bold text-slate-100">Settings</h2>
                 <div class="flex items-center gap-2">
-                    <button class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
+                    <button id="feedback-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-heart h-4 w-4 text-violet-400"><path d="M12 21.35a1 1 0 0 1-1.45-.09L3 14.5a5 5 0 0 1 7-7 .5.5 0 0 1 .5.5v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8a.5.5 0 0 1 .5-.5 5 5 0 0 1 7 7l-7.55 6.76a1 1 0 0 1-1.45.09z"/><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/></svg>
                         <span>Feedback</span>
                     </button>
@@ -250,262 +272,38 @@
         </div>
     </div>
 
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="glass-effect w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Submit Feedback</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-slate-300">Rating</label>
+                    <div id="feedback-rating" class="flex items-center gap-2 text-2xl text-slate-400 mt-1">
+                        <button data-rating="1" class="star hover:text-yellow-400 transition-colors">★</button>
+                        <button data-rating="2" class="star hover:text-yellow-400 transition-colors">★</button>
+                        <button data-rating="3" class="star hover:text-yellow-400 transition-colors">★</button>
+                        <button data-rating="4" class="star hover:text-yellow-400 transition-colors">★</button>
+                        <button data-rating="5" class="star hover:text-yellow-400 transition-colors">★</button>
+                    </div>
+                </div>
+                <div>
+                    <label for="feedback-comments" class="text-sm font-medium text-slate-300">Comments</label>
+                    <textarea id="feedback-comments" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 mt-1" placeholder="Tell us what you think..."></textarea>
+                </div>
+                <div id="feedback-validation" class="hidden text-red-400 text-sm">Please select a rating.</div>
+                <button id="submit-feedback-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Submit</button>
+                <div id="feedback-success" class="hidden text-center text-green-400">
+                    <p>Thank you for your feedback!</p>
+                </div>
+            </div>
+            <button id="close-feedback-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- DOM Element Selection ---
-            const chatWindow = document.getElementById('chat-window');
-            const chatForm = document.getElementById('chat-form');
-            const messageInput = document.getElementById('message-input');
-            const typingIndicator = document.getElementById('typing-indicator');
-            const sidebar = document.getElementById('sidebar');
-            const menuButton = document.getElementById('menu-button');
-            const sidebarOverlay = document.getElementById('sidebar-overlay');
-            const flashcardsButton = document.getElementById('flashcards-button');
-            const quizButton = document.getElementById('quiz-button');
-            const openSettingsButton = document.getElementById('open-settings-button');
-            const flashcardsModal = document.getElementById('flashcards-modal');
-            const quizModal = document.getElementById('quiz-modal');
-            const settingsModal = document.getElementById('settings-modal');
-            const closeFlashcardsModal = document.getElementById('close-flashcards-modal');
-            const closeQuizModal = document.getElementById('close-quiz-modal');
-            const closeSettingsModal = document.getElementById('close-settings-modal');
-
-            // --- Shared Data ---
-            let userFiles = [
-                { id: 1, name: 'Q3_Sales_Report.pdf', icon: 'file-pie-chart', color: 'text-violet-400', active: true },
-                { id: 2, name: 'Onboarding_Doc.docx', icon: 'file-text', color: 'text-sky-400', active: false },
-                { id: 3, name: 'user_query.sql', icon: 'file-code-2', color: 'text-indigo-400', active: false }
-            ];
-
-            // --- File Rendering Logic ---
-            const sidebarFileList = document.getElementById('sidebar-file-list');
-            const manageFilesList = document.getElementById('manage-files-list');
-
-            function renderFiles() {
-                sidebarFileList.innerHTML = '';
-                manageFilesList.innerHTML = '';
-                
-                userFiles.forEach(file => {
-                    // Render in sidebar
-                    const sidebarLi = document.createElement('li');
-                    sidebarLi.innerHTML = `<a href="#" class="flex items-center gap-3 p-2 rounded-md ${file.active ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color}"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
-                        <span>${file.name}</span></a>`;
-                    sidebarFileList.appendChild(sidebarLi);
-
-                    // Render in settings modal
-                    const manageLi = document.createElement('li');
-                    manageLi.className = 'flex items-center justify-between bg-slate-800/50 p-2.5 rounded-lg';
-                    manageLi.dataset.fileId = file.id;
-                    manageLi.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color} flex-shrink-0"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
-                            <span class="text-sm text-slate-200 truncate">${file.name}</span>
-                        </div>
-                        <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        </button>`;
-                    manageFilesList.appendChild(manageLi);
-                });
-                lucide.createIcons();
-            }
-
-            function deleteFile(fileId) {
-                userFiles = userFiles.filter(f => f.id !== fileId);
-                // If the deleted file was active, make the first one active
-                const activeFileExists = userFiles.some(f => f.active);
-                if (!activeFileExists && userFiles.length > 0) {
-                    userFiles[0].active = true;
-                }
-                renderFiles();
-            }
-
-            manageFilesList.addEventListener('click', (e) => {
-                const deleteButton = e.target.closest('.delete-file-button');
-                if (deleteButton) {
-                    const fileLi = deleteButton.closest('li');
-                    const fileId = parseInt(fileLi.dataset.fileId);
-                    deleteFile(fileId);
-                }
-            });
-
-
-            // --- General UI Controls ---
-            function toggleSidebar() {
-                sidebar.classList.toggle('-translate-x-full');
-                sidebarOverlay.classList.toggle('hidden');
-            }
-            menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
-            sidebarOverlay.addEventListener('click', toggleSidebar);
-
-            flashcardsButton.addEventListener('click', () => flashcardsModal.classList.remove('hidden'));
-            closeFlashcardsModal.addEventListener('click', () => flashcardsModal.classList.add('hidden'));
-            quizButton.addEventListener('click', () => {
-                quizModal.classList.remove('hidden');
-                loadQuizQuestion();
-            });
-            closeQuizModal.addEventListener('click', () => quizModal.classList.add('hidden'));
-            openSettingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-            closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
-
-
-            // --- Flashcard Logic ---
-            const flashcard = document.getElementById('flashcard');
-            const flashcardQuestion = document.getElementById('flashcard-question');
-            const flashcardAnswer = document.getElementById('flashcard-answer');
-            const prevCardButton = document.getElementById('prev-card-button');
-            const nextCardButton = document.getElementById('next-card-button');
-            const cardCounter = document.getElementById('card-counter');
-            
-            const flashcardData = [
-                { q: 'What is the main purpose of a RAG system?', a: 'To retrieve relevant information from a knowledge base and use it to augment a large language model\'s response.' },
-                { q: 'What does "RAG" stand for?', a: 'Retrieval-Augmented Generation.' },
-                { q: 'Which component finds the relevant documents?', a: 'The Retriever.' },
-                { q: 'What is the role of the "Generator" in RAG?', a: 'To generate a human-like answer based on the prompt and the retrieved context.' }
-            ];
-            let currentCardIndex = 0;
-
-            function loadFlashcard(index) {
-                flashcard.classList.remove('is-flipped');
-                setTimeout(() => {
-                    flashcardQuestion.textContent = flashcardData[index].q;
-                    flashcardAnswer.textContent = flashcardData[index].a;
-                    cardCounter.textContent = `${index + 1} / ${flashcardData.length}`;
-                }, 150);
-            }
-
-            flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
-            nextCardButton.addEventListener('click', () => {
-                currentCardIndex = (currentCardIndex + 1) % flashcardData.length;
-                loadFlashcard(currentCardIndex);
-            });
-            prevCardButton.addEventListener('click', () => {
-                currentCardIndex = (currentCardIndex - 1 + flashcardData.length) % flashcardData.length;
-                loadFlashcard(currentCardIndex);
-            });
-            
-            // --- Quiz Logic ---
-            const quizQuestionEl = document.getElementById('quiz-question');
-            const quizOptionsEl = document.getElementById('quiz-options');
-            const quizFeedbackEl = document.getElementById('quiz-feedback');
-            const nextQuestionButton = document.getElementById('next-question-button');
-            const progressText = document.getElementById('quiz-progress-text');
-            const progressBar = document.getElementById('quiz-progress-bar');
-            
-            const quizData = [
-                { q: 'What does CSS stand for?', options: ['Creative Style Sheets', 'Cascading Style Sheets', 'Computer Style Sheets'], answer: 'Cascading Style Sheets' },
-                { q: 'Which HTML tag is used to define an internal style sheet?', options: ['<style>', '<css>', '<script>'], answer: '<style>' },
-                { q: 'What is the correct CSS syntax?', options: ['body {color: black;}', '{body;color:black;}', 'body:color=black;'], answer: 'body {color: black;}' },
-                { q: 'How do you add a background color for all <h1> elements?', options: ['h1 {background-color:#FFFFFF;}', 'all.h1 {background-color:#FFFFFF;}', 'h1.all {background-color:#FFFFFF;}'], answer: 'h1 {background-color:#FFFFFF;}' }
-            ];
-            let currentQuizIndex = 0;
-            let score = 0;
-
-            function loadQuizQuestion() {
-                quizFeedbackEl.textContent = '';
-                quizOptionsEl.innerHTML = '';
-                nextQuestionButton.classList.add('hidden');
-                Array.from(quizOptionsEl.children).forEach(btn => btn.disabled = false);
-
-                if (currentQuizIndex >= quizData.length) {
-                    quizQuestionEl.textContent = `Quiz Complete! You scored ${score} out of ${quizData.length}.`;
-                    progressText.textContent = 'Finished!';
-                    progressBar.style.width = '100%';
-                    // Maybe add a restart button
-                    return;
-                }
-
-                const question = quizData[currentQuizIndex];
-                progressText.textContent = `Question ${currentQuizIndex + 1} of ${quizData.length}`;
-                progressBar.style.width = `${((currentQuizIndex + 1) / quizData.length) * 100}%`;
-                quizQuestionEl.textContent = question.q;
-                
-                question.options.forEach(option => {
-                    const button = document.createElement('button');
-                    button.textContent = option;
-                    button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg transition-colors duration-200';
-                    button.onclick = () => selectQuizAnswer(button, option, question.answer);
-                    quizOptionsEl.appendChild(button);
-                });
-            }
-
-            function selectQuizAnswer(button, selected, correct) {
-                Array.from(quizOptionsEl.children).forEach(btn => {
-                    btn.disabled = true;
-                    btn.classList.remove('hover:bg-violet-600/50');
-                });
-                
-                if (selected === correct) {
-                    button.classList.add('bg-green-500/80');
-                    quizFeedbackEl.textContent = 'Correct!';
-                    quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-green-400 font-semibold';
-                    score++;
-                } else {
-                    button.classList.add('bg-red-500/80');
-                    quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}"`;
-                    quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-red-400 font-semibold';
-                     Array.from(quizOptionsEl.children).forEach(btn => {
-                        if (btn.textContent === correct) {
-                             btn.classList.add('bg-green-500/80');
-                        }
-                    });
-                }
-                currentQuizIndex++;
-                nextQuestionButton.classList.remove('hidden');
-            }
-            
-            nextQuestionButton.addEventListener('click', loadQuizQuestion);
-
-            // --- Chat Message Logic ---
-            function addMessage(message, sender = 'bot') {
-                const messageElement = document.createElement('div');
-                if (sender === 'user') {
-                    messageElement.className = 'flex items-start gap-2.5 sm:gap-3 justify-end';
-                    messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
-                } else {
-                    messageElement.className = 'flex items-start gap-2.5 sm:gap-3';
-                    messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-slate-200 break-words">${message}</p></div>`;
-                }
-                chatWindow.appendChild(messageElement);
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            }
-
-            async function fetchRagResponse(message) {
-                typingIndicator.classList.remove('hidden');
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        let response = "I am a demo RAG system. I don't have access to a live database, but if I did, I could answer your questions about it.";
-                        const lowerCaseMessage = message.toLowerCase();
-                        if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) { response = "Hello there! How can I assist you today?"; } 
-                        else if (lowerCaseMessage.includes("sales report")) { response = "Accessing sales data... The quarterly sales report shows a 15% increase in revenue, primarily driven by the new product line in the APAC region."; }
-                        else if (lowerCaseMessage.includes("customer satisfaction")) { response = "According to recent surveys, customer satisfaction is at 88%, with the highest scores in product reliability and customer support."; }
-                        else if (lowerCaseMessage.includes("thank you") || lowerCaseMessage.includes("thanks")) { response = "You're welcome! Is there anything else I can help you with?"; }
-                        typingIndicator.classList.add('hidden');
-                        resolve(response);
-                    }, 1500 + Math.random() * 500);
-                });
-            }
-
-            chatForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const userMessage = messageInput.value.trim();
-                if (userMessage) {
-                    addMessage(userMessage, 'user');
-                    messageInput.value = '';
-                    const botResponse = await fetchRagResponse(userMessage);
-                    addMessage(botResponse, 'bot');
-                }
-            });
-
-            // --- Initial Load ---
-            renderFiles();
-            loadFlashcard(0);
-            lucide.createIcons();
-        });
-    </script>
+    <script src="script.js"></script>
 
 </body>
 </html>
-
