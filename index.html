@@ -25,195 +25,483 @@
             overflow: hidden; /* Prevent scroll on body */
         }
         
-        /* --- Glassmorphism Effect --- */
         .glass-effect {
-            background: rgba(15, 23, 42, 0.7); /* Slate 900 with 70% opacity */
+            background: rgba(15, 23, 42, 0.7);
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* --- Animated Gradient Blobs for Liquid Background --- */
         @keyframes blob {
             0% { transform: translate(0px, 0px) scale(1); }
             33% { transform: translate(80px, -100px) scale(1.2); }
             66% { transform: translate(-40px, 40px) scale(0.8); }
             100% { transform: translate(0px, 0px) scale(1); }
         }
-        .animate-blob {
-            animation: blob 12s infinite;
-        }
+        .animate-blob { animation: blob 12s infinite; }
         .animation-delay-2000 { animation-delay: -2s; }
         .animation-delay-4000 { animation-delay: -4s; }
 
-        /* Custom scrollbar for chat */
-        #chat-window::-webkit-scrollbar {
-            width: 6px;
-        }
-        #chat-window::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #chat-window::-webkit-scrollbar-thumb {
+        #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
+        #chat-window::-webkit-scrollbar-track, .sidebar-scroll::-webkit-scrollbar-track, .modal-scroll::-webkit-scrollbar-track { background: transparent; }
+        #chat-window::-webkit-scrollbar-thumb, .sidebar-scroll::-webkit-scrollbar-thumb, .modal-scroll::-webkit-scrollbar-thumb {
             background-color: rgba(124, 58, 237, 0.5);
             border-radius: 20px;
             border: 3px solid transparent;
         }
 
-        /* Typing indicator animation */
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
         }
-        .dot {
-            animation: bounce 1.2s infinite;
-        }
+        .dot { animation: bounce 1.2s infinite; }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
 
+        .flashcard-inner { transform-style: preserve-3d; transition: transform 0.6s; }
+        .is-flipped .flashcard-inner { transform: rotateY(180deg); }
+        .flashcard-front, .flashcard-back { 
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+        }
+        .flashcard-back { transform: rotateY(180deg); }
     </style>
 </head>
 <body class="antialiased relative">
 
-    <!-- Animated Background Blobs -->
+    <!-- Background -->
     <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
         <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-violet-600 rounded-full opacity-30 filter blur-3xl animate-blob"></div>
         <div class="absolute top-0 -right-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-indigo-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-2000"></div>
         <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-sky-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
+    
+    <div class="relative flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col glass-effect p-4 border-r border-white/10 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
+            <div class="flex items-center space-x-2 pb-4 border-b border-white/10">
+                <svg class="h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
+            </div>
+            <div class="flex-grow pt-4 overflow-y-auto sidebar-scroll">
+                <button class="flex items-center justify-center w-full gap-2 py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors mb-4 text-sm font-semibold">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud h-5 w-5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
+                    <span>Upload File</span>
+                </button>
+                <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">My Files</h3>
+                <ul id="sidebar-file-list" class="space-y-1 text-sm"></ul>
+            </div>
+            <div class="flex-shrink-0 pt-4 border-t border-white/10">
+                 <button id="open-settings-button" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors">
+                     <img class="h-9 w-9 rounded-full" src="https://placehold.co/100x100/7c3aed/ffffff?text=U" alt="User avatar">
+                     <div class="text-left">
+                         <p class="font-semibold text-sm text-slate-200">Test User</p>
+                         <p class="text-xs text-slate-400">test@example.com</p>
+                     </div>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ml-auto lucide lucide-settings-2 h-5 w-5 text-slate-400"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg>
+                 </button>
+            </div>
+        </aside>
 
-    <!-- Main Chat Application -->
-    <div class="flex flex-col h-screen p-4">
-        <!-- Header -->
-        <header class="flex-shrink-0 mb-4">
-            <div class="glass-effect flex items-center justify-between rounded-xl px-4 py-3 shadow-lg max-w-3xl mx-auto">
-                <a href="#" class="flex items-center space-x-2">
-                    <svg class="h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-                    <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
-                </a>
-                <span class="text-sm text-slate-400">Your AI-Powered Data Assistant</span>
-            </div>
-        </header>
+        <!-- Main Content -->
+        <div class="flex flex-col flex-1 overflow-hidden">
+            <div class="flex flex-col h-full p-2 sm:p-4">
+                <!-- Header -->
+                <header class="flex-shrink-0 mb-2 sm:mb-4">
+                    <div class="glass-effect flex items-center rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-lg max-w-3xl mx-auto w-full">
+                        <button id="menu-button" class="p-1 text-slate-300 hover:text-violet-400 rounded-md md:hidden mr-2 sm:mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+                        </button>
+                        <h1 class="text-lg sm:text-xl font-bold text-slate-100 md:hidden whitespace-nowrap">Starlight RAG</h1>
+                        <span class="text-xs sm:text-sm text-slate-400 hidden md:inline">Your AI-Powered Data Assistant</span>
+                        <div class="flex-grow"></div>
+                        <div class="flex items-center gap-2">
+                            <button id="flashcards-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy h-4 w-4 text-violet-400"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                <span class="hidden sm:inline">Flashcards</span>
+                            </button>
+                            <button id="quiz-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords h-4 w-4 text-sky-400"><path d="M14.5 17.5 20 22"/><path d="m21 2-9.6 9.6"/><path d="M3.5 14.5 9 20"/><path d="m3 21 9.6-9.6"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m5 12-2 0"/><path d="m21 12-2 0"/></svg>
+                                <span class="hidden sm:inline">Quiz Me</span>
+                            </button>
+                        </div>
+                    </div>
+                </header>
 
-        <!-- Chat Container -->
-        <main class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
-            <!-- Chat Messages Window -->
-            <div id="chat-window" class="flex-grow p-6 space-y-6 overflow-y-auto">
-                <!-- Initial Bot Message -->
-                <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                         <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                <!-- Chat Container -->
+                <main class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                    <div id="chat-window" class="flex-grow p-4 space-y-4 sm:p-6 sm:space-y-6 overflow-y-auto">
+                        <div class="flex items-start gap-2.5 sm:gap-3">
+                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md">
+                                <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you with your data today?</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 max-w-md">
-                        <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you with your data today?</p>
+                    <div id="typing-indicator" class="hidden p-4 pt-0 sm:p-6 sm:pt-0">
+                        <div class="flex items-start gap-2.5 sm:gap-3">
+                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            </div>
+                            <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 flex items-center space-x-2">
+                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    <div class="p-2 sm:p-4 border-t border-white/10">
+                        <form id="chat-form" class="flex items-center gap-2 sm:gap-3">
+                            <input type="text" id="message-input" placeholder="Ask a question..." class="flex-grow bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 sm:py-3 sm:px-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
+                            <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white rounded-lg p-2.5 sm:p-3 transition-colors flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal h-5 w-5 sm:h-6 sm:w-6"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
+                            </button>
+                        </form>
+                    </div>
+                </main>
             </div>
-
-            <!-- Typing Indicator -->
-            <div id="typing-indicator" class="hidden p-6 pt-0">
-                <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                         <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                    </div>
-                    <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 flex items-center space-x-2">
-                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
-                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
-                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Chat Input Form -->
-            <div class="p-4 border-t border-white/10">
-                <form id="chat-form" class="flex items-center gap-3">
-                    <input type="text" id="message-input" placeholder="Ask a question..." class="flex-grow bg-slate-800/60 border-slate-700/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
-                    <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white rounded-lg p-3 transition-colors flex-shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
-                    </button>
-                </form>
-            </div>
-        </main>
+        </div>
     </div>
+    
+    <!-- Overlays -->
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
+
+    <!-- Modals -->
+    <div id="flashcards-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="glass-effect w-full max-w-lg rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
+            <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
+                <div class="flashcard-inner relative w-full h-full">
+                    <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
+                        <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
+                    </div>
+                    <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
+                        <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
+                <p id="card-counter" class="text-sm text-slate-400"></p>
+                <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
+            </div>
+            <button id="close-flashcards-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <div id="quiz-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="glass-effect w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
+            <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
+            <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
+                <div id="quiz-progress-bar" class="bg-violet-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+            </div>
+            <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
+            <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
+            <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
+            <div class="flex justify-end items-center">
+                 <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
+            </div>
+            <button id="close-quiz-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="glass-effect w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col max-h-[90vh]">
+            <div class="flex-shrink-0 flex items-center justify-between pb-4 border-b border-white/10">
+                <h2 class="text-xl sm:text-2xl font-bold text-slate-100">Settings</h2>
+                <div class="flex items-center gap-2">
+                    <button class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-heart h-4 w-4 text-violet-400"><path d="M12 21.35a1 1 0 0 1-1.45-.09L3 14.5a5 5 0 0 1 7-7 .5.5 0 0 1 .5.5v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8a.5.5 0 0 1 .5-.5 5 5 0 0 1 7 7l-7.55 6.76a1 1 0 0 1-1.45.09z"/><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/></svg>
+                        <span>Feedback</span>
+                    </button>
+                    <button id="close-settings-modal" class="p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="flex-grow pt-4 space-y-6 overflow-y-auto modal-scroll pr-2">
+                <!-- Special Instructions -->
+                <div>
+                    <label for="special-instructions" class="text-sm font-semibold text-slate-300 mb-2 block">Special Instructions</label>
+                    <textarea id="special-instructions" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow text-sm" placeholder="e.g., Explain concepts like I'm 10 years old."></textarea>
+                </div>
+                <!-- Storage Usage -->
+                <div>
+                    <label class="text-sm font-semibold text-slate-300 mb-2 block">Storage Usage</label>
+                    <div class="w-full bg-slate-700/50 rounded-full h-2.5">
+                        <div class="bg-violet-600 h-2.5 rounded-full" style="width: 15%"></div>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-2 text-right">15.7 MB of 100 MB used</p>
+                </div>
+                <!-- Manage Files -->
+                <div>
+                    <h3 class="text-sm font-semibold text-slate-300 mb-2">Manage Files</h3>
+                    <ul id="manage-files-list" class="space-y-2"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM Element Selection ---
             const chatWindow = document.getElementById('chat-window');
             const chatForm = document.getElementById('chat-form');
             const messageInput = document.getElementById('message-input');
             const typingIndicator = document.getElementById('typing-indicator');
+            const sidebar = document.getElementById('sidebar');
+            const menuButton = document.getElementById('menu-button');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const flashcardsButton = document.getElementById('flashcards-button');
+            const quizButton = document.getElementById('quiz-button');
+            const openSettingsButton = document.getElementById('open-settings-button');
+            const flashcardsModal = document.getElementById('flashcards-modal');
+            const quizModal = document.getElementById('quiz-modal');
+            const settingsModal = document.getElementById('settings-modal');
+            const closeFlashcardsModal = document.getElementById('close-flashcards-modal');
+            const closeQuizModal = document.getElementById('close-quiz-modal');
+            const closeSettingsModal = document.getElementById('close-settings-modal');
 
-            // --- Function to add a message to the chat window ---
-            function addMessage(message, sender = 'bot') {
-                const messageElement = document.createElement('div');
+            // --- Shared Data ---
+            let userFiles = [
+                { id: 1, name: 'Q3_Sales_Report.pdf', icon: 'file-pie-chart', color: 'text-violet-400', active: true },
+                { id: 2, name: 'Onboarding_Doc.docx', icon: 'file-text', color: 'text-sky-400', active: false },
+                { id: 3, name: 'user_query.sql', icon: 'file-code-2', color: 'text-indigo-400', active: false }
+            ];
+
+            // --- File Rendering Logic ---
+            const sidebarFileList = document.getElementById('sidebar-file-list');
+            const manageFilesList = document.getElementById('manage-files-list');
+
+            function renderFiles() {
+                sidebarFileList.innerHTML = '';
+                manageFilesList.innerHTML = '';
                 
-                if (sender === 'user') {
-                    messageElement.className = 'flex items-start gap-3 justify-end';
-                    messageElement.innerHTML = `
-                        <div class="bg-violet-600 rounded-2xl rounded-br-none p-4 max-w-md">
-                            <p class="text-white">${message}</p>
+                userFiles.forEach(file => {
+                    // Render in sidebar
+                    const sidebarLi = document.createElement('li');
+                    sidebarLi.innerHTML = `<a href="#" class="flex items-center gap-3 p-2 rounded-md ${file.active ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color}"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
+                        <span>${file.name}</span></a>`;
+                    sidebarFileList.appendChild(sidebarLi);
+
+                    // Render in settings modal
+                    const manageLi = document.createElement('li');
+                    manageLi.className = 'flex items-center justify-between bg-slate-800/50 p-2.5 rounded-lg';
+                    manageLi.dataset.fileId = file.id;
+                    manageLi.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color} flex-shrink-0"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
+                            <span class="text-sm text-slate-200 truncate">${file.name}</span>
                         </div>
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
-                            <svg class="w-6 h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                        </div>`;
-                } else {
-                    messageElement.className = 'flex items-start gap-3';
-                    messageElement.innerHTML = `
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                             <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
-                        </div>
-                        <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 max-w-md">
-                            <p class="text-slate-200">${message}</p>
-                        </div>`;
+                        <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>`;
+                    manageFilesList.appendChild(manageLi);
+                });
+                lucide.createIcons();
+            }
+
+            function deleteFile(fileId) {
+                userFiles = userFiles.filter(f => f.id !== fileId);
+                // If the deleted file was active, make the first one active
+                const activeFileExists = userFiles.some(f => f.active);
+                if (!activeFileExists && userFiles.length > 0) {
+                    userFiles[0].active = true;
+                }
+                renderFiles();
+            }
+
+            manageFilesList.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-file-button');
+                if (deleteButton) {
+                    const fileLi = deleteButton.closest('li');
+                    const fileId = parseInt(fileLi.dataset.fileId);
+                    deleteFile(fileId);
+                }
+            });
+
+
+            // --- General UI Controls ---
+            function toggleSidebar() {
+                sidebar.classList.toggle('-translate-x-full');
+                sidebarOverlay.classList.toggle('hidden');
+            }
+            menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            flashcardsButton.addEventListener('click', () => flashcardsModal.classList.remove('hidden'));
+            closeFlashcardsModal.addEventListener('click', () => flashcardsModal.classList.add('hidden'));
+            quizButton.addEventListener('click', () => {
+                quizModal.classList.remove('hidden');
+                loadQuizQuestion();
+            });
+            closeQuizModal.addEventListener('click', () => quizModal.classList.add('hidden'));
+            openSettingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+            closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
+
+
+            // --- Flashcard Logic ---
+            const flashcard = document.getElementById('flashcard');
+            const flashcardQuestion = document.getElementById('flashcard-question');
+            const flashcardAnswer = document.getElementById('flashcard-answer');
+            const prevCardButton = document.getElementById('prev-card-button');
+            const nextCardButton = document.getElementById('next-card-button');
+            const cardCounter = document.getElementById('card-counter');
+            
+            const flashcardData = [
+                { q: 'What is the main purpose of a RAG system?', a: 'To retrieve relevant information from a knowledge base and use it to augment a large language model\'s response.' },
+                { q: 'What does "RAG" stand for?', a: 'Retrieval-Augmented Generation.' },
+                { q: 'Which component finds the relevant documents?', a: 'The Retriever.' },
+                { q: 'What is the role of the "Generator" in RAG?', a: 'To generate a human-like answer based on the prompt and the retrieved context.' }
+            ];
+            let currentCardIndex = 0;
+
+            function loadFlashcard(index) {
+                flashcard.classList.remove('is-flipped');
+                setTimeout(() => {
+                    flashcardQuestion.textContent = flashcardData[index].q;
+                    flashcardAnswer.textContent = flashcardData[index].a;
+                    cardCounter.textContent = `${index + 1} / ${flashcardData.length}`;
+                }, 150);
+            }
+
+            flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
+            nextCardButton.addEventListener('click', () => {
+                currentCardIndex = (currentCardIndex + 1) % flashcardData.length;
+                loadFlashcard(currentCardIndex);
+            });
+            prevCardButton.addEventListener('click', () => {
+                currentCardIndex = (currentCardIndex - 1 + flashcardData.length) % flashcardData.length;
+                loadFlashcard(currentCardIndex);
+            });
+            
+            // --- Quiz Logic ---
+            const quizQuestionEl = document.getElementById('quiz-question');
+            const quizOptionsEl = document.getElementById('quiz-options');
+            const quizFeedbackEl = document.getElementById('quiz-feedback');
+            const nextQuestionButton = document.getElementById('next-question-button');
+            const progressText = document.getElementById('quiz-progress-text');
+            const progressBar = document.getElementById('quiz-progress-bar');
+            
+            const quizData = [
+                { q: 'What does CSS stand for?', options: ['Creative Style Sheets', 'Cascading Style Sheets', 'Computer Style Sheets'], answer: 'Cascading Style Sheets' },
+                { q: 'Which HTML tag is used to define an internal style sheet?', options: ['<style>', '<css>', '<script>'], answer: '<style>' },
+                { q: 'What is the correct CSS syntax?', options: ['body {color: black;}', '{body;color:black;}', 'body:color=black;'], answer: 'body {color: black;}' },
+                { q: 'How do you add a background color for all <h1> elements?', options: ['h1 {background-color:#FFFFFF;}', 'all.h1 {background-color:#FFFFFF;}', 'h1.all {background-color:#FFFFFF;}'], answer: 'h1 {background-color:#FFFFFF;}' }
+            ];
+            let currentQuizIndex = 0;
+            let score = 0;
+
+            function loadQuizQuestion() {
+                quizFeedbackEl.textContent = '';
+                quizOptionsEl.innerHTML = '';
+                nextQuestionButton.classList.add('hidden');
+                Array.from(quizOptionsEl.children).forEach(btn => btn.disabled = false);
+
+                if (currentQuizIndex >= quizData.length) {
+                    quizQuestionEl.textContent = `Quiz Complete! You scored ${score} out of ${quizData.length}.`;
+                    progressText.textContent = 'Finished!';
+                    progressBar.style.width = '100%';
+                    // Maybe add a restart button
+                    return;
                 }
 
+                const question = quizData[currentQuizIndex];
+                progressText.textContent = `Question ${currentQuizIndex + 1} of ${quizData.length}`;
+                progressBar.style.width = `${((currentQuizIndex + 1) / quizData.length) * 100}%`;
+                quizQuestionEl.textContent = question.q;
+                
+                question.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg transition-colors duration-200';
+                    button.onclick = () => selectQuizAnswer(button, option, question.answer);
+                    quizOptionsEl.appendChild(button);
+                });
+            }
+
+            function selectQuizAnswer(button, selected, correct) {
+                Array.from(quizOptionsEl.children).forEach(btn => {
+                    btn.disabled = true;
+                    btn.classList.remove('hover:bg-violet-600/50');
+                });
+                
+                if (selected === correct) {
+                    button.classList.add('bg-green-500/80');
+                    quizFeedbackEl.textContent = 'Correct!';
+                    quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-green-400 font-semibold';
+                    score++;
+                } else {
+                    button.classList.add('bg-red-500/80');
+                    quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}"`;
+                    quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-red-400 font-semibold';
+                     Array.from(quizOptionsEl.children).forEach(btn => {
+                        if (btn.textContent === correct) {
+                             btn.classList.add('bg-green-500/80');
+                        }
+                    });
+                }
+                currentQuizIndex++;
+                nextQuestionButton.classList.remove('hidden');
+            }
+            
+            nextQuestionButton.addEventListener('click', loadQuizQuestion);
+
+            // --- Chat Message Logic ---
+            function addMessage(message, sender = 'bot') {
+                const messageElement = document.createElement('div');
+                if (sender === 'user') {
+                    messageElement.className = 'flex items-start gap-2.5 sm:gap-3 justify-end';
+                    messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+                } else {
+                    messageElement.className = 'flex items-start gap-2.5 sm:gap-3';
+                    messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-slate-200 break-words">${message}</p></div>`;
+                }
                 chatWindow.appendChild(messageElement);
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
 
-            // --- Mock RAG API call ---
-            // In a real application, you would replace this with a `fetch` call to your API endpoint.
             async function fetchRagResponse(message) {
-                // Show typing indicator
                 typingIndicator.classList.remove('hidden');
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-
                 return new Promise(resolve => {
                     setTimeout(() => {
                         let response = "I am a demo RAG system. I don't have access to a live database, but if I did, I could answer your questions about it.";
-                        
                         const lowerCaseMessage = message.toLowerCase();
-                        if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) {
-                            response = "Hello there! How can I assist you today?";
-                        } else if (lowerCaseMessage.includes("sales report")) {
-                            response = "Accessing sales data... The quarterly sales report shows a 15% increase in revenue, primarily driven by the new product line in the APAC region.";
-                        } else if (lowerCaseMessage.includes("customer satisfaction")) {
-                            response = "According to recent surveys, customer satisfaction is at 88%, with the highest scores in product reliability and customer support.";
-                        } else if (lowerCaseMessage.includes("thank you") || lowerCaseMessage.includes("thanks")) {
-                            response = "You're welcome! Is there anything else I can help you with?";
-                        }
-                        
-                        // Hide typing indicator
+                        if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) { response = "Hello there! How can I assist you today?"; } 
+                        else if (lowerCaseMessage.includes("sales report")) { response = "Accessing sales data... The quarterly sales report shows a 15% increase in revenue, primarily driven by the new product line in the APAC region."; }
+                        else if (lowerCaseMessage.includes("customer satisfaction")) { response = "According to recent surveys, customer satisfaction is at 88%, with the highest scores in product reliability and customer support."; }
+                        else if (lowerCaseMessage.includes("thank you") || lowerCaseMessage.includes("thanks")) { response = "You're welcome! Is there anything else I can help you with?"; }
                         typingIndicator.classList.add('hidden');
                         resolve(response);
-                    }, 1500 + Math.random() * 500); // Simulate network delay
+                    }, 1500 + Math.random() * 500);
                 });
             }
 
-            // --- Handle form submission ---
             chatForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const userMessage = messageInput.value.trim();
-
                 if (userMessage) {
                     addMessage(userMessage, 'user');
                     messageInput.value = '';
-                    
                     const botResponse = await fetchRagResponse(userMessage);
                     addMessage(botResponse, 'bot');
                 }
             });
 
-            // Make icons render
+            // --- Initial Load ---
+            renderFiles();
+            loadFlashcard(0);
             lucide.createIcons();
         });
     </script>
