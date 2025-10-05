@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Starlight RAG - Chat with Your Data</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/lucide-static@latest/dist/lucide.min.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Slate 900 */
+            color: #e2e8f0; /* Slate 200 */
+            overflow: hidden; /* Prevent scroll on body */
+        }
+        
+        /* --- Glassmorphism Effect --- */
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.7); /* Slate 900 with 70% opacity */
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- Animated Gradient Blobs for Liquid Background --- */
+        @keyframes blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(80px, -100px) scale(1.2); }
+            66% { transform: translate(-40px, 40px) scale(0.8); }
+            100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+            animation: blob 12s infinite;
+        }
+        .animation-delay-2000 { animation-delay: -2s; }
+        .animation-delay-4000 { animation-delay: -4s; }
+
+        /* Custom scrollbar for chat */
+        #chat-window::-webkit-scrollbar {
+            width: 6px;
+        }
+        #chat-window::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #chat-window::-webkit-scrollbar-thumb {
+            background-color: rgba(124, 58, 237, 0.5);
+            border-radius: 20px;
+            border: 3px solid transparent;
+        }
+
+        /* Typing indicator animation */
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        .dot {
+            animation: bounce 1.2s infinite;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    </style>
+</head>
+<body class="antialiased relative">
+
+    <!-- Animated Background Blobs -->
+    <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
+        <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-violet-600 rounded-full opacity-30 filter blur-3xl animate-blob"></div>
+        <div class="absolute top-0 -right-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-indigo-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-sky-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-4000"></div>
+    </div>
+
+    <!-- Main Chat Application -->
+    <div class="flex flex-col h-screen p-4">
+        <!-- Header -->
+        <header class="flex-shrink-0 mb-4">
+            <div class="glass-effect flex items-center justify-between rounded-xl px-4 py-3 shadow-lg max-w-3xl mx-auto">
+                <a href="#" class="flex items-center space-x-2">
+                    <svg class="h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                    <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
+                </a>
+                <span class="text-sm text-slate-400">Your AI-Powered Data Assistant</span>
+            </div>
+        </header>
+
+        <!-- Chat Container -->
+        <main class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+            <!-- Chat Messages Window -->
+            <div id="chat-window" class="flex-grow p-6 space-y-6 overflow-y-auto">
+                <!-- Initial Bot Message -->
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                         <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 max-w-md">
+                        <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you with your data today?</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="hidden p-6 pt-0">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                         <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 flex items-center space-x-2">
+                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                        <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chat Input Form -->
+            <div class="p-4 border-t border-white/10">
+                <form id="chat-form" class="flex items-center gap-3">
+                    <input type="text" id="message-input" placeholder="Ask a question..." class="flex-grow bg-slate-800/60 border-slate-700/50 rounded-lg py-3 px-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
+                    <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white rounded-lg p-3 transition-colors flex-shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
+                    </button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatWindow = document.getElementById('chat-window');
+            const chatForm = document.getElementById('chat-form');
+            const messageInput = document.getElementById('message-input');
+            const typingIndicator = document.getElementById('typing-indicator');
+
+            // --- Function to add a message to the chat window ---
+            function addMessage(message, sender = 'bot') {
+                const messageElement = document.createElement('div');
+                
+                if (sender === 'user') {
+                    messageElement.className = 'flex items-start gap-3 justify-end';
+                    messageElement.innerHTML = `
+                        <div class="bg-violet-600 rounded-2xl rounded-br-none p-4 max-w-md">
+                            <p class="text-white">${message}</p>
+                        </div>
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </div>`;
+                } else {
+                    messageElement.className = 'flex items-start gap-3';
+                    messageElement.innerHTML = `
+                        <div class="flex-shrink-0 w-10 h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
+                             <svg class="w-6 h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                        </div>
+                        <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 max-w-md">
+                            <p class="text-slate-200">${message}</p>
+                        </div>`;
+                }
+
+                chatWindow.appendChild(messageElement);
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+
+            // --- Mock RAG API call ---
+            // In a real application, you would replace this with a `fetch` call to your API endpoint.
+            async function fetchRagResponse(message) {
+                // Show typing indicator
+                typingIndicator.classList.remove('hidden');
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        let response = "I am a demo RAG system. I don't have access to a live database, but if I did, I could answer your questions about it.";
+                        
+                        const lowerCaseMessage = message.toLowerCase();
+                        if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) {
+                            response = "Hello there! How can I assist you today?";
+                        } else if (lowerCaseMessage.includes("sales report")) {
+                            response = "Accessing sales data... The quarterly sales report shows a 15% increase in revenue, primarily driven by the new product line in the APAC region.";
+                        } else if (lowerCaseMessage.includes("customer satisfaction")) {
+                            response = "According to recent surveys, customer satisfaction is at 88%, with the highest scores in product reliability and customer support.";
+                        } else if (lowerCaseMessage.includes("thank you") || lowerCaseMessage.includes("thanks")) {
+                            response = "You're welcome! Is there anything else I can help you with?";
+                        }
+                        
+                        // Hide typing indicator
+                        typingIndicator.classList.add('hidden');
+                        resolve(response);
+                    }, 1500 + Math.random() * 500); // Simulate network delay
+                });
+            }
+
+            // --- Handle form submission ---
+            chatForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const userMessage = messageInput.value.trim();
+
+                if (userMessage) {
+                    addMessage(userMessage, 'user');
+                    messageInput.value = '';
+                    
+                    const botResponse = await fetchRagResponse(userMessage);
+                    addMessage(botResponse, 'bot');
+                }
+            });
+
+            // Make icons render
+            lucide.createIcons();
+        });
+    </script>
+
+</body>
+</html>
+
