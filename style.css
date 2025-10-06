@@ -6,21 +6,27 @@ body {
 }
 
 .glass-effect {
-    background: rgba(15, 23, 42, 0.7);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.5); /* Slightly more transparent */
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 1rem; /* Softer edges */
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Deeper shadow */
 }
 
 @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(80px, -100px) scale(1.2); }
-    66% { transform: translate(-40px, 40px) scale(0.8); }
-    100% { transform: translate(0px, 0px) scale(1); }
+    0% { transform: translate(0px, 0px) scale(1); filter: hue-rotate(0deg); }
+    25% { transform: translate(100px, -50px) scale(1.2); }
+    50% { transform: translate(-80px, 60px) scale(0.8); filter: hue-rotate(180deg); }
+    75% { transform: translate(50px, -100px) scale(1.1); }
+    100% { transform: translate(0px, 0px) scale(1); filter: hue-rotate(0deg); }
 }
-.animate-blob { animation: blob 12s infinite; }
-.animation-delay-2000 { animation-delay: -2s; }
-.animation-delay-4000 { animation-delay: -4s; }
+
+.animate-blob { 
+    animation: blob 20s infinite cubic-bezier(0.68, -0.55, 0.27, 1.55); 
+}
+.animation-delay-2000 { animation-delay: -5s; }
+.animation-delay-4000 { animation-delay: -10s; }
 
 #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
 #chat-window::-webkit-scrollbar-track, .sidebar-scroll::-webkit-scrollbar-track, .modal-scroll::-webkit-scrollbar-track { background: transparent; }
