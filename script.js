@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- API Configuration ---
+    const API_BASE_URL = 'https://api.starlightrag.com/v1';
+    const API_TOKEN = 'YOUR_API_TOKEN'; // IMPORTANT: Replace with a real token management solution
+
     // --- DOM Element Selection ---
     const chatWindow = document.getElementById('chat-window');
     const chatForm = document.getElementById('chat-form');
@@ -13,63 +17,93 @@ document.addEventListener('DOMContentLoaded', () => {
     const openSettingsButton = document.getElementById('open-settings-button');
     const settingsModal = document.getElementById('settings-modal');
     const closeSettingsModal = document.getElementById('close-settings-modal');
-
     const chatView = document.getElementById('chat-view');
     const flashcardsView = document.getElementById('flashcards-view');
     const quizView = document.getElementById('quiz-view');
-
     const rightSidebar = document.getElementById('right-sidebar');
-    const chatHistoryContainer = document.getElementById('chat-history-container');
     const chatHistoryList = document.getElementById('chat-history-list');
     const chatHistoryLoading = document.getElementById('chat-history-loading');
     const chatHistoryEmpty = document.getElementById('chat-history-empty');
     const chatHistorySearch = document.getElementById('chat-history-search');
-
     const flashcardsRightSidebar = document.getElementById('flashcards-right-sidebar');
     const flashcardCount = document.getElementById('flashcard-count');
     const generateFlashcardsButton = document.getElementById('generate-flashcards-button');
     const flashcardGenerationLoading = document.getElementById('flashcard-generation-loading');
-    const flashcardGenerationSuccess = document.getElementById('flashcard-generation-success');
     const flashcardHistoryList = document.getElementById('flashcard-history-list');
     const flashcardHistorySearch = document.getElementById('flashcard-history-search');
-
     const quizRightSidebar = document.getElementById('quiz-right-sidebar');
     const quizQuestionCount = document.getElementById('quiz-question-count');
     const generateQuizButton = document.getElementById('generate-quiz-button');
     const quizGenerationLoading = document.getElementById('quiz-generation-loading');
-    const quizGenerationSuccess = document.getElementById('quiz-generation-success');
     const quizHistoryList = document.getElementById('quiz-history-list');
     const quizHistorySearch = document.getElementById('quiz-history-search');
-
     const feedbackModal = document.getElementById('feedback-modal');
     const closeFeedbackModal = document.getElementById('close-feedback-modal');
     const feedbackRating = document.getElementById('feedback-rating');
     const feedbackComments = document.getElementById('feedback-comments');
     const submitFeedbackButton = document.getElementById('submit-feedback-button');
     const feedbackValidation = document.getElementById('feedback-validation');
-    const feedbackSuccess = document.getElementById('feedback-success');
     const feedbackButton = document.getElementById('feedback-button');
-
     const closeRightSidebar = document.getElementById('close-right-sidebar');
     const closeFlashcardsRightSidebar = document.getElementById('close-flashcards-right-sidebar');
     const closeQuizRightSidebar = document.getElementById('close-quiz-right-sidebar');
+    const sidebarFileList = document.getElementById('sidebar-file-list');
+    const manageFilesList = document.getElementById('manage-files-list');
+    const flashcard = document.getElementById('flashcard');
+    const flashcardQuestion = document.getElementById('flashcard-question');
+    const flashcardAnswer = document.getElementById('flashcard-answer');
+    const prevCardButton = document.getElementById('prev-card-button');
+    const nextCardButton = document.getElementById('next-card-button');
+    const cardCounter = document.getElementById('card-counter');
+    const quizQuestionEl = document.getElementById('quiz-question');
+    const quizOptionsEl = document.getElementById('quiz-options');
+    const quizFeedbackEl = document.getElementById('quiz-feedback');
+    const nextQuestionButton = document.getElementById('next-question-button');
+    const progressText = document.getElementById('quiz-progress-text');
+    const progressBar = document.getElementById('quiz-progress-bar');
 
-    if(closeRightSidebar) {
-        closeRightSidebar.addEventListener('click', () => {
-            rightSidebar.classList.add('hidden');
-        });
-    }
+    // --- App State ---
+    let state = {
+        files: [],
+        activeFileId: null,
+        chatHistory: [],
+        flashcardSets: [],
+        quizSets: [],
+        currentFlashcards: [],
+        currentQuiz: [],
+        currentFlashcardIndex: 0,
+        currentQuizIndex: 0,
+        quizScore: 0,
+    };
 
-    if(closeFlashcardsRightSidebar) {
-        closeFlashcardsRightSidebar.addEventListener('click', () => {
-            flashcardsRightSidebar.classList.add('hidden');
-        });
-    }
+    // --- API Helper ---
+    async function apiRequest(endpoint, options = {}) {
+        const { method = 'GET', body = null } = options;
+        const headers = { 'Authorization': `Bearer ${API_TOKEN}` };
+        if (body && !(body instanceof FormData)) {
+            headers['Content-Type'] = 'application/json';
+        }
 
-    if(closeQuizRightSidebar) {
-        closeQuizRightSidebar.addEventListener('click', () => {
-            quizRightSidebar.classList.add('hidden');
-        });
+        try {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+                method,
+                headers,
+                body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: { message: 'An unknown API error occurred.' } }));
+                throw new Error(errorData.error.message || `API request failed with status ${response.status}`);
+            }
+
+            if (response.status === 204) return null;
+            const result = await response.json();
+            return result.data;
+        } catch (error) {
+            showToast(error.message, 'error');
+            console.error(`API Error on ${method} ${endpoint}:`, error);
+            throw error;
+        }
     }
 
     // --- Safe lucide helper ---
@@ -77,155 +111,121 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
                 window.lucide.createIcons();
-                return;
-            }
-            if (window.Lucide && typeof window.Lucide.createIcons === 'function') {
-                window.Lucide.createIcons();
-                return;
             }
         } catch (err) {
             console.warn('lucide.createIcons() threw an error:', err);
         }
     }
 
-    // --- Shared Data ---
-    let userFiles = [
-        { id: 1, name: 'Q3_Sales_Report.pdf', icon: 'file-pie-chart', color: 'text-violet-400', active: true, history: [
-            { sender: 'bot', message: 'Hello! How can I help you with the Q3 Sales Report?' },
-            { sender: 'user', message: 'What was the total revenue?' },
-            { sender: 'bot', message: 'The total revenue for Q3 was $1.2M.' }
-        ], flashcards: [], quizzes: [] },
-        { id: 2, name: 'Onboarding_Doc.docx', icon: 'file-text', color: 'text-sky-400', active: false, history: [], flashcards: [], quizzes: [] },
-        { id: 3, name: 'user_query.sql', icon: 'file-code-2', color: 'text-indigo-400', active: false, history: [], flashcards: [], quizzes: [] }
-    ];
-
-    // --- File Rendering Logic ---
-    const sidebarFileList = document.getElementById('sidebar-file-list');
-    const manageFilesList = document.getElementById('manage-files-list');
+    // --- File Management ---
+    async function loadFiles() {
+        try {
+            const data = await apiRequest('/files');
+            state.files = data.files || [];
+            if (!state.activeFileId && state.files.length > 0) {
+                state.activeFileId = state.files[0].id;
+            }
+            renderFiles();
+            if (state.activeFileId) {
+                await loadChatHistory(state.activeFileId);
+            }
+        } catch (error) {
+            console.error("Failed to load files:", error);
+        }
+    }
 
     function renderFiles() {
         sidebarFileList.innerHTML = '';
         manageFilesList.innerHTML = '';
-        
-        userFiles.forEach(file => {
+        const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
+        const fileColorMap = { 'pdf': 'text-violet-400', 'docx': 'text-sky-400', 'sql': 'text-indigo-400', 'default': 'text-slate-400' };
+
+        state.files.forEach(file => {
+            const extension = file.name.split('.').pop();
+            const icon = fileIconMap[extension] || fileIconMap['default'];
+            const color = fileColorMap[extension] || fileColorMap['default'];
+            const isActive = file.id === state.activeFileId;
+
             const sidebarLi = document.createElement('li');
-            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${file.active ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'} focus:outline-none focus:ring-2 focus:ring-violet-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color}"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
-                <span>${file.name}</span></a>`;
+            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'}">
+                <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
             sidebarFileList.appendChild(sidebarLi);
 
             const manageLi = document.createElement('li');
             manageLi.className = 'flex items-center justify-between bg-slate-800/50 p-2.5 rounded-lg';
             manageLi.dataset.fileId = file.id;
-            manageLi.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color} flex-shrink-0"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
-                    <span class="text-sm text-slate-200 truncate">${file.name}</span>
-                </div>
-                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>`;
+            manageLi.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${icon}" class="h-5 w-5 ${color} flex-shrink-0"></i><span class="text-sm text-slate-200 truncate">${file.name}</span></div>
+                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`;
             manageFilesList.appendChild(manageLi);
         });
         safeCreateIcons();
     }
 
-    function deleteFile(fileId) {
-        const fileName = userFiles.find(f => f.id === fileId)?.name;
-        userFiles = userFiles.filter(f => f.id !== fileId);
-        if (!userFiles.some(f => f.active) && userFiles.length > 0) {
-            userFiles[0].active = true;
+    async function deleteFile(fileId) {
+        try {
+            await apiRequest(`/files/${fileId}`, { method: 'DELETE' });
+            const fileName = state.files.find(f => f.id === fileId)?.name;
+            state.files = state.files.filter(f => f.id !== fileId);
+            if (state.activeFileId === fileId) {
+                state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
+                if (state.activeFileId) await loadChatHistory(state.activeFileId);
+                else renderChatHistory();
+            }
+            renderFiles();
+            showToast(`File "${fileName}" deleted.`, 'success');
+        } catch (error) {
+            console.error(`Failed to delete file ${fileId}:`, error);
         }
-        renderFiles();
-        const activeFile = userFiles.find(f => f.active);
-        if (activeFile) {
-            renderChatHistory(activeFile.id);
-        }
-        showToast(`File "${fileName}" deleted.`, 'success');
     }
 
     manageFilesList.addEventListener('click', (e) => {
         const deleteButton = e.target.closest('.delete-file-button');
         if (deleteButton) {
-            const fileLi = deleteButton.closest('li');
-            const fileId = parseInt(fileLi.dataset.fileId);
+            const fileId = deleteButton.closest('li').dataset.fileId;
             deleteFile(fileId);
         }
     });
 
-    sidebarFileList.addEventListener('click', (e) => {
+    sidebarFileList.addEventListener('click', async (e) => {
         const fileItem = e.target.closest('a');
         if (fileItem) {
-            const fileId = parseInt(fileItem.getAttribute('data-file-id'));
-            userFiles.forEach(file => {
-                file.active = file.id === fileId;
-            });
+            e.preventDefault();
+            const fileId = fileItem.dataset.fileId;
+            state.activeFileId = fileId;
             renderFiles();
-            renderChatHistory(fileId);
+            await loadChatHistory(fileId);
         }
     });
 
-    // --- View Switching Logic ---
-    function switchView(viewName) {
-        [chatView, flashcardsView, quizView].forEach(v => v.classList.add('view-hidden'));
-
-        rightSidebar.classList.add('hidden');
-        flashcardsRightSidebar.classList.add('hidden');
-        quizRightSidebar.classList.add('hidden');
-
-        // Deactivate all buttons
-        chatButton.classList.remove('active-nav-button');
-        flashcardsButton.classList.remove('active-nav-button');
-        quizButton.classList.remove('active-nav-button');
-
-        // Show the selected view and activate the button
-        if (viewName === 'chat') {
-            chatView.classList.remove('view-hidden');
-            rightSidebar.classList.remove('hidden');
-            chatButton.classList.add('active-nav-button');
-            const activeFile = userFiles.find(f => f.active);
-            if (activeFile) {
-                renderChatHistory(activeFile.id);
-            }
-        } else if (viewName === 'flashcards') {
-            flashcardsView.classList.remove('view-hidden');
-            flashcardsRightSidebar.classList.remove('hidden');
-            flashcardsButton.classList.add('active-nav-button');
-            const activeFile = userFiles.find(f => f.active);
-            if (activeFile) {
-                renderFlashcardHistory(activeFile.id);
-            }
-            loadFlashcard(0);
-        } else if (viewName === 'quiz') {
-            quizView.classList.remove('view-hidden');
-            quizRightSidebar.classList.remove('hidden');
-            quizButton.classList.add('active-nav-button');
-            const activeFile = userFiles.find(f => f.active);
-            if (activeFile) {
-                renderQuizHistory(activeFile.id);
-            }
-            loadQuizQuestion();
+    // --- Chat Logic ---
+    async function loadChatHistory(fileId) {
+        chatHistoryLoading.classList.remove('hidden');
+        chatHistoryEmpty.classList.add('hidden');
+        chatHistoryList.innerHTML = '';
+        chatWindow.innerHTML = '';
+        try {
+            const data = await apiRequest(`/files/${fileId}/chat`);
+            state.chatHistory = data.history || [];
+            renderChatHistory();
+            state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
+        } catch (error) {
+            console.error(`Failed to load chat history for ${fileId}:`, error);
+            chatHistoryEmpty.classList.remove('hidden');
+        } finally {
+            chatHistoryLoading.classList.add('hidden');
         }
-        localStorage.setItem('activeView', viewName);
     }
 
-    // --- Chat History Logic ---
-    function renderChatHistory(fileId, searchTerm = '') {
-        const file = userFiles.find(f => f.id === fileId);
+    function renderChatHistory(searchTerm = '') {
         chatHistoryList.innerHTML = '';
+        const history = state.chatHistory.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
 
-        if (!file || !file.history || file.history.length === 0) {
+        if (history.length === 0) {
             chatHistoryEmpty.classList.remove('hidden');
-            chatHistoryLoading.classList.add('hidden');
             return;
         }
-
         chatHistoryEmpty.classList.add('hidden');
-        chatHistoryLoading.classList.add('hidden');
-
-        const filteredHistory = file.history.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        filteredHistory.forEach(item => {
+        history.forEach(item => {
             const li = document.createElement('li');
             li.className = `text-sm p-2 rounded-md ${item.sender === 'user' ? 'bg-slate-700' : 'bg-slate-800'}`;
             li.textContent = item.message;
@@ -233,239 +233,141 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    chatHistorySearch.addEventListener('input', (e) => {
-        const activeFile = userFiles.find(f => f.active);
-        if (activeFile) {
-            renderChatHistory(activeFile.id, e.target.value);
-        }
-    });
+    chatForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const userMessage = messageInput.value.trim();
+        if (!userMessage || !state.activeFileId) return;
 
-    // --- Flashcard History Logic ---
-    function renderFlashcardHistory(fileId, searchTerm = '') {
-        const file = userFiles.find(f => f.id === fileId);
-        flashcardHistoryList.innerHTML = '';
+        addMessage(userMessage, 'user');
+        messageInput.value = '';
+        typingIndicator.classList.remove('hidden');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
 
-        if (!file || !file.flashcards || file.flashcards.length === 0) {
-            return;
-        }
-
-        const filteredFlashcards = file.flashcards.filter(flashcard => flashcard.q.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        filteredFlashcards.forEach(flashcard => {
-            const li = document.createElement('li');
-            li.className = 'text-sm p-2 rounded-md bg-slate-800';
-            li.textContent = flashcard.q;
-            flashcardHistoryList.appendChild(li);
-        });
-    }
-
-    flashcardHistorySearch.addEventListener('input', (e) => {
-        const activeFile = userFiles.find(f => f.active);
-        if (activeFile) {
-            renderFlashcardHistory(activeFile.id, e.target.value);
-        }
-    });
-
-    generateFlashcardsButton.addEventListener('click', async () => {
-        const activeFile = userFiles.find(f => f.active);
-        if (!activeFile) {
-            showToast('Please select a file first.', 'error');
-            return;
-        }
-
-        const count = parseInt(flashcardCount.value);
-        flashcardGenerationLoading.classList.remove('hidden');
-        flashcardGenerationSuccess.classList.add('hidden');
-
-        // Simulate API call
-        await new Promise(res => setTimeout(res, 1500));
-
-        const newFlashcards = Array.from({ length: count }, (_, i) => ({
-            q: `Generated Question ${i + 1} for ${activeFile.name}`,
-            a: `Generated Answer ${i + 1}`
-        }));
-
-        activeFile.flashcards = newFlashcards;
-        flashcardData.length = 0;
-        flashcardData.push(...newFlashcards);
-
-        flashcardGenerationLoading.classList.add('hidden');
-        showToast('Flashcards generated successfully!', 'success');
-
-        renderFlashcardHistory(activeFile.id);
-        loadFlashcard(0);
-    });
-
-    // --- Quiz History Logic ---
-    function renderQuizHistory(fileId, searchTerm = '') {
-        const file = userFiles.find(f => f.id === fileId);
-        quizHistoryList.innerHTML = '';
-
-        if (!file || !file.quizzes || file.quizzes.length === 0) {
-            return;
-        }
-
-        const filteredQuizzes = file.quizzes.filter(quiz => quiz.q.toLowerCase().includes(searchTerm.toLowerCase()));
-
-        filteredQuizzes.forEach(quiz => {
-            const li = document.createElement('li');
-            li.className = 'text-sm p-2 rounded-md bg-slate-800';
-            li.textContent = quiz.q;
-            quizHistoryList.appendChild(li);
-        });
-    }
-
-    quizHistorySearch.addEventListener('input', (e) => {
-        const activeFile = userFiles.find(f => f.active);
-        if (activeFile) {
-            renderQuizHistory(activeFile.id, e.target.value);
-        }
-    });
-
-    generateQuizButton.addEventListener('click', async () => {
-        const activeFile = userFiles.find(f => f.active);
-        if (!activeFile) {
-            showToast('Please select a file first.', 'error');
-            return;
-        }
-
-        const count = parseInt(quizQuestionCount.value);
-        quizGenerationLoading.classList.remove('hidden');
-        quizGenerationSuccess.classList.add('hidden');
-
-        // Simulate API call
-        await new Promise(res => setTimeout(res, 1500));
-
-        const newQuiz = Array.from({ length: count }, (_, i) => ({
-            q: `Generated Question ${i + 1} for ${activeFile.name}`,
-            options: ['Option 1', 'Option 2', 'Option 3'],
-            answer: 'Option 1'
-        }));
-
-        activeFile.quizzes = newQuiz;
-        quizData.length = 0;
-        quizData.push(...newQuiz);
-
-        quizGenerationLoading.classList.add('hidden');
-        showToast('Quiz generated successfully!', 'success');
-
-        renderQuizHistory(activeFile.id);
-        loadQuizQuestion();
-    });
-
-    // --- General UI Controls ---
-    function toggleSidebar() {
-        sidebar.classList.toggle('-translate-x-full');
-        sidebarOverlay.classList.toggle('hidden');
-    }
-    menuButton.addEventListener('click', (e) => { e.stopPropagation(); toggleSidebar(); });
-    sidebarOverlay.addEventListener('click', toggleSidebar);
-
-    chatButton.addEventListener('click', () => switchView('chat'));
-    flashcardsButton.addEventListener('click', () => switchView('flashcards'));
-    quizButton.addEventListener('click', () => switchView('quiz'));
-
-    openSettingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-    closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
-
-    feedbackButton.addEventListener('click', () => {
-        feedbackModal.classList.remove('hidden');
-    });
-
-    closeFeedbackModal.addEventListener('click', () => {
-        feedbackModal.classList.add('hidden');
-    });
-
-    let selectedRating = 0;
-    feedbackRating.addEventListener('click', (e) => {
-        if (e.target.classList.contains('star')) {
-            selectedRating = parseInt(e.target.dataset.rating);
-            Array.from(feedbackRating.children).forEach(star => {
-                if (parseInt(star.dataset.rating) <= selectedRating) {
-                    star.classList.add('text-yellow-400');
-                } else {
-                    star.classList.remove('text-yellow-400');
-                }
+        try {
+            const data = await apiRequest(`/files/${state.activeFileId}/chat`, {
+                method: 'POST',
+                body: { message: userMessage }
             });
+            addMessage(data.response.message, 'bot');
+        } catch (error) {
+            addMessage("Sorry, I couldn't get a response. Please try again.", 'bot');
+        } finally {
+            typingIndicator.classList.add('hidden');
         }
     });
 
-    submitFeedbackButton.addEventListener('click', () => {
-        if (selectedRating === 0) {
-            feedbackValidation.classList.remove('hidden');
-            return;
+    function addMessage(message, sender = 'bot', addToState = true) {
+        const messageElement = document.createElement('div');
+        messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in`;
+        if (sender === 'user') {
+            messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>`;
+        } else {
+            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-violet-400"></i></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-slate-200 break-words">${message}</p></div>`;
         }
-        feedbackValidation.classList.add('hidden');
-        showToast('Thank you for your feedback!', 'success');
-        setTimeout(() => {
-            feedbackModal.classList.add('hidden');
-            selectedRating = 0;
-            feedbackComments.value = '';
-            Array.from(feedbackRating.children).forEach(star => {
-                star.classList.remove('text-yellow-400');
-            });
-        }, 2000);
-    });
+        chatWindow.appendChild(messageElement);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        safeCreateIcons();
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !feedbackModal.classList.contains('hidden')) {
-            feedbackModal.classList.add('hidden');
+        if (addToState) {
+            state.chatHistory.push({ sender, message });
+            renderChatHistory();
         }
-    });
+    }
 
     // --- Flashcard Logic ---
-    const flashcard = document.getElementById('flashcard');
-    const flashcardQuestion = document.getElementById('flashcard-question');
-    const flashcardAnswer = document.getElementById('flashcard-answer');
-    const prevCardButton = document.getElementById('prev-card-button');
-    const nextCardButton = document.getElementById('next-card-button');
-    const cardCounter = document.getElementById('card-counter');
-    
-    const flashcardData = [
-        { q: 'What is the main purpose of a RAG system?', a: 'To retrieve relevant information from a knowledge base and use it to augment a large language model\'s response.' },
-        { q: 'What does "RAG" stand for?', a: 'Retrieval-Augmented Generation.' },
-        { q: 'Which component finds the relevant documents?', a: 'The Retriever.' },
-        { q: 'What is the role of the "Generator" in RAG?', a: 'To generate a human-like answer based on the prompt and the retrieved context.' }
-    ];
-    let currentCardIndex = 0;
+    async function generateFlashcards() {
+        if (!state.activeFileId) {
+            showToast('Please select a file first.', 'error');
+            return;
+        }
+        const count = parseInt(flashcardCount.value);
+        flashcardGenerationLoading.classList.remove('hidden');
+        try {
+            const data = await apiRequest(`/files/${state.activeFileId}/flashcards`, {
+                method: 'POST',
+                body: { count }
+            });
+            state.currentFlashcards = data.flashcards || [];
+            state.currentFlashcardIndex = 0;
+            loadFlashcard(0);
+            await loadFlashcardHistory(state.activeFileId);
+            showToast('Flashcards generated successfully!', 'success');
+        } catch (error) {
+            console.error("Failed to generate flashcards:", error);
+        } finally {
+            flashcardGenerationLoading.classList.add('hidden');
+        }
+    }
+
+    async function loadFlashcardHistory(fileId) {
+        try {
+            const data = await apiRequest(`/files/${fileId}/flashcards`);
+            state.flashcardSets = data.flashcardSets || [];
+            renderFlashcardHistory();
+        } catch (error) {
+            console.error(`Failed to load flashcard history for ${fileId}:`, error);
+        }
+    }
+
+    function renderFlashcardHistory(searchTerm = '') {
+        flashcardHistoryList.innerHTML = '';
+        // This needs adjustment based on what we want to show. For now, it's empty.
+    }
 
     function loadFlashcard(index) {
         flashcard.classList.remove('is-flipped');
-        setTimeout(() => {
-            if (flashcardData.length > 0) {
-                flashcardQuestion.textContent = flashcardData[index].q;
-                flashcardAnswer.textContent = flashcardData[index].a;
-                cardCounter.textContent = `${index + 1} / ${flashcardData.length}`;
-            }
-        }, 150);
+        if (state.currentFlashcards.length > 0) {
+            const card = state.currentFlashcards[index];
+            flashcardQuestion.textContent = card.q;
+            flashcardAnswer.textContent = card.a;
+            cardCounter.textContent = `${index + 1} / ${state.currentFlashcards.length}`;
+        } else {
+            flashcardQuestion.textContent = 'No flashcards generated yet.';
+            flashcardAnswer.textContent = 'Generate flashcards from a file to get started.';
+            cardCounter.textContent = '0 / 0';
+        }
     }
 
-    flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
-    nextCardButton.addEventListener('click', () => {
-        currentCardIndex = (currentCardIndex + 1) % flashcardData.length;
-        loadFlashcard(currentCardIndex);
-    });
-    prevCardButton.addEventListener('click', () => {
-        currentCardIndex = (currentCardIndex - 1 + flashcardData.length) % flashcardData.length;
-        loadFlashcard(currentCardIndex);
-    });
-    
     // --- Quiz Logic ---
-    const quizQuestionEl = document.getElementById('quiz-question');
-    const quizOptionsEl = document.getElementById('quiz-options');
-    const quizFeedbackEl = document.getElementById('quiz-feedback');
-    const nextQuestionButton = document.getElementById('next-question-button');
-    const progressText = document.getElementById('quiz-progress-text');
-    const progressBar = document.getElementById('quiz-progress-bar');
-    
-    const quizData = [
-        { q: 'What does CSS stand for?', options: ['Creative Style Sheets', 'Cascading Style Sheets', 'Computer Style Sheets'], answer: 'Cascading Style Sheets' },
-        { q: 'Which HTML tag is used to define an internal style sheet?', options: ['<style>', '<css>', '<script>'], answer: '<style>' },
-        { q: 'What is the correct CSS syntax?', options: ['body {color: black;}', '{body;color:black;}', 'body:color=black;'], answer: 'body {color: black;}' },
-        { q: 'How do you add a background color for all <h1> elements?', options: ['h1 {background-color:#FFFFFF;}', 'all.h1 {background-color:#FFFFFF;}', 'h1.all {background-color:#FFFFFF;}'], answer: 'h1 {background-color:#FFFFFF;}' }
-    ];
-    let currentQuizIndex = 0;
-    let score = 0;
+    async function generateQuiz() {
+        if (!state.activeFileId) {
+            showToast('Please select a file first.', 'error');
+            return;
+        }
+        const count = parseInt(quizQuestionCount.value);
+        quizGenerationLoading.classList.remove('hidden');
+        try {
+            const data = await apiRequest(`/files/${state.activeFileId}/quizzes`, {
+                method: 'POST',
+                body: { questionCount: count }
+            });
+            state.currentQuiz = data.questions || [];
+            state.currentQuizIndex = 0;
+            state.quizScore = 0;
+            loadQuizQuestion();
+            await loadQuizHistory(state.activeFileId);
+            showToast('Quiz generated successfully!', 'success');
+        } catch (error) {
+            console.error("Failed to generate quiz:", error);
+        } finally {
+            quizGenerationLoading.classList.add('hidden');
+        }
+    }
+
+    async function loadQuizHistory(fileId) {
+        try {
+            const data = await apiRequest(`/files/${fileId}/quizzes`);
+            state.quizSets = data.quizzes || [];
+            renderQuizHistory();
+        } catch (error) {
+            console.error(`Failed to load quiz history for ${fileId}:`, error);
+        }
+    }
+
+    function renderQuizHistory(searchTerm = '') {
+        quizHistoryList.innerHTML = '';
+        // This needs adjustment. For now, it's empty.
+    }
 
     function loadQuizQuestion() {
         quizFeedbackEl.textContent = '';
@@ -473,22 +375,29 @@ document.addEventListener('DOMContentLoaded', () => {
         nextQuestionButton.classList.add('hidden');
         Array.from(quizOptionsEl.children).forEach(btn => btn.disabled = false);
 
-        if (currentQuizIndex >= quizData.length) {
-            quizQuestionEl.textContent = `Quiz Complete! You scored ${score} out of ${quizData.length}.`;
+        if (state.currentQuiz.length === 0) {
+            quizQuestionEl.textContent = 'No quiz available. Generate one from a file!';
+            progressText.textContent = 'Question 0 of 0';
+            progressBar.style.width = '0%';
+            return;
+        }
+
+        if (state.currentQuizIndex >= state.currentQuiz.length) {
+            quizQuestionEl.textContent = `Quiz Complete! You scored ${state.quizScore} out of ${state.currentQuiz.length}.`;
             progressText.textContent = 'Finished!';
             progressBar.style.width = '100%';
             return;
         }
 
-        const question = quizData[currentQuizIndex];
-        progressText.textContent = `Question ${currentQuizIndex + 1} of ${quizData.length}`;
-        progressBar.style.width = `${((currentQuizIndex + 1) / quizData.length) * 100}%`;
+        const question = state.currentQuiz[state.currentQuizIndex];
+        progressText.textContent = `Question ${state.currentQuizIndex + 1} of ${state.currentQuiz.length}`;
+        progressBar.style.width = `${((state.currentQuizIndex + 1) / state.currentQuiz.length) * 100}%`;
         quizQuestionEl.textContent = question.q;
         
         question.options.forEach(option => {
             const button = document.createElement('button');
             button.textContent = option;
-            button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500';
+            button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg';
             button.onclick = () => selectQuizAnswer(button, option, question.answer);
             quizOptionsEl.appendChild(button);
         });
@@ -497,78 +406,92 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectQuizAnswer(button, selected, correct) {
         Array.from(quizOptionsEl.children).forEach(btn => {
             btn.disabled = true;
-            btn.classList.remove('hover:bg-violet-600/50');
+            if (btn.textContent === correct) btn.classList.add('bg-green-500/80');
         });
         
         if (selected === correct) {
-            button.classList.add('bg-green-500/80');
+            state.quizScore++;
             quizFeedbackEl.textContent = 'Correct!';
-            quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-green-400 font-semibold';
-            score++;
+            quizFeedbackEl.className = 'text-center mb-4 text-green-400';
         } else {
             button.classList.add('bg-red-500/80');
             quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}"`;
-            quizFeedbackEl.className = 'text-center mb-4 min-h-[24px] text-red-400 font-semibold';
-             Array.from(quizOptionsEl.children).forEach(btn => {
-                if (btn.textContent === correct) {
-                     btn.classList.add('bg-green-500/80');
-                }
-            });
+            quizFeedbackEl.className = 'text-center mb-4 text-red-400';
         }
-        currentQuizIndex++;
+        state.currentQuizIndex++;
         nextQuestionButton.classList.remove('hidden');
     }
-    
-    nextQuestionButton.addEventListener('click', loadQuizQuestion);
 
-    // --- Chat Message Logic ---
-    function addMessage(message, sender = 'bot') {
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message-fade-in');
-        if (sender === 'user') {
-            messageElement.className = 'flex items-start gap-2.5 sm:gap-3 justify-end message-fade-in';
-            messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
-        } else {
-            messageElement.className = 'flex items-start gap-2.5 sm:gap-3 message-fade-in';
-            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-slate-200 break-words">${message}</p></div>`;
+    // --- Feedback ---
+    async function submitFeedback() {
+        const rating = parseInt(feedbackRating.querySelector('.text-yellow-400')?.dataset.rating || 0);
+        const comments = feedbackComments.value;
+        if (rating === 0) {
+            feedbackValidation.classList.remove('hidden');
+            return;
         }
-        chatWindow.appendChild(messageElement);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        const activeFile = userFiles.find(f => f.active);
-        if (activeFile) {
-            activeFile.history.push({ sender, message });
-            renderChatHistory(activeFile.id);
+        feedbackValidation.classList.add('hidden');
+        try {
+            await apiRequest('/feedback', { method: 'POST', body: { rating, comments } });
+            showToast('Thank you for your feedback!', 'success');
+            feedbackModal.classList.add('hidden');
+        } catch (error) {
+            console.error("Failed to submit feedback:", error);
         }
     }
 
-    async function fetchRagResponse(message) {
-        typingIndicator.classList.remove('hidden');
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-        return new Promise(resolve => {
-            setTimeout(() => {
-                let response = "I am a demo RAG system. I don't have access to a live database, but if I did, I could answer your questions about it.";
-                const lowerCaseMessage = message.toLowerCase();
-                if (lowerCaseMessage.includes("hello") || lowerCaseMessage.includes("hi")) { response = "Hello there! How can I assist you today?"; } 
-                else if (lowerCaseMessage.includes("sales report")) { response = "Accessing sales data... The quarterly sales report shows a 15% increase in revenue, primarily driven by the new product line in the APAC region."; }
-                else if (lowerCaseMessage.includes("customer satisfaction")) { response = "According to recent surveys, customer satisfaction is at 88%, with the highest scores in product reliability and customer support."; }
-                else if (lowerCaseMessage.includes("thank you") || lowerCaseMessage.includes("thanks")) { response = "You're welcome! Is there anything else I can help you with?"; }
-                typingIndicator.classList.add('hidden');
-                resolve(response);
-            }, 1500 + Math.random() * 500);
-        });
+    // --- UI Controls & Event Listeners ---
+    function setupEventListeners() {
+        menuButton.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+        sidebarOverlay.addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
+        chatButton.addEventListener('click', () => switchView('chat'));
+        flashcardsButton.addEventListener('click', () => switchView('flashcards'));
+        quizButton.addEventListener('click', () => switchView('quiz'));
+        openSettingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
+        closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
+        feedbackButton.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
+        closeFeedbackModal.addEventListener('click', () => feedbackModal.classList.add('hidden'));
+        submitFeedbackButton.addEventListener('click', submitFeedback);
+        generateFlashcardsButton.addEventListener('click', generateFlashcards);
+        generateQuizButton.addEventListener('click', generateQuiz);
+        flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
+        nextCardButton.addEventListener('click', () => { state.currentFlashcardIndex = (state.currentFlashcardIndex + 1) % state.currentFlashcards.length; loadFlashcard(state.currentFlashcardIndex); });
+        prevCardButton.addEventListener('click', () => { state.currentFlashcardIndex = (state.currentFlashcardIndex - 1 + state.currentFlashcards.length) % state.currentFlashcards.length; loadFlashcard(state.currentFlashcardIndex); });
+        nextQuestionButton.addEventListener('click', loadQuizQuestion);
+        closeRightSidebar?.addEventListener('click', () => rightSidebar.classList.add('hidden'));
+        closeFlashcardsRightSidebar?.addEventListener('click', () => flashcardsRightSidebar.classList.add('hidden'));
+        closeQuizRightSidebar?.addEventListener('click', () => quizRightSidebar.classList.add('hidden'));
+        chatHistorySearch.addEventListener('input', (e) => renderChatHistory(e.target.value));
+        flashcardHistorySearch.addEventListener('input', (e) => renderFlashcardHistory(e.target.value));
+        quizHistorySearch.addEventListener('input', (e) => renderQuizHistory(e.target.value));
     }
 
-    chatForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const userMessage = messageInput.value.trim();
-        if (userMessage) {
-            addMessage(userMessage, 'user');
-            messageInput.value = '';
-            const botResponse = await fetchRagResponse(userMessage);
-            addMessage(botResponse, 'bot');
+    function switchView(viewName) {
+        [chatView, flashcardsView, quizView].forEach(v => v.classList.add('view-hidden'));
+        [rightSidebar, flashcardsRightSidebar, quizRightSidebar].forEach(sb => sb.classList.add('hidden'));
+        [chatButton, flashcardsButton, quizButton].forEach(btn => btn.classList.remove('active-nav-button'));
+
+        const activeFileId = state.activeFileId;
+        if (viewName === 'chat') {
+            chatView.classList.remove('view-hidden');
+            rightSidebar.classList.remove('hidden');
+            chatButton.classList.add('active-nav-button');
+            if (activeFileId) loadChatHistory(activeFileId);
+        } else if (viewName === 'flashcards') {
+            flashcardsView.classList.remove('view-hidden');
+            flashcardsRightSidebar.classList.remove('hidden');
+            flashcardsButton.classList.add('active-nav-button');
+            if (activeFileId) loadFlashcardHistory(activeFileId);
+            loadFlashcard(state.currentFlashcardIndex);
+        } else if (viewName === 'quiz') {
+            quizView.classList.remove('view-hidden');
+            quizRightSidebar.classList.remove('hidden');
+            quizButton.classList.add('active-nav-button');
+            if (activeFileId) loadQuizHistory(activeFileId);
+            loadQuizQuestion();
         }
-    });
+        localStorage.setItem('activeView', viewName);
+    }
 
     function showToast(message, type = 'info') {
         const toastContainer = document.getElementById('toast-container');
@@ -576,20 +499,17 @@ document.addEventListener('DOMContentLoaded', () => {
         toast.className = `toast ${type}`;
         toast.innerHTML = `<span>${message}</span>`;
         toastContainer.appendChild(toast);
-
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
+        setTimeout(() => toast.remove(), 3000);
     }
 
     // --- Initial Load ---
-    renderFiles();
-    loadFlashcard(0);
-    safeCreateIcons();
-    const savedView = localStorage.getItem('activeView');
-    if (savedView) {
+    async function initializeApp() {
+        setupEventListeners();
+        await loadFiles();
+        const savedView = localStorage.getItem('activeView') || 'chat';
         switchView(savedView);
-    } else {
-        switchView('chat'); // Set initial view to chat
+        safeCreateIcons();
     }
+
+    initializeApp();
 });

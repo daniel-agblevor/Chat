@@ -1,108 +1,309 @@
-# API Specifications
+# Starlight RAG API Specification
 
-## 1. Overview
-
-This document outlines the API endpoints for the Starlight RAG application. The API is responsible for handling chat interactions, generating flashcards, and creating quizzes based on user-provided documents.
-
+**Version:** 1.0
 **Date:** October 6, 2025
 
----
+## 1. Introduction
 
-## 2. Authentication
+This document provides a comprehensive specification for the Starlight RAG RESTful API. This API enables the frontend application to manage files, interact with a Retrieval-Augmented Generation (RAG) chat model, generate and review flashcards, create and take quizzes, and submit user feedback.
 
--   **Endpoint:** `/api/auth`
--   **Method:** `POST`
--   **Description:** Authenticates the user. (Details TBD)
+### 1.1. Base URL
 
----
+All API endpoints are prefixed with the following base URL:
 
-## 3. File Operations
+```
+https://api.starlightrag.com/v1
+```
 
-### 3.1. Upload File
+### 1.2. Authentication
 
--   **Endpoint:** `/api/files/upload`
--   **Method:** `POST`
--   **Description:** Uploads a file for processing.
--   **Request Body:** `multipart/form-data` with the file.
--   **Response:**
-    -   `200 OK`: `{ "file_id": "...", "filename": "..." }`
-    -   `400 Bad Request`: Error message.
+The API uses bearer token authentication. All requests must include an `Authorization` header containing the user's API token.
 
-### 3.2. List Files
+**Header Example:**
+`Authorization: Bearer <YOUR_API_TOKEN>`
 
--   **Endpoint:** `/api/files`
--   **Method:** `GET`
--   **Description:** Retrieves a list of uploaded files for the user.
--   **Response:**
-    -   `200 OK`: `[{ "file_id": "...", "filename": "..." }]`
+Unauthenticated requests will receive a `401 Unauthorized` response.
 
-### 3.3. Delete File
+### 1.3. Standard Response Formats
 
--   **Endpoint:** `/api/files/{file_id}`
--   **Method:** `DELETE`
--   **Description:** Deletes a specific file.
--   **Response:**
-    -   `204 No Content`
-    -   `404 Not Found`
+#### Success Response
 
----
+Successful `GET`, `POST`, and `PUT` requests will return a `200 OK` or `201 Created` status with a JSON body containing a `data` object.
 
-## 4. Chat
+```json
+{
+  "status": "success",
+  "data": {
+    "key": "value"
+  }
+}
+```
 
--   **Endpoint:** `/api/chat`
--   **Method:** `POST`
--   **Description:** Sends a user message to the chat model and gets a response.
--   **Request Body:** `{ "message": "...", "file_ids": ["..."] }`
--   **Response:**
-    -   `200 OK`: `{ "response": "..." }` (Can be a stream)
+#### Error Response
 
----
+Failed requests will return an appropriate `4xx` or `5xx` status code with a JSON body detailing the error.
 
-## 5. Flashcards
-
-### 5.1. Generate Flashcards
-
--   **Endpoint:** `/api/flashcards/generate`
--   **Method:** `POST`
--   **Description:** Generates a set of flashcards from a document.
--   **Request Body:** `{ "file_id": "...", "count": 10 }`
--   **Response:**
-    -   `200 OK`: `{ "flashcard_set_id": "...", "flashcards": [{ "question": "...", "answer": "..." }] }`
-
-### 5.2. Get Flashcard History
-
--   **Endpoint:** `/api/flashcards/history`
--   **Method:** `GET`
--   **Description:** Retrieves previously generated flashcard sets.
--   **Response:**
-    -   `200 OK`: `[{ "flashcard_set_id": "...", "created_at": "..." }]`
+```json
+{
+  "status": "error",
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "A human-readable error message."
+  }
+}
+```
 
 ---
 
-## 6. Quiz
+## 2. File Management
 
-### 6.1. Generate Quiz
+Endpoints for uploading, listing, and deleting user files.
 
--   **Endpoint:** `/api/quiz/generate`
--   **Method:** `POST`
--   **Description:** Generates a quiz from a document.
--   **Request Body:** `{ "file_id": "...", "question_count": 5 }`
--   **Response:**
-    -   `200 OK`: `{ "quiz_id": "...", "questions": [{ "question": "...", "options": ["...", "...", "..."], "correct_answer": "..." }] }`
+### 2.1. List Files
 
-### 6.2. Get Quiz History
+- **Description:** Retrieves a list of all files uploaded by the user.
+- **Endpoint:** `GET /files`
+- **Success Response:** `200 OK`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "files": [
+        {
+          "id": "file-abc-123",
+          "name": "Q3_Sales_Report.pdf",
+          "type": "application/pdf",
+          "size": 1048576,
+          "createdAt": "2025-10-06T10:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
 
--   **Endpoint:** `/api/quiz/history`
--   **Method:** `GET`
--   **Description:** Retrieves previously generated quizzes.
--   **Response:**
-    -   `200 OK`: `[{ "quiz_id": "...", "score": "...", "created_at": "..." }]`
+### 2.2. Upload File
+
+- **Description:** Uploads one or more files for processing.
+- **Endpoint:** `POST /files`
+- **Request:** `multipart/form-data`
+- **Success Response:** `201 Created`
+- **cURL Example:**
+  ```bash
+  curl -X POST \
+    https://api.starlightrag.com/v1/files \
+    -H "Authorization: Bearer <TOKEN>" \
+    -F "file=@/path/to/your/file.pdf"
+  ```
+
+### 2.3. Get File Details
+
+- **Description:** Retrieves metadata for a single file.
+- **Endpoint:** `GET /files/{fileId}`
+- **Success Response:** `200 OK`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "file": {
+        "id": "file-abc-123",
+        "name": "Q3_Sales_Report.pdf",
+        "type": "application/pdf",
+        "size": 1048576,
+        "createdAt": "2025-10-06T10:00:00Z",
+        "status": "processed"
+      }
+    }
+  }
+  ```
+
+### 2.4. Delete File
+
+- **Description:** Deletes a specific file and all associated data (chat history, flashcards, etc.).
+- **Endpoint:** `DELETE /files/{fileId}`
+- **Success Response:** `204 No Content`
 
 ---
 
-## Pending Work
+## 3. Chat Interaction
 
--   Finalize authentication mechanism.
--   Define error response structures.
--   Implement streaming for chat responses.
--   Add pagination for history endpoints.
+Endpoints for interacting with the RAG model.
+
+### 3.1. Get Chat History
+
+- **Description:** Retrieves the full chat history for a specific file.
+- **Endpoint:** `GET /files/{fileId}/chat`
+- **Success Response:** `200 OK`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "history": [
+        { "sender": "bot", "message": "Hello! How can I help you with Q3_Sales_Report.pdf?", "timestamp": "2025-10-06T10:05:00Z" },
+        { "sender": "user", "message": "What was the total revenue?", "timestamp": "2025-10-06T10:05:15Z" }
+      ]
+    }
+  }
+  ```
+
+### 3.2. Send Message
+
+- **Description:** Sends a message to the chat model for a specific file and receives a response.
+- **Endpoint:** `POST /files/{fileId}/chat`
+- **Request Body:**
+  ```json
+  {
+    "message": "What was the total revenue?"
+  }
+  ```
+- **Success Response:** `200 OK` (Can be a standard JSON response or a server-sent event stream for real-time typing effects).
+- **Payload (JSON):**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "response": {
+        "sender": "bot",
+        "message": "The total revenue for Q3 was $1.2M.",
+        "timestamp": "2025-10-06T10:05:20Z"
+      }
+    }
+  }
+  ```
+
+---
+
+## 4. Flashcards
+
+Endpoints for generating and managing flashcard sets.
+
+### 4.1. Generate Flashcards
+
+- **Description:** Generates a new set of flashcards from a file.
+- **Endpoint:** `POST /files/{fileId}/flashcards`
+- **Request Body:**
+  ```json
+  {
+    "count": 10
+  }
+  ```
+- **Success Response:** `201 Created`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "flashcardSetId": "flash-set-xyz-789",
+      "flashcards": [
+        { "q": "Generated Question 1", "a": "Generated Answer 1" },
+        { "q": "Generated Question 2", "a": "Generated Answer 2" }
+      ]
+    }
+  }
+  ```
+
+### 4.2. Get Flashcard History
+
+- **Description:** Retrieves a list of all flashcard sets generated for a file.
+- **Endpoint:** `GET /files/{fileId}/flashcards`
+- **Success Response:** `200 OK`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "flashcardSets": [
+        {
+          "id": "flash-set-xyz-789",
+          "count": 10,
+          "createdAt": "2025-10-06T11:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+---
+
+## 5. Quizzes
+
+Endpoints for generating and managing quizzes.
+
+### 5.1. Generate Quiz
+
+- **Description:** Generates a new quiz from a file.
+- **Endpoint:** `POST /files/{fileId}/quizzes`
+- **Request Body:**
+  ```json
+  {
+    "questionCount": 5
+  }
+  ```
+- **Success Response:** `201 Created`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "quizId": "quiz-def-456",
+      "questions": [
+        {
+          "q": "Generated Question 1",
+          "options": ["Option A", "Option B", "Option C"],
+          "answer": "Option A"
+        }
+      ]
+    }
+  }
+  ```
+
+### 5.2. Get Quiz History
+
+- **Description:** Retrieves a list of all quizzes generated for a file.
+- **Endpoint:** `GET /files/{fileId}/quizzes`
+- **Success Response:** `200 OK`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "quizzes": [
+        {
+          "id": "quiz-def-456",
+          "questionCount": 5,
+          "createdAt": "2025-10-06T12:00:00Z"
+        }
+      ]
+    }
+  }
+  ```
+
+---
+
+## 6. User Feedback
+
+Endpoint for collecting feedback from users.
+
+### 6.1. Submit Feedback
+
+- **Description:** Submits user feedback, including a star rating and comments.
+- **Endpoint:** `POST /feedback`
+- **Request Body:**
+  ```json
+  {
+    "rating": 5,
+    "comments": "This is a great feature!"
+  }
+  ```
+- **Success Response:** `202 Accepted`
+- **Payload:**
+  ```json
+  {
+    "status": "success",
+    "data": {
+      "message": "Feedback received. Thank you!"
+    }
+  }
+  ```
