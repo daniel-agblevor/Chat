@@ -39,10 +39,11 @@
                 <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
             </div>
             <div class="flex-grow pt-4 overflow-y-auto sidebar-scroll">
-                <button class="flex items-center justify-center w-full gap-2 py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors mb-4 text-sm font-semibold">
+                <button id="upload-file-button" class="flex items-center justify-center w-full gap-2 py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors mb-4 text-sm font-semibold">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud h-5 w-5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
                     <span>Upload File</span>
                 </button>
+                <input type="file" id="file-input" class="hidden" multiple />
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">My Files</h3>
                 <ul id="sidebar-file-list" class="space-y-1 text-sm"></ul>
             </div>

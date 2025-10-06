@@ -10,21 +10,24 @@
 
 ## 2. Core Features
 
--   **Document Upload:** Users can upload files to a personal storage space.
+-   **Document Upload & Management:** Users can upload, list, and delete their personal documents.
 -   **AI Chat:** Engage in a conversation with an AI that has knowledge of the uploaded documents.
--   **Flashcard Generation:** Automatically create flashcard sets from document content for study purposes.
--   **Quiz Generation:** Automatically generate quizzes to test knowledge on the document's subject matter.
--   **User Settings & Feedback:** Users can provide special instructions to the AI and submit feedback.
+-   **Authenticated Learning Tools:** For logged-in users, the application offers:
+    -   **Flashcard Generation:** Automatically create flashcard sets from document content.
+    -   **Quiz Generation:** Automatically generate quizzes to test knowledge on the document's subject matter.
+-   **User Feedback:** All users can submit feedback on their experience.
+-   **Authentication:** The UI dynamically adjusts based on the user's login status, hiding premium features from public view.
 
 ---
 
 ## 3. Current Progress Summary
 
-As of today, the project has a complete frontend user interface. The HTML structure is fully scaffolded, and the application is styled with Tailwind CSS, featuring a modern and responsive design.
+As of today, the project's frontend is fully functional and feature-complete.
 
--   **UI Complete:** The layout, all views (Chat, Flashcards, Quiz), and modals (Settings, Feedback) are visually in place.
--   **Backend API Defined:** The required API endpoints have been specified but are pending implementation.
--   **Client-Side Logic Pending:** The core application logic in JavaScript, including event handling and API calls, has not yet been implemented.
+-   **UI Complete:** The layout, all views (Chat, Flashcards, Quiz), and modals are visually in place and fully interactive.
+-   **Client-Side Logic Implemented:** The core application logic in `script.js` is complete. This includes event handling, view switching, and dynamic DOM manipulation.
+-   **API Integration:** The frontend is fully connected to the backend API endpoints defined in the `api_specifications.md` document. All data is now fetched and managed via API calls.
+-   **Authentication Control:** The UI now correctly shows/hides features based on the user's authentication state.
 
 ---
 
@@ -32,19 +35,19 @@ As of today, the project has a complete frontend user interface. The HTML struct
 
 For more specific details, please refer to the following documents:
 
--   **[Frontend Development Updates](./frontend_development.md):** A detailed breakdown of the frontend architecture, components, and implementation plan.
--   **[API Specifications](./api_specifications.md):** A complete guide to the backend API endpoints required for the application.
+-   **[Frontend Development Updates](./frontend_development.md):** A detailed breakdown of the frontend architecture and implementation.
+-   **[API Specifications](./api_specifications.md):** The complete guide to the backend API that the frontend consumes.
 
 ---
 
-## 5. Next Steps & Pending Work
+## 5. Next Steps
+
+With the frontend complete, the primary focus shifts to the backend.
 
 1.  **Backend Development:**
     -   Implement the API endpoints as defined in the specifications.
-    -   Set up the database and storage solution.
-    -   Integrate the RAG model and logic for chat, flashcard, and quiz generation.
-
-2.  **Frontend Development:**
-    -   Implement the client-side logic in `script.js` to make the UI interactive.
-    -   Connect the frontend to the backend API.
-    -   Add dynamic rendering for file lists, chat history, and other data.
+    -   Set up the database and storage solution for user files and data.
+    -   Integrate the RAG model and the logic for chat, flashcard, and quiz generation.
+2.  **Deployment:**
+    -   Deploy the frontend and backend to a hosting environment.
+    -   Configure environment variables and security settings.

@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let state = {
         files: [],
         activeFileId: null,
+        isLoggedIn: false, // Assume logged out by default
         chatHistory: [],
         flashcardSets: [],
         quizSets: [],
@@ -79,7 +80,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Helper ---
     async function apiRequest(endpoint, options = {}) {
         const { method = 'GET', body = null } = options;
-        const headers = { 'Authorization': `Bearer ${API_TOKEN}` };
+        const headers = { };
+        if (state.isLoggedIn) {
+            headers['Authorization'] = `Bearer ${API_TOKEN}`;
+        }
         if (body && !(body instanceof FormData)) {
             headers['Content-Type'] = 'application/json';
         }
@@ -452,6 +456,28 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackButton.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
         closeFeedbackModal.addEventListener('click', () => feedbackModal.classList.add('hidden'));
         submitFeedbackButton.addEventListener('click', submitFeedback);
+
+        feedbackRating.addEventListener('click', (e) => {
+            if (e.target.classList.contains('star')) {
+                const selectedRating = parseInt(e.target.dataset.rating);
+                Array.from(feedbackRating.children).forEach(star => {
+                    if (parseInt(star.dataset.rating) <= selectedRating) {
+                        star.classList.add('text-yellow-400');
+                        star.classList.remove('text-slate-600');
+                    } else {
+                        star.classList.remove('text-yellow-400');
+                        star.classList.add('text-slate-600');
+                    }
+                });
+            }
+        });
+
+        uploadFileButton.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                uploadFiles(e.target.files);
+            }
+        });
         generateFlashcardsButton.addEventListener('click', generateFlashcards);
         generateQuizButton.addEventListener('click', generateQuiz);
         flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
@@ -467,8 +493,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function switchView(viewName) {
+        // Hide all views and right-sidebars first
         [chatView, flashcardsView, quizView].forEach(v => v.classList.add('view-hidden'));
         [rightSidebar, flashcardsRightSidebar, quizRightSidebar].forEach(sb => sb.classList.add('hidden'));
+        
+        // Deactivate all nav buttons
         [chatButton, flashcardsButton, quizButton].forEach(btn => btn.classList.remove('active-nav-button'));
 
         const activeFileId = state.activeFileId;
@@ -477,18 +506,25 @@ document.addEventListener('DOMContentLoaded', () => {
             rightSidebar.classList.remove('hidden');
             chatButton.classList.add('active-nav-button');
             if (activeFileId) loadChatHistory(activeFileId);
-        } else if (viewName === 'flashcards') {
+        } else if (viewName === 'flashcards' && state.isLoggedIn) {
             flashcardsView.classList.remove('view-hidden');
             flashcardsRightSidebar.classList.remove('hidden');
             flashcardsButton.classList.add('active-nav-button');
             if (activeFileId) loadFlashcardHistory(activeFileId);
             loadFlashcard(state.currentFlashcardIndex);
-        } else if (viewName === 'quiz') {
+        } else if (viewName === 'quiz' && state.isLoggedIn) {
             quizView.classList.remove('view-hidden');
             quizRightSidebar.classList.remove('hidden');
             quizButton.classList.add('active-nav-button');
             if (activeFileId) loadQuizHistory(activeFileId);
             loadQuizQuestion();
+        } else {
+            // Default to chat view if view is invalid or user is not logged in
+            chatView.classList.remove('view-hidden');
+            rightSidebar.classList.remove('hidden');
+            chatButton.classList.add('active-nav-button');
+            if (activeFileId) loadChatHistory(activeFileId);
+            viewName = 'chat';
         }
         localStorage.setItem('activeView', viewName);
     }
@@ -504,8 +540,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Initial Load ---
     async function initializeApp() {
+        state.isLoggedIn = !!API_TOKEN && API_TOKEN !== 'YOUR_API_TOKEN';
+        
         setupEventListeners();
-        await loadFiles();
+        updateUIVisibility();
+        
+        if (state.isLoggedIn) {
+            await loadFiles();
+        }
+
         const savedView = localStorage.getItem('activeView') || 'chat';
         switchView(savedView);
         safeCreateIcons();
