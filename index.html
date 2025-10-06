@@ -21,6 +21,9 @@
 </head>
 <body class="antialiased relative">
 
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
     <!-- Background -->
     <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
         <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-violet-600 rounded-full opacity-30 filter blur-3xl animate-blob"></div>
@@ -85,7 +88,7 @@
                 </header>
 
                 <!-- Chat Container -->
-                <main id="chat-view" class="flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="chat-view" class="view flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div id="chat-window" class="flex-grow p-4 space-y-4 sm:p-6 sm:space-y-6 overflow-y-auto">
                         <div class="flex items-start gap-2.5 sm:gap-3">
                             <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
@@ -127,8 +130,10 @@
                 <div id="chat-history-loading" class="hidden">
                     <p>Loading history...</p>
                 </div>
-                <div id="chat-history-empty" class="hidden">
-                    <p>No chat history for this file.</p>
+                <div id="chat-history-empty" class="hidden text-center p-4">
+                    <svg class="mx-auto h-12 w-12 text-slate-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                    <h3 class="mt-2 text-sm font-medium text-slate-300">No Chat History</h3>
+                    <p class="mt-1 text-sm text-slate-400">Get started by sending a message.</p>
                 </div>
                 <ul id="chat-history-list" class="space-y-2">
                 </ul>
@@ -136,7 +141,8 @@
         </aside>
 
         <!-- Right Sidebar for Flashcards -->
-        <aside id="flashcards-right-sidebar" class="hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
+        <aside id="flashcards-right-sidebar" class="hidden md:flex fixed inset-0 z-50 md:z-auto md:relative md:inset-auto w-full md:w-64 flex-col glass-effect p-4 md:border-l md:border-white/10 h-full">
+            <button id="close-flashcards-right-sidebar" class="md:hidden absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             <h3 class="text-lg font-semibold mb-4">Flashcard Options</h3>
             <div class="space-y-4">
                 <div>
@@ -151,13 +157,19 @@
                 </div>
                 <button id="generate-flashcards-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
                 <div id="flashcard-generation-loading" class="hidden text-center">
-                    <p>Generating flashcards...</p>
+                    <div class="spinner"></div>
                 </div>
                 <div id="flashcard-generation-success" class="hidden text-center text-green-400">
                     <p>Flashcards generated successfully!</p>
                 </div>
             </div>
             <h3 class="text-lg font-semibold mt-6 mb-4">History</h3>
+            <div class="relative mb-4">
+                <input type="text" id="flashcard-history-search" placeholder="Search history..." class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2 pl-10 pr-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
+                <div class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-slate-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+            </div>
             <div id="flashcard-history-container" class="flex-grow overflow-y-auto">
                 <ul id="flashcard-history-list" class="space-y-2">
                 </ul>
@@ -180,7 +192,7 @@
                 </div>
                 <button id="generate-quiz-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
                 <div id="quiz-generation-loading" class="hidden text-center">
-                    <p>Generating quiz...</p>
+                    <div class="spinner"></div>
                 </div>
                 <div id="quiz-generation-success" class="hidden text-center text-green-400">
                     <p>Quiz generated successfully!</p>
@@ -197,7 +209,7 @@
     <!-- Overlays -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
 
-                <main id="flashcards-view" class="hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="flashcards-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div class="p-4 sm:p-6">
                         <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
                         <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
@@ -218,7 +230,7 @@
                     </div>
                 </main>
 
-                <main id="quiz-view" class="hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="quiz-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div class="p-4 sm:p-6">
                         <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
                         <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>

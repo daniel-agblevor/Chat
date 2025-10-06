@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatHistoryList = document.getElementById('chat-history-list');
     const chatHistoryLoading = document.getElementById('chat-history-loading');
     const chatHistoryEmpty = document.getElementById('chat-history-empty');
+    const chatHistorySearch = document.getElementById('chat-history-search');
 
     const flashcardsRightSidebar = document.getElementById('flashcards-right-sidebar');
     const flashcardCount = document.getElementById('flashcard-count');
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const flashcardGenerationLoading = document.getElementById('flashcard-generation-loading');
     const flashcardGenerationSuccess = document.getElementById('flashcard-generation-success');
     const flashcardHistoryList = document.getElementById('flashcard-history-list');
+    const flashcardHistorySearch = document.getElementById('flashcard-history-search');
 
     const quizRightSidebar = document.getElementById('quiz-right-sidebar');
     const quizQuestionCount = document.getElementById('quiz-question-count');
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizGenerationLoading = document.getElementById('quiz-generation-loading');
     const quizGenerationSuccess = document.getElementById('quiz-generation-success');
     const quizHistoryList = document.getElementById('quiz-history-list');
+    const quizHistorySearch = document.getElementById('quiz-history-search');
 
     const feedbackModal = document.getElementById('feedback-modal');
     const closeFeedbackModal = document.getElementById('close-feedback-modal');
@@ -46,6 +49,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackValidation = document.getElementById('feedback-validation');
     const feedbackSuccess = document.getElementById('feedback-success');
     const feedbackButton = document.getElementById('feedback-button');
+
+    const closeRightSidebar = document.getElementById('close-right-sidebar');
+    const closeFlashcardsRightSidebar = document.getElementById('close-flashcards-right-sidebar');
+    const closeQuizRightSidebar = document.getElementById('close-quiz-right-sidebar');
+
+    if(closeRightSidebar) {
+        closeRightSidebar.addEventListener('click', () => {
+            rightSidebar.classList.add('hidden');
+        });
+    }
+
+    if(closeFlashcardsRightSidebar) {
+        closeFlashcardsRightSidebar.addEventListener('click', () => {
+            flashcardsRightSidebar.classList.add('hidden');
+        });
+    }
+
+    if(closeQuizRightSidebar) {
+        closeQuizRightSidebar.addEventListener('click', () => {
+            quizRightSidebar.classList.add('hidden');
+        });
+    }
 
     // --- Safe lucide helper ---
     function safeCreateIcons() {
@@ -84,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         userFiles.forEach(file => {
             const sidebarLi = document.createElement('li');
-            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md ${file.active ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'}">
+            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${file.active ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'} focus:outline-none focus:ring-2 focus:ring-violet-500">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color}"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
                 <span>${file.name}</span></a>`;
             sidebarFileList.appendChild(sidebarLi);
@@ -97,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${file.icon} h-5 w-5 ${file.color} flex-shrink-0"><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M14.2 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M14.2 14.5v-4.5h4.5"/><path d="M12 22H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8"/></svg>
                     <span class="text-sm text-slate-200 truncate">${file.name}</span>
                 </div>
-                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400">
+                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>`;
             manageFilesList.appendChild(manageLi);
@@ -106,6 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteFile(fileId) {
+        const fileName = userFiles.find(f => f.id === fileId)?.name;
         userFiles = userFiles.filter(f => f.id !== fileId);
         if (!userFiles.some(f => f.active) && userFiles.length > 0) {
             userFiles[0].active = true;
@@ -115,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (activeFile) {
             renderChatHistory(activeFile.id);
         }
+        showToast(`File "${fileName}" deleted.`, 'success');
     }
 
     manageFilesList.addEventListener('click', (e) => {
@@ -140,10 +167,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- View Switching Logic ---
     function switchView(viewName) {
-        // Hide all views
-        chatView.classList.add('hidden');
-        flashcardsView.classList.add('hidden');
-        quizView.classList.add('hidden');
+        [chatView, flashcardsView, quizView].forEach(v => v.classList.add('view-hidden'));
+
         rightSidebar.classList.add('hidden');
         flashcardsRightSidebar.classList.add('hidden');
         quizRightSidebar.classList.add('hidden');
@@ -155,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show the selected view and activate the button
         if (viewName === 'chat') {
-            chatView.classList.remove('hidden');
+            chatView.classList.remove('view-hidden');
             rightSidebar.classList.remove('hidden');
             chatButton.classList.add('active-nav-button');
             const activeFile = userFiles.find(f => f.active);
@@ -163,7 +188,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderChatHistory(activeFile.id);
             }
         } else if (viewName === 'flashcards') {
-            flashcardsView.classList.remove('hidden');
+            flashcardsView.classList.remove('view-hidden');
             flashcardsRightSidebar.classList.remove('hidden');
             flashcardsButton.classList.add('active-nav-button');
             const activeFile = userFiles.find(f => f.active);
@@ -172,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             loadFlashcard(0);
         } else if (viewName === 'quiz') {
-            quizView.classList.remove('hidden');
+            quizView.classList.remove('view-hidden');
             quizRightSidebar.classList.remove('hidden');
             quizButton.classList.add('active-nav-button');
             const activeFile = userFiles.find(f => f.active);
@@ -185,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Chat History Logic ---
-    function renderChatHistory(fileId) {
+    function renderChatHistory(fileId, searchTerm = '') {
         const file = userFiles.find(f => f.id === fileId);
         chatHistoryList.innerHTML = '';
 
@@ -198,7 +223,9 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistoryEmpty.classList.add('hidden');
         chatHistoryLoading.classList.add('hidden');
 
-        file.history.forEach(item => {
+        const filteredHistory = file.history.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        filteredHistory.forEach(item => {
             const li = document.createElement('li');
             li.className = `text-sm p-2 rounded-md ${item.sender === 'user' ? 'bg-slate-700' : 'bg-slate-800'}`;
             li.textContent = item.message;
@@ -206,8 +233,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    chatHistorySearch.addEventListener('input', (e) => {
+        const activeFile = userFiles.find(f => f.active);
+        if (activeFile) {
+            renderChatHistory(activeFile.id, e.target.value);
+        }
+    });
+
     // --- Flashcard History Logic ---
-    function renderFlashcardHistory(fileId) {
+    function renderFlashcardHistory(fileId, searchTerm = '') {
         const file = userFiles.find(f => f.id === fileId);
         flashcardHistoryList.innerHTML = '';
 
@@ -215,7 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        file.flashcards.forEach(flashcard => {
+        const filteredFlashcards = file.flashcards.filter(flashcard => flashcard.q.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        filteredFlashcards.forEach(flashcard => {
             const li = document.createElement('li');
             li.className = 'text-sm p-2 rounded-md bg-slate-800';
             li.textContent = flashcard.q;
@@ -223,10 +259,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    flashcardHistorySearch.addEventListener('input', (e) => {
+        const activeFile = userFiles.find(f => f.active);
+        if (activeFile) {
+            renderFlashcardHistory(activeFile.id, e.target.value);
+        }
+    });
+
     generateFlashcardsButton.addEventListener('click', async () => {
         const activeFile = userFiles.find(f => f.active);
         if (!activeFile) {
-            alert('Please select a file first.');
+            showToast('Please select a file first.', 'error');
             return;
         }
 
@@ -247,15 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
         flashcardData.push(...newFlashcards);
 
         flashcardGenerationLoading.classList.add('hidden');
-        flashcardGenerationSuccess.classList.remove('hidden');
-        setTimeout(() => flashcardGenerationSuccess.classList.add('hidden'), 3000);
+        showToast('Flashcards generated successfully!', 'success');
 
         renderFlashcardHistory(activeFile.id);
         loadFlashcard(0);
     });
 
     // --- Quiz History Logic ---
-    function renderQuizHistory(fileId) {
+    function renderQuizHistory(fileId, searchTerm = '') {
         const file = userFiles.find(f => f.id === fileId);
         quizHistoryList.innerHTML = '';
 
@@ -263,7 +305,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        file.quizzes.forEach(quiz => {
+        const filteredQuizzes = file.quizzes.filter(quiz => quiz.q.toLowerCase().includes(searchTerm.toLowerCase()));
+
+        filteredQuizzes.forEach(quiz => {
             const li = document.createElement('li');
             li.className = 'text-sm p-2 rounded-md bg-slate-800';
             li.textContent = quiz.q;
@@ -271,10 +315,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    quizHistorySearch.addEventListener('input', (e) => {
+        const activeFile = userFiles.find(f => f.active);
+        if (activeFile) {
+            renderQuizHistory(activeFile.id, e.target.value);
+        }
+    });
+
     generateQuizButton.addEventListener('click', async () => {
         const activeFile = userFiles.find(f => f.active);
         if (!activeFile) {
-            alert('Please select a file first.');
+            showToast('Please select a file first.', 'error');
             return;
         }
 
@@ -296,8 +347,7 @@ document.addEventListener('DOMContentLoaded', () => {
         quizData.push(...newQuiz);
 
         quizGenerationLoading.classList.add('hidden');
-        quizGenerationSuccess.classList.remove('hidden');
-        setTimeout(() => quizGenerationSuccess.classList.add('hidden'), 3000);
+        showToast('Quiz generated successfully!', 'success');
 
         renderQuizHistory(activeFile.id);
         loadQuizQuestion();
@@ -346,10 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         feedbackValidation.classList.add('hidden');
-        feedbackSuccess.classList.remove('hidden');
+        showToast('Thank you for your feedback!', 'success');
         setTimeout(() => {
             feedbackModal.classList.add('hidden');
-            feedbackSuccess.classList.add('hidden');
             selectedRating = 0;
             feedbackComments.value = '';
             Array.from(feedbackRating.children).forEach(star => {
@@ -439,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         question.options.forEach(option => {
             const button = document.createElement('button');
             button.textContent = option;
-            button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg transition-colors duration-200';
+            button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-violet-500';
             button.onclick = () => selectQuizAnswer(button, option, question.answer);
             quizOptionsEl.appendChild(button);
         });
@@ -475,11 +524,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Chat Message Logic ---
     function addMessage(message, sender = 'bot') {
         const messageElement = document.createElement('div');
+        messageElement.classList.add('message-fade-in');
         if (sender === 'user') {
-            messageElement.className = 'flex items-start gap-2.5 sm:gap-3 justify-end';
+            messageElement.className = 'flex items-start gap-2.5 sm:gap-3 justify-end message-fade-in';
             messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-slate-700 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
         } else {
-            messageElement.className = 'flex items-start gap-2.5 sm:gap-3';
+            messageElement.className = 'flex items-start gap-2.5 sm:gap-3 message-fade-in';
             messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center"><svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md"><p class="text-slate-200 break-words">${message}</p></div>`;
         }
         chatWindow.appendChild(messageElement);
@@ -519,6 +569,18 @@ document.addEventListener('DOMContentLoaded', () => {
             addMessage(botResponse, 'bot');
         }
     });
+
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<span>${message}</span>`;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
 
     // --- Initial Load ---
     renderFiles();
