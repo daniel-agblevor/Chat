@@ -18,6 +18,37 @@
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css">
+
+<style>
+    /* Smooth transition for sidebar sliding */
+    .right-sidebar-mobile {
+        transition: transform 0.3s ease-in-out;
+    }
+
+    /* Mobile-specific styles for the right sidebar */
+    @media (max-width: 767px) {
+        .right-sidebar-mobile {
+            position: fixed;
+            top: 0;
+            right: 0;
+            height: 100%;
+            z-index: 40;
+            /* Start off-screen */
+            transform: translateX(100%);
+            /* Ensure it's treated as a flex container for content alignment */
+            display: flex;
+            /* Define a width for the mobile sidebar view */
+            width: 80%;
+            max-width: 320px;
+        }
+
+        .right-sidebar-mobile.is-open {
+            /* Slide into view */
+            transform: translateX(0);
+        }
+    }
+</style>
+
 </head>
 <body class="antialiased relative">
 
