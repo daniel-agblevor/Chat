@@ -493,39 +493,52 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function switchView(viewName) {
-        // Hide all views and right-sidebars first
-        [chatView, flashcardsView, quizView].forEach(v => v.classList.add('view-hidden'));
-        [rightSidebar, flashcardsRightSidebar, quizRightSidebar].forEach(sb => sb.classList.add('hidden'));
-        
-        // Deactivate all nav buttons
-        [chatButton, flashcardsButton, quizButton].forEach(btn => btn.classList.remove('active-nav-button'));
-
-        const activeFileId = state.activeFileId;
-        if (viewName === 'chat') {
-            chatView.classList.remove('view-hidden');
-            rightSidebar.classList.remove('hidden');
-            chatButton.classList.add('active-nav-button');
-            if (activeFileId) loadChatHistory(activeFileId);
-        } else if (viewName === 'flashcards' && state.isLoggedIn) {
-            flashcardsView.classList.remove('view-hidden');
-            flashcardsRightSidebar.classList.remove('hidden');
-            flashcardsButton.classList.add('active-nav-button');
-            if (activeFileId) loadFlashcardHistory(activeFileId);
-            loadFlashcard(state.currentFlashcardIndex);
-        } else if (viewName === 'quiz' && state.isLoggedIn) {
-            quizView.classList.remove('view-hidden');
-            quizRightSidebar.classList.remove('hidden');
-            quizButton.classList.add('active-nav-button');
-            if (activeFileId) loadQuizHistory(activeFileId);
-            loadQuizQuestion();
-        } else {
-            // Default to chat view if view is invalid or user is not logged in
-            chatView.classList.remove('view-hidden');
-            rightSidebar.classList.remove('hidden');
-            chatButton.classList.add('active-nav-button');
-            if (activeFileId) loadChatHistory(activeFileId);
+        const viewMappings = {
+            chat: { view: chatView, sidebar: rightSidebar, button: chatButton },
+            flashcards: { view: flashcardsView, sidebar: flashcardsRightSidebar, button: flashcardsButton },
+            quiz: { view: quizView, sidebar: quizRightSidebar, button: quizButton },
+        };
+    
+        // Default to chat view if invalid or not logged in for protected views
+        if (!viewMappings[viewName] || ((viewName === 'flashcards' || viewName === 'quiz') && !state.isLoggedIn)) {
             viewName = 'chat';
         }
+    
+        const activeMapping = viewMappings[viewName];
+    
+        // Hide all views and sidebars
+        Object.values(viewMappings).forEach(({ view, sidebar }) => {
+            view.classList.add('view-hidden');
+            sidebar.classList.add('hidden');
+            sidebar.classList.remove('md:flex');
+        });
+    
+        // Deactivate all nav buttons
+        Object.values(viewMappings).forEach(({ button }) => {
+            button.classList.remove('bg-violet-700', 'text-white');
+            button.classList.add('bg-slate-800/60', 'hover:bg-slate-700/80', 'text-slate-200');
+        });
+    
+        // Activate the correct view, sidebar, and button
+        activeMapping.view.classList.remove('view-hidden');
+        activeMapping.sidebar.classList.remove('hidden');
+        activeMapping.sidebar.classList.add('md:flex');
+    
+        activeMapping.button.classList.add('bg-violet-700', 'text-white');
+        activeMapping.button.classList.remove('bg-slate-800/60', 'hover:bg-slate-700/80', 'text-slate-200');
+    
+        // Load data for the new view
+        const activeFileId = state.activeFileId;
+        if (activeFileId) {
+            if (viewName === 'chat') loadChatHistory(activeFileId);
+            else if (viewName === 'flashcards') loadFlashcardHistory(activeFileId);
+            else if (viewName === 'quiz') loadQuizHistory(activeFileId);
+        }
+    
+        // Perform view-specific actions
+        if (viewName === 'flashcards') loadFlashcard(state.currentFlashcardIndex);
+        if (viewName === 'quiz') loadQuizQuestion();
+    
         localStorage.setItem('activeView', viewName);
     }
 
@@ -543,10 +556,15 @@ document.addEventListener('DOMContentLoaded', () => {
         state.isLoggedIn = !!API_TOKEN && API_TOKEN !== 'YOUR_API_TOKEN';
         
         setupEventListeners();
-        updateUIVisibility();
         
         if (state.isLoggedIn) {
+            // Hide login-required buttons if not logged in
+            flashcardsButton.classList.remove('hidden');
+            quizButton.classList.remove('hidden');
             await loadFiles();
+        } else {
+            flashcardsButton.classList.add('hidden');
+            quizButton.classList.add('hidden');
         }
 
         const savedView = localStorage.getItem('activeView') || 'chat';
