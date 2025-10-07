@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
     const API_BASE_URL = 'https://api.starlightrag.com/v1';
-    const API_TOKEN = 'YOUR_API_TOKEN'; // IMPORTANT: Replace with a real token management solution
+    const API_TOKEN = 'DUMMY_TOKEN_FOR_DEVELOPMENT'; // IMPORTANT: Replace with a real token management solution
 
     // --- DOM Element Selection ---
     const chatWindow = document.getElementById('chat-window');
