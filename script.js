@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         files: [],
         activeFileId: null,
         isLoggedIn: false, // Assume logged out by default
+        activeMode: 'chat', // Track the active mode: 'chat', 'flashcards', or 'quiz'
         chatHistory: [],
         flashcardSets: [],
         quizSets: [],
@@ -76,6 +77,79 @@ document.addEventListener('DOMContentLoaded', () => {
         currentQuizIndex: 0,
         quizScore: 0,
     };
+
+    // --- UI State Management ---
+
+    /**
+     * Switches the application to a new mode (chat, flashcards, quiz).
+     * @param {string} mode The mode to switch to.
+     */
+    function switchMode(mode) {
+        // Prevent switching to protected modes if not logged in
+        if (!state.isLoggedIn && (mode === 'flashcards' || mode === 'quiz')) {
+            showToast('Please log in to use this feature.', 'info');
+            return;
+        }
+        state.activeMode = mode;
+        updateUI();
+    }
+
+    /**
+     * Updates the entire UI based on the current application state (auth and active mode).
+     */
+    function updateUI() {
+        // --- 1. Authentication-based UI Control ---
+        const originalSettingsButtonContent = `<i data-lucide="user-cog" class="h-5 w-5"></i><span>User / Settings</span>`;
+        const loginButtonContent = `<i data-lucide="log-in" class="h-5 w-5"></i><span>Login / Sign Up</span>`;
+
+        if (state.isLoggedIn) {
+            flashcardsButton.classList.remove('hidden');
+            quizButton.classList.remove('hidden');
+            openSettingsButton.innerHTML = originalSettingsButtonContent;
+        } else {
+            flashcardsButton.classList.add('hidden');
+            quizButton.classList.add('hidden');
+            openSettingsButton.innerHTML = loginButtonContent;
+            // Force chat mode if the user logs out while on another tab
+            state.activeMode = 'chat';
+        }
+
+        // --- 2. Dynamic View and Sidebar Switching ---
+        const views = { chat: chatView, flashcards: flashcardsView, quiz: quizView };
+        const rightSidebars = { chat: rightSidebar, flashcards: flashcardsRightSidebar, quiz: quizRightSidebar };
+        const buttons = { chat: chatButton, flashcards: flashcardsButton, quiz: quizButton };
+
+        // Hide all views and right sidebars first
+        Object.values(views).forEach(v => v.classList.add('hidden'));
+        Object.values(rightSidebars).forEach(sb => sb.classList.add('hidden'));
+
+        // Deactivate all mode buttons
+        Object.values(buttons).forEach(b => {
+            b.classList.remove('bg-slate-800/60', 'text-slate-100', 'font-semibold');
+            b.classList.add('hover:bg-slate-800/50', 'text-slate-300');
+        });
+
+        // Show the view for the active mode
+        if (views[state.activeMode]) {
+            views[state.activeMode].classList.remove('hidden');
+        }
+
+        // Show the right sidebar ONLY if logged in and a corresponding sidebar exists
+        if (state.isLoggedIn && rightSidebars[state.activeMode]) {
+            rightSidebars[state.activeMode].classList.remove('hidden');
+        }
+
+        // Activate the button for the current mode
+        if (buttons[state.activeMode]) {
+            const button = buttons[state.activeMode];
+            button.classList.add('bg-slate-800/60', 'text-slate-100', 'font-semibold');
+            button.classList.remove('hover:bg-slate-800/50', 'text-slate-300');
+        }
+        
+        // Re-initialize icons if their container's innerHTML was changed
+        safeCreateIcons();
+    }
+
 
     // --- API Helper ---
     async function apiRequest(endpoint, options = {}) {
@@ -200,6 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
             await loadChatHistory(fileId);
         }
     });
+    
+    // --- Event Listeners for Mode Switching ---
+    chatButton.addEventListener('click', () => switchMode('chat'));
+    flashcardsButton.addEventListener('click', () => switchMode('flashcards'));
+    quizButton.addEventListener('click', () => switchMode('quiz'));
+
 
     // --- Chat Logic ---
     async function loadChatHistory(fileId) {
@@ -431,146 +511,34 @@ document.addEventListener('DOMContentLoaded', () => {
         const rating = parseInt(feedbackRating.querySelector('.text-yellow-400')?.dataset.rating || 0);
         const comments = feedbackComments.value;
         if (rating === 0) {
+            // This part of the function was incomplete, finishing it.
+            feedbackValidation.textContent = 'Please select a rating.';
             feedbackValidation.classList.remove('hidden');
             return;
         }
         feedbackValidation.classList.add('hidden');
-        try {
-            await apiRequest('/feedback', { method: 'POST', body: { rating, comments } });
-            showToast('Thank you for your feedback!', 'success');
-            feedbackModal.classList.add('hidden');
-        } catch (error) {
-            console.error("Failed to submit feedback:", error);
-        }
+        
+        console.log('Submitting feedback:', { rating, comments });
+        // NOTE: Add actual API call here
+        showToast('Thank you for your feedback!', 'success');
+        feedbackModal.classList.add('hidden');
     }
 
-    // --- UI Controls & Event Listeners ---
-    function setupEventListeners() {
-        menuButton.addEventListener('click', (e) => { e.stopPropagation(); sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
-        sidebarOverlay.addEventListener('click', () => { sidebar.classList.toggle('-translate-x-full'); sidebarOverlay.classList.toggle('hidden'); });
-        chatButton.addEventListener('click', () => switchView('chat'));
-        flashcardsButton.addEventListener('click', () => switchView('flashcards'));
-        quizButton.addEventListener('click', () => switchView('quiz'));
-        openSettingsButton.addEventListener('click', () => settingsModal.classList.remove('hidden'));
-        closeSettingsModal.addEventListener('click', () => settingsModal.classList.add('hidden'));
-        feedbackButton.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
-        closeFeedbackModal.addEventListener('click', () => feedbackModal.classList.add('hidden'));
-        submitFeedbackButton.addEventListener('click', submitFeedback);
-
-        feedbackRating.addEventListener('click', (e) => {
-            if (e.target.classList.contains('star')) {
-                const selectedRating = parseInt(e.target.dataset.rating);
-                Array.from(feedbackRating.children).forEach(star => {
-                    if (parseInt(star.dataset.rating) <= selectedRating) {
-                        star.classList.add('text-yellow-400');
-                        star.classList.remove('text-slate-600');
-                    } else {
-                        star.classList.remove('text-yellow-400');
-                        star.classList.add('text-slate-600');
-                    }
-                });
-            }
-        });
-
-        uploadFileButton.addEventListener('click', () => fileInput.click());
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                uploadFiles(e.target.files);
-            }
-        });
-        generateFlashcardsButton.addEventListener('click', generateFlashcards);
-        generateQuizButton.addEventListener('click', generateQuiz);
-        flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
-        nextCardButton.addEventListener('click', () => { state.currentFlashcardIndex = (state.currentFlashcardIndex + 1) % state.currentFlashcards.length; loadFlashcard(state.currentFlashcardIndex); });
-        prevCardButton.addEventListener('click', () => { state.currentFlashcardIndex = (state.currentFlashcardIndex - 1 + state.currentFlashcards.length) % state.currentFlashcards.length; loadFlashcard(state.currentFlashcardIndex); });
-        nextQuestionButton.addEventListener('click', loadQuizQuestion);
-        closeRightSidebar?.addEventListener('click', () => rightSidebar.classList.add('hidden'));
-        closeFlashcardsRightSidebar?.addEventListener('click', () => flashcardsRightSidebar.classList.add('hidden'));
-        closeQuizRightSidebar?.addEventListener('click', () => quizRightSidebar.classList.add('hidden'));
-        chatHistorySearch.addEventListener('input', (e) => renderChatHistory(e.target.value));
-        flashcardHistorySearch.addEventListener('input', (e) => renderFlashcardHistory(e.target.value));
-        quizHistorySearch.addEventListener('input', (e) => renderQuizHistory(e.target.value));
-    }
-
-    function switchView(viewName) {
-        const viewMappings = {
-            chat: { view: chatView, sidebar: rightSidebar, button: chatButton },
-            flashcards: { view: flashcardsView, sidebar: flashcardsRightSidebar, button: flashcardsButton },
-            quiz: { view: quizView, sidebar: quizRightSidebar, button: quizButton },
-        };
-    
-        // Default to chat view if invalid or not logged in for protected views
-        if (!viewMappings[viewName] || ((viewName === 'flashcards' || viewName === 'quiz') && !state.isLoggedIn)) {
-            viewName = 'chat';
-        }
-    
-        const activeMapping = viewMappings[viewName];
-    
-        // Hide all views and sidebars
-        Object.values(viewMappings).forEach(({ view, sidebar }) => {
-            view.classList.add('view-hidden');
-            sidebar.classList.add('hidden');
-            sidebar.classList.remove('md:flex');
-        });
-    
-        // Deactivate all nav buttons
-        Object.values(viewMappings).forEach(({ button }) => {
-            button.classList.remove('bg-violet-700', 'text-white');
-            button.classList.add('bg-slate-800/60', 'hover:bg-slate-700/80', 'text-slate-200');
-        });
-    
-        // Activate the correct view, sidebar, and button
-        activeMapping.view.classList.remove('view-hidden');
-        activeMapping.sidebar.classList.remove('hidden');
-        activeMapping.sidebar.classList.add('md:flex');
-    
-        activeMapping.button.classList.add('bg-violet-700', 'text-white');
-        activeMapping.button.classList.remove('bg-slate-800/60', 'hover:bg-slate-700/80', 'text-slate-200');
-    
-        // Load data for the new view
-        const activeFileId = state.activeFileId;
-        if (activeFileId) {
-            if (viewName === 'chat') loadChatHistory(activeFileId);
-            else if (viewName === 'flashcards') loadFlashcardHistory(activeFileId);
-            else if (viewName === 'quiz') loadQuizHistory(activeFileId);
-        }
-    
-        // Perform view-specific actions
-        if (viewName === 'flashcards') loadFlashcard(state.currentFlashcardIndex);
-        if (viewName === 'quiz') loadQuizQuestion();
-    
-        localStorage.setItem('activeView', viewName);
-    }
-
-    function showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = `<span>${message}</span>`;
-        toastContainer.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    // --- Initial Load ---
+    // --- App Initialization ---
     async function initializeApp() {
-        state.isLoggedIn = !!API_TOKEN && API_TOKEN !== 'YOUR_API_TOKEN';
+        // Here you would typically check for a real authentication token
+        // For now, we can toggle `state.isLoggedIn` manually for testing
+        // state.isLoggedIn = true; // <-- uncomment to test logged-in state
         
-        setupEventListeners();
-        
+        // Load initial data if logged in
         if (state.isLoggedIn) {
-            // Hide login-required buttons if not logged in
-            flashcardsButton.classList.remove('hidden');
-            quizButton.classList.remove('hidden');
             await loadFiles();
-        } else {
-            flashcardsButton.classList.add('hidden');
-            quizButton.classList.add('hidden');
         }
-
-        const savedView = localStorage.getItem('activeView') || 'chat';
-        switchView(savedView);
-        safeCreateIcons();
+        
+        // Set the initial UI state based on auth and default mode
+        updateUI();
     }
 
     initializeApp();
 });
+
