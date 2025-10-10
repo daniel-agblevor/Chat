@@ -11,6 +11,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
     const menuButton = document.getElementById('menu-button');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const uploadFileButton = document.getElementById('upload-file-button');
+    const fileInput = document.getElementById('file-input');
+    const rightSidebarToggleButton = document.getElementById('right-sidebar-toggle-button');
+    const openRightSidebarIcon = document.getElementById('open-right-sidebar-icon');
+    const closeRightSidebarIcon = document.getElementById('close-right-sidebar-icon');
     const chatButton = document.getElementById('chat-button');
     const flashcardsButton = document.getElementById('flashcards-button');
     const quizButton = document.getElementById('quiz-button');
@@ -163,6 +168,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<p>${message}</p>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
     // --- API Helper ---
     async function apiRequest(endpoint, options = {}) {
         const { method = 'GET', body = null } = options;
@@ -210,6 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- File Management ---
     async function loadFiles() {
         try {
+            // Production: fetch the user's file list from the backend. apiRequest centrally handles auth headers and errors.
             const data = await apiRequest('/files');
             state.files = data.files || [];
             if (!state.activeFileId && state.files.length > 0) {
@@ -253,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteFile(fileId) {
         try {
+            // Production: perform an authenticated DELETE against the file resource
             await apiRequest(`/files/${fileId}`, { method: 'DELETE' });
             const fileName = state.files.find(f => f.id === fileId)?.name;
             state.files = state.files.filter(f => f.id !== fileId);
@@ -300,6 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistoryList.innerHTML = '';
         chatWindow.innerHTML = '';
         try {
+            // Production: retrieve chat history for this file from the backend
             const data = await apiRequest(`/files/${fileId}/chat`);
             state.chatHistory = data.history || [];
             renderChatHistory();
@@ -340,6 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
+            // Production: send user message to server which will return the assistant response
             const data = await apiRequest(`/files/${state.activeFileId}/chat`, {
                 method: 'POST',
                 body: { message: userMessage }
@@ -379,6 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const count = parseInt(flashcardCount.value);
         flashcardGenerationLoading.classList.remove('hidden');
         try {
+            // Production: request server to generate flashcards for the active file
             const data = await apiRequest(`/files/${state.activeFileId}/flashcards`, {
                 method: 'POST',
                 body: { count }
@@ -397,6 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFlashcardHistory(fileId) {
         try {
+            // Production: fetch previously generated flashcard sets for this file
             const data = await apiRequest(`/files/${fileId}/flashcards`);
             state.flashcardSets = data.flashcardSets || [];
             renderFlashcardHistory();
@@ -433,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const count = parseInt(quizQuestionCount.value);
         quizGenerationLoading.classList.remove('hidden');
         try {
+            // Production: request server to build a quiz for the active file
             const data = await apiRequest(`/files/${state.activeFileId}/quizzes`, {
                 method: 'POST',
                 body: { questionCount: count }
@@ -452,6 +475,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadQuizHistory(fileId) {
         try {
+            // Production: fetch quiz history for the file
             const data = await apiRequest(`/files/${fileId}/quizzes`);
             state.quizSets = data.quizzes || [];
             renderQuizHistory();
@@ -519,11 +543,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Feedback ---
+    feedbackButton.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+        feedbackModal.classList.remove('hidden');
+    });
+
+    closeFeedbackModal.addEventListener('click', () => {
+        feedbackModal.classList.add('hidden');
+    });
+
+    feedbackRating.addEventListener('click', (e) => {
+        if (e.target.classList.contains('star')) {
+            const newRating = e.target.dataset.rating;
+            Array.from(feedbackRating.children).forEach(star => {
+                star.classList.toggle('text-yellow-400', star.dataset.rating <= newRating);
+            });
+        }
+    });
+
     async function submitFeedback() {
         const rating = parseInt(feedbackRating.querySelector('.text-yellow-400')?.dataset.rating || 0);
         const comments = feedbackComments.value;
         if (rating === 0) {
-            // This part of the function was incomplete, finishing it.
             feedbackValidation.textContent = 'Please select a rating.';
             feedbackValidation.classList.remove('hidden');
             return;
@@ -534,7 +575,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // NOTE: Add actual API call here
         showToast('Thank you for your feedback!', 'success');
         feedbackModal.classList.add('hidden');
+        
+        // Reset form
+        feedbackComments.value = '';
+        Array.from(feedbackRating.children).forEach(star => star.classList.remove('text-yellow-400'));
     }
+
+    submitFeedbackButton.addEventListener('click', submitFeedback);
 
     // --- Modal and Auth Logic ---
     openSettingsButton.addEventListener('click', () => {
