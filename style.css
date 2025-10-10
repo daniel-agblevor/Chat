@@ -129,3 +129,7 @@ body {
     background-color: rgba(248, 113, 113, 0.2);
     border-color: rgba(248, 113, 113, 0.5);
 }
+
+#login-modal {
+    z-index: 100;
+}

@@ -61,6 +61,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextQuestionButton = document.getElementById('next-question-button');
     const progressText = document.getElementById('quiz-progress-text');
     const progressBar = document.getElementById('quiz-progress-bar');
+    const loginModal = document.getElementById('login-modal');
+    const closeLoginModal = document.getElementById('close-login-modal');
+    const loginForm = document.getElementById('login-form');
 
     // --- App State ---
     let state = {
@@ -523,6 +526,32 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Thank you for your feedback!', 'success');
         feedbackModal.classList.add('hidden');
     }
+
+    // --- Modal and Auth Logic ---
+    openSettingsButton.addEventListener('click', () => {
+        if (state.isLoggedIn) {
+            settingsModal.classList.remove('hidden');
+        } else {
+            loginModal.classList.remove('hidden');
+        }
+    });
+
+    closeLoginModal.addEventListener('click', () => {
+        loginModal.classList.add('hidden');
+    });
+
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // In a real app, you'd validate credentials here
+        state.isLoggedIn = true;
+        loginModal.classList.add('hidden');
+        initializeApp(); // Re-initialize the app in a logged-in state
+        showToast('Login successful!', 'success');
+    });
+
+    closeSettingsModal.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+    });
 
     // --- App Initialization ---
     async function initializeApp() {
