@@ -4,7 +4,7 @@
 
 **Project Name:** Starlight RAG
 **Description:** A web-based AI assistant that uses Retrieval-Augmented Generation (RAG) to allow users to chat with their documents. The application also provides features to auto-generate flashcards and quizzes from the document content, creating a comprehensive learning and data interaction tool.
-**Date:** October 6, 2025
+Date: October 10, 2025
 
 ---
 
