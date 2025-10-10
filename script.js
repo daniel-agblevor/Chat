@@ -124,7 +124,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Hide all views and right sidebars first
         Object.values(views).forEach(v => v.classList.add('hidden'));
-        Object.values(rightSidebars).forEach(sb => sb.classList.add('hidden'));
+        Object.values(rightSidebars).forEach(sb => {
+            sb.classList.add('hidden');
+            sb.classList.remove('md:flex');
+        });
 
         // Deactivate all mode buttons
         Object.values(buttons).forEach(b => {
@@ -139,7 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Show the right sidebar ONLY if logged in and a corresponding sidebar exists
         if (state.isLoggedIn && rightSidebars[state.activeMode]) {
-            rightSidebars[state.activeMode].classList.remove('hidden');
+            const activeSidebar = rightSidebars[state.activeMode];
+            activeSidebar.classList.remove('hidden');
+            activeSidebar.classList.add('md:flex');
         }
 
         // Activate the button for the current mode
