@@ -64,6 +64,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginModal = document.getElementById('login-modal');
     const closeLoginModal = document.getElementById('close-login-modal');
     const loginForm = document.getElementById('login-form');
+    const registerModal = document.getElementById('register-modal');
+    const closeRegisterModal = document.getElementById('close-register-modal');
+    const registerForm = document.getElementById('register-form');
+    const openRegisterModal = document.getElementById('open-register-modal');
 
     // --- App State ---
     let state = {
@@ -556,6 +560,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeSettingsModal.addEventListener('click', () => {
         settingsModal.classList.add('hidden');
+    });
+
+    openRegisterModal.addEventListener('click', () => {
+        loginModal.classList.add('hidden');
+        registerModal.classList.remove('hidden');
+    });
+
+    closeRegisterModal.addEventListener('click', () => {
+        registerModal.classList.add('hidden');
+    });
+
+    registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        // In a real app, you'd register the user here
+        console.log('Registering user...');
+        registerModal.classList.add('hidden');
+        showToast('Registration successful! Please log in.', 'success');
+        loginModal.classList.remove('hidden');
     });
 
     // --- App Initialization ---

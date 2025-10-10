@@ -130,6 +130,6 @@ body {
     border-color: rgba(248, 113, 113, 0.5);
 }
 
-#login-modal {
+#login-modal, #register-modal {
     z-index: 100;
 }

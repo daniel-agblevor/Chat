@@ -115,6 +115,10 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords h-4 w-4 text-sky-400"><path d="M14.5 17.5 20 22"/><path d="m21 2-9.6 9.6"/><path d="M3.5 14.5 9 20"/><path d="m3 21 9.6-9.6"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m5 12-2 0"/><path d="m21 12-2 0"/></svg>
                                 <span class="hidden sm:inline">Quiz Me</span>
                             </button>
+                            <button id="right-sidebar-toggle-button" class="p-1 text-slate-300 hover:text-violet-400 rounded-md md:hidden ml-2 sm:ml-4">
+                                <i id="open-right-sidebar-icon" data-lucide="chevron-right" class="h-6 w-6"></i>
+                                <i id="close-right-sidebar-icon" data-lucide="x" class="h-6 w-6 hidden"></i>
+                            </button>
                         </div>
                     </div>
                 </header>
@@ -155,7 +159,7 @@
             </div>
         </div>
         <!-- Right Sidebar for Chat History -->
-        <aside id="right-sidebar" class="hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
+        <aside id="right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full">
             <h3 class="text-lg font-semibold mb-4">Chat History</h3>
             <div id="chat-history-container" class="flex-grow overflow-y-auto">
                 <!-- Chat history will be rendered here -->
@@ -291,9 +295,37 @@
                     <label for="password" class="text-sm font-medium text-slate-300">Password</label>
                     <input type="password" id="password" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="••••••••">
                 </div>
-                <button type="submit" id="login-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 font-semibold">Login / Register</button>
+                <button type="submit" id="login-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 font-semibold">Login</button>
             </form>
+            <p class="text-center text-sm text-slate-400 my-4">Don't have an account? 
+                <button id="open-register-modal" class="font-semibold text-violet-400 hover:text-violet-300">Register</button>
+            </p>
             <button id="close-login-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="register-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
+        <div class="glass-effect w-full max-w-sm rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-6 text-center">Create Account</h2>
+            <form id="register-form" class="space-y-4">
+                <div>
+                    <label for="register-username" class="text-sm font-medium text-slate-300">Username</label>
+                    <input type="text" id="register-username" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="e.g., codingwizard">
+                </div>
+                <div>
+                    <label for="register-email" class="text-sm font-medium text-slate-300">Email</label>
+                    <input type="email" id="register-email" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="you@example.com">
+                </div>
+                <div>
+                    <label for="register-password" class="text-sm font-medium text-slate-300">Password</label>
+                    <input type="password" id="register-password" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="••••••••">
+                </div>
+                <button type="submit" id="register-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 font-semibold">Create Account</button>
+            </form>
+            <button id="close-register-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
         </div>
