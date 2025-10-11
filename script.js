@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFileId: null,
         isLoggedIn: false, // Assume logged out by default
         activeMode: 'chat', // Track the active mode: 'chat', 'flashcards', or 'quiz'
+        isRightSidebarVisible: true, // Manages the visibility of the right sidebar
         chatHistory: [],
         flashcardSets: [],
         quizSets: [],
@@ -124,7 +125,15 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Please log in to use this feature.', 'info');
             return;
         }
-        state.activeMode = mode;
+
+        if (state.activeMode === mode) {
+            // Toggle sidebar visibility if the same mode button is clicked
+            state.isRightSidebarVisible = !state.isRightSidebarVisible;
+        } else {
+            // Switch to a new mode and ensure its sidebar is visible
+            state.activeMode = mode;
+            state.isRightSidebarVisible = true;
+        }
         updateUI();
     }
 
@@ -157,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(views).forEach(v => v.classList.add('hidden'));
         Object.values(rightSidebars).forEach(sb => {
             sb.classList.add('hidden');
-            sb.classList.remove('md:flex');
+            sb.classList.remove('md:flex', 'is-open');
         });
 
         // Deactivate all mode buttons
@@ -171,11 +180,23 @@ document.addEventListener('DOMContentLoaded', () => {
             views[state.activeMode].classList.remove('hidden');
         }
 
-        // Show the right sidebar ONLY if logged in and a corresponding sidebar exists
+        // Show the right sidebar if logged in, a sidebar exists, and it's set to be visible
         if (state.isLoggedIn && rightSidebars[state.activeMode]) {
             const activeSidebar = rightSidebars[state.activeMode];
-            activeSidebar.classList.remove('hidden');
-            activeSidebar.classList.add('md:flex');
+            if (state.isRightSidebarVisible) {
+                activeSidebar.classList.remove('hidden');
+                activeSidebar.classList.add('md:flex');
+                activeSidebar.classList.add('is-open'); // For mobile animation
+                openRightSidebarIcon.classList.add('hidden');
+                closeRightSidebarIcon.classList.remove('hidden');
+            } else {
+                openRightSidebarIcon.classList.remove('hidden');
+                closeRightSidebarIcon.classList.add('hidden');
+            }
+        } else {
+            // Fallback for when no sidebar should be shown (e.g., logged out)
+            openRightSidebarIcon.classList.remove('hidden');
+            closeRightSidebarIcon.classList.add('hidden');
         }
 
         // Activate the button for the current mode
@@ -774,21 +795,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Mobile right-sidebar toggle: opens the sidebar corresponding to the active mode
     if (rightSidebarToggleButton) {
         rightSidebarToggleButton.addEventListener('click', () => {
-            const mode = state.activeMode;
-            const mapping = { chat: rightSidebar, flashcards: flashcardsRightSidebar, quiz: quizRightSidebar };
-            const target = mapping[mode];
-            if (!target) return;
-            target.classList.toggle('is-open');
-            // On mobile we also need to make sure it's visible
-            if (target.classList.contains('is-open')) {
-                target.classList.remove('hidden');
-                openRightSidebarIcon.classList.add('hidden');
-                closeRightSidebarIcon.classList.remove('hidden');
-            } else {
-                target.classList.add('hidden');
-                openRightSidebarIcon.classList.remove('hidden');
-                closeRightSidebarIcon.classList.add('hidden');
-            }
+            // The button's only job is to toggle the sidebar's visibility state
+            state.isRightSidebarVisible = !state.isRightSidebarVisible;
+            updateUI();
         });
     }
 
