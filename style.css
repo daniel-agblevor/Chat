@@ -222,3 +222,23 @@ body.light-mode {
 .light-mode .bg-violet-500\/20 {
     background-color: rgba(139, 92, 246, 0.1);
 }
+
+.light-mode .flashcard-front {
+    background-color: #ffffff;
+}
+
+.light-mode .flashcard-back {
+    background-color: #f3e8ff; /* Violet 100 */
+}
+
+.light-mode #quiz-options button {
+    background-color: rgba(226, 232, 240, 0.6);
+}
+
+.light-mode #quiz-options button:hover {
+    background-color: rgba(203, 213, 225, 0.8);
+}
+
+.light-mode #chat-history-list li, .light-mode #flashcard-history-list li, .light-mode #quiz-history-list li {
+    background-color: rgba(226, 232, 240, 0.6);
+}
