@@ -242,3 +242,7 @@ body.light-mode {
 .light-mode #chat-history-list li, .light-mode #flashcard-history-list li, .light-mode #quiz-history-list li {
     background-color: rgba(226, 232, 240, 0.6);
 }
+
+.light-mode .toast {
+    color: #0f172a; /* Slate 900 */
+}
