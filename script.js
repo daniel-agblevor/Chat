@@ -2,10 +2,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
     // Development API endpoint
     const API_BASE_URL_DEV = 'http://127.0.0.1:8000/api/v1';
-    // Production API endpoint
-    // const API_BASE_URL_PROD = 'https://api.starlightrag.com/v1';
 
-    const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? API_BASE_URL_DEV : API_BASE_URL_PROD;
+
+    const API_BASE_URL = API_BASE_URL_DEV;
     
     let apiToken = localStorage.getItem('apiToken'); // Stores the user's authentication token.
 
@@ -289,9 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 state.activeFileId = state.files[0].id;
             }
             renderFiles();
-            if (state.activeFileId) {
-                await loadChatHistory(state.activeFileId);
-            }
         } catch (error) {
             console.error("Failed to load files:", error);
             // In production, you might want to show a more user-friendly error message.
@@ -344,11 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (state.activeFileId === fileId) {
                 state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
                 chatWindow.innerHTML = ''; // Clear chat window
-                if (state.activeFileId) {
-                    await loadChatHistory(state.activeFileId);
-                } else {
-                    renderChatHistory(); // Render empty state
-                }
+                renderChatHistory(); // Render empty state
             }
             
             renderFiles();
@@ -375,7 +367,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const fileId = fileItem.dataset.fileId;
             state.activeFileId = fileId;
             renderFiles();
-            await loadChatHistory(fileId);
         }
     });
 
@@ -425,25 +416,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Chat Logic ---
-    async function loadChatHistory(fileId) {
+    async function loadChatHistory() {
         chatHistoryLoading.classList.remove('hidden');
         chatHistoryEmpty.classList.add('hidden');
         chatHistoryList.innerHTML = '';
         chatWindow.innerHTML = '';
         try {
             // --- Production-Ready Chat History Loading ---
-            // Fetches the chat history for the given file from the backend.
-            const data = await apiRequest(`/files/${fileId}/chat`);
+            // Fetches the chat history from the backend.
+            const data = await apiRequest(`/chat`);
             // --- End Production-Ready Chat History Loading ---
             
             state.chatHistory = data.history || [];
             renderChatHistory();
             state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
         } catch (error) {
-            console.error(`Failed to load chat history for ${fileId}:`, error);
+            console.error(`Failed to load chat history:`, error);
             chatHistoryEmpty.classList.remove('hidden');
             // Production-ready error display
-            addMessage("Could not load chat history. Please select another file or try again.", 'bot', false);
+            addMessage("Could not load chat history. Please try again later.", 'bot', false);
         } finally {
             chatHistoryLoading.classList.add('hidden');
         }
@@ -469,8 +460,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const userMessage = messageInput.value.trim();
-        if (!userMessage || !state.activeFileId) {
-            showToast('Please select a file and type a message.', 'info');
+        if (!userMessage) {
+            showToast('Please type a message.', 'info');
             return;
         }
 
@@ -482,7 +473,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             // --- Production-Ready Chat Response ---
             // Sends the user's message to the server and receives the assistant's response.
-            const data = await apiRequest(`/files/${state.activeFileId}/chat`, {
+            const data = await apiRequest(`/chat`, {
                 method: 'POST',
                 body: { message: userMessage }
             });
@@ -860,7 +851,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // For now, we can toggle `state.isLoggedIn` manually for testing
         // state.isLoggedIn = true; // <-- uncomment to test logged-in state
         
-        // Load initial data if logged in
+        // Load initial data
+        await loadChatHistory();
         if (state.isLoggedIn) {
             await loadFiles();
         }

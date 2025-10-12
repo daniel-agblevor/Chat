@@ -131,7 +131,7 @@
                                  <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                             </div>
                             <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md">
-                                <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you with your data today?</p>
+                                <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you today?</p>
                             </div>
                         </div>
                     </div>
@@ -154,6 +154,43 @@
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal h-5 w-5 sm:h-6 sm:w-6"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
                             </button>
                         </form>
+                    </div>
+                </main>
+
+                <main id="flashcards-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                    <div class="p-4 sm:p-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
+                        <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
+                            <div class="flashcard-inner relative w-full h-full">
+                                <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
+                                    <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
+                                </div>
+                                <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
+                                    <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
+                            <p id="card-counter" class="text-sm text-slate-400"></p>
+                            <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
+                        </div>
+                    </div>
+                </main>
+
+                <main id="quiz-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                    <div class="p-4 sm:p-6">
+                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
+                        <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
+                        <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
+                            <div id="quiz-progress-bar" class="bg-violet-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                        </div>
+                        <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
+                        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
+                        <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
+                        <div class="flex justify-end items-center">
+                             <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
+                        </div>
                     </div>
                 </main>
             </div>
