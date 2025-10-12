@@ -135,6 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
             state.activeMode = mode;
             state.isRightSidebarVisible = true;
         }
+        if (mode === 'quiz') {
+            loadQuizQuestion();
+        }
         updateUI();
     }
 
