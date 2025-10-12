@@ -144,3 +144,81 @@ body {
 #login-modal, #register-modal {
     z-index: 100;
 }
+
+/* Light Mode */
+body.light-mode {
+    background-color: #f1f5f9; /* Slate 100 */
+    color: #0f172a; /* Slate 900 */
+}
+
+.light-mode .glass-effect {
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .text-slate-100 {
+    color: #0f172a; /* Slate 900 */
+}
+
+.light-mode .text-slate-200 {
+    color: #1e293b; /* Slate 800 */
+}
+
+.light-mode .text-slate-300 {
+    color: #334155; /* Slate 700 */
+}
+
+.light-mode .text-slate-400 {
+    color: #475569; /* Slate 600 */
+}
+
+.light-mode .bg-slate-800\/50 {
+    background-color: rgba(226, 232, 240, 0.5); /* Slate 200/50 */
+}
+
+.light-mode .bg-slate-800\/60 {
+    background-color: rgba(226, 232, 240, 0.6); /* Slate 200/60 */
+}
+
+.light-mode .border-white\/10 {
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .hover\:bg-slate-800\/50:hover {
+    background-color: rgba(203, 213, 225, 0.5); /* Slate 300/50 */
+}
+
+.light-mode .mode-button {
+    background-color: rgba(226, 232, 240, 0.6); /* slate-200/60 */
+    color: #334155; /* slate-700 */
+}
+
+.light-mode .mode-button:hover {
+    background-color: rgba(203, 213, 225, 0.8); /* slate-300/80 */
+}
+
+.light-mode .mode-button.active {
+    background-color: rgba(255, 255, 255, 0.8); /* white/80 */
+    color: #0f172a; /* slate-900 */
+}
+
+.light-mode #chat-window::-webkit-scrollbar-thumb, .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, .light-mode .modal-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(124, 58, 237, 0.5);
+}
+
+.light-mode .bg-slate-700\/50 {
+    background-color: rgba(226, 232, 240, 0.5); /* Slate 200/50 */
+}
+
+.light-mode .border-slate-700\/50 {
+    border-color: rgba(203, 213, 225, 0.5); /* Slate 300/50 */
+}
+
+.light-mode .placeholder-slate-400::placeholder {
+    color: #64748b; /* Slate 500 */
+}
+
+.light-mode .bg-violet-500\/20 {
+    background-color: rgba(139, 92, 246, 0.1);
+}

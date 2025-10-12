@@ -347,6 +347,14 @@
                 </div>
             </div>
             <div class="flex-grow pt-4 space-y-6 overflow-y-auto modal-scroll pr-2">
+                <!-- Theme Switcher -->
+                <div class="flex items-center justify-between">
+                    <label for="theme-switcher" class="text-sm font-semibold text-slate-300">Light Mode</label>
+                    <button id="theme-switcher" class="relative inline-flex items-center h-6 rounded-full w-11">
+                        <span class="absolute inline-flex w-full h-full bg-slate-700/50 rounded-full"></span>
+                        <span id="theme-switcher-indicator" class="inline-block w-4 h-4 transform translate-x-1 bg-white rounded-full transition-transform"></span>
+                    </button>
+                </div>
                 <!-- Special Instructions -->
                 <div>
                     <label for="special-instructions" class="text-sm font-semibold text-slate-300 mb-2 block">Special Instructions</label>

@@ -78,6 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeRegisterModal = document.getElementById('close-register-modal');
     const registerForm = document.getElementById('register-form');
     const openRegisterModal = document.getElementById('open-register-modal');
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const themeSwitcherIndicator = document.getElementById('theme-switcher-indicator');
 
     // --- App State ---
     let state = {
@@ -856,6 +858,42 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUI();
     }
 
+    // --- Theme Management ---
+    function applyTheme(theme) {
+        if (theme === 'light') {
+            document.body.classList.add('light-mode');
+            themeSwitcherIndicator.classList.add('translate-x-5');
+        } else {
+            document.body.classList.remove('light-mode');
+            themeSwitcherIndicator.classList.remove('translate-x-5');
+        }
+    }
+
+    themeSwitcher.addEventListener('click', () => {
+        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    });
+
+    // --- App Initialization ---
+    async function initializeApp() {
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        // Here you would typically check for a real authentication token
+        // For now, we can toggle `state.isLoggedIn` manually for testing
+        // state.isLoggedIn = true; // <-- uncomment to test logged-in state
+        
+        // Load initial data
+        await loadChatHistory();
+        if (state.isLoggedIn) {
+            await loadFiles();
+        }
+        
+        // Set the initial UI state based on auth and default mode
+        updateUI();
+    }
+
     initializeApp();
 });
-
