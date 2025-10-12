@@ -103,16 +103,16 @@
                         <span class="text-xs sm:text-sm text-slate-400 hidden md:inline">Your AI-Powered Data Assistant</span>
                         <div class="flex-grow"></div>
                         <div class="flex items-center gap-2">
-                            <button id="chat-button" class="flex items-center gap-2 py-2 px-3 bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle h-4 w-4 text-green-400"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>
+                            <button id="chat-button" class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold active">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-circle h-4 w-4 text-green-400"></svg>
                                 <span class="hidden sm:inline">Chat</span>
                             </button>
-                            <button id="flashcards-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy h-4 w-4 text-violet-400"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            <button id="flashcards-button" class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy h-4 w-4 text-violet-400"></svg>
                                 <span class="hidden sm:inline">Flashcards</span>
                             </button>
-                            <button id="quiz-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords h-4 w-4 text-sky-400"><path d="M14.5 17.5 20 22"/><path d="m21 2-9.6 9.6"/><path d="M3.5 14.5 9 20"/><path d="m3 21 9.6-9.6"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m5 12-2 0"/><path d="m21 12-2 0"/></svg>
+                            <button id="quiz-button" class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-swords h-4 w-4 text-sky-400"></svg>
                                 <span class="hidden sm:inline">Quiz Me</span>
                             </button>
                             <button id="right-sidebar-toggle-button" class="p-1 text-slate-300 hover:text-violet-400 rounded-md md:hidden ml-2 sm:ml-4">
@@ -157,7 +157,7 @@
                     </div>
                 </main>
 
-                <main id="flashcards-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="flashcards-view" class="view hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div class="p-4 sm:p-6">
                         <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
                         <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
@@ -178,7 +178,7 @@
                     </div>
                 </main>
 
-                <main id="quiz-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
+                <main id="quiz-view" class="view hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div class="p-4 sm:p-6">
                         <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
                         <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
@@ -281,43 +281,6 @@
     
     <!-- Overlays -->
     <div id="sidebar-overlay" class="fixed inset-0 bg-black/60 z-30 hidden md:hidden"></div>
-
-                <main id="flashcards-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
-                    <div class="p-4 sm:p-6">
-                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-4">Flashcards</h2>
-                        <div id="flashcard" class="flashcard w-full h-64 sm:h-80 perspective-[1000px] cursor-pointer mb-4">
-                            <div class="flashcard-inner relative w-full h-full">
-                                <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
-                                    <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
-                                </div>
-                                <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
-                                    <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex justify-between items-center">
-                            <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
-                            <p id="card-counter" class="text-sm text-slate-400"></p>
-                            <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
-                        </div>
-                    </div>
-                </main>
-
-                <main id="quiz-view" class="view view-hidden flex-grow flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
-                    <div class="p-4 sm:p-6">
-                        <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
-                        <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
-                        <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
-                            <div id="quiz-progress-bar" class="bg-violet-600 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
-                        </div>
-                        <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
-                        <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
-                        <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
-                        <div class="flex justify-end items-center">
-                             <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
-                        </div>
-                    </div>
-                </main>
                 
     <!-- Login Modal -->
     <div id="login-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">

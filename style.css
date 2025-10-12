@@ -52,8 +52,19 @@ body {
 }
 .flashcard-back { transform: rotateY(180deg); }
 
-.active-nav-button {
-    background-color: #4c1d95;
+.mode-button {
+    background-color: rgba(51, 65, 85, 0.6); /* slate-700/60 */
+    color: #d1d5db; /* slate-300 */
+}
+
+.mode-button:hover {
+    background-color: rgba(51, 65, 85, 0.8); /* slate-700/80 */
+}
+
+.mode-button.active {
+    background-color: rgba(30, 41, 59, 0.8); /* slate-800/80 */
+    color: #f8fafc; /* slate-50 */
+    font-weight: 600;
 }
 
 /* --- View Transitions --- */
@@ -128,7 +139,7 @@ body {
 .toast.error {
     background-color: rgba(248, 113, 113, 0.2);
     border-color: rgba(248, 113, 113, 0.5);
-}
+} 
 
 #login-modal, #register-modal {
     z-index: 100;

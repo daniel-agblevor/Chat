@@ -169,10 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Deactivate all mode buttons
-        Object.values(buttons).forEach(b => {
-            b.classList.remove('bg-slate-800/60', 'text-slate-100', 'font-semibold');
-            b.classList.add('hover:bg-slate-800/50', 'text-slate-300');
-        });
+        Object.values(buttons).forEach(b => b.classList.remove('active'));
 
         // Show the view for the active mode
         if (views[state.activeMode]) {
@@ -200,9 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Activate the button for the current mode
         if (buttons[state.activeMode]) {
-            const button = buttons[state.activeMode];
-            button.classList.add('bg-slate-800/60', 'text-slate-100', 'font-semibold');
-            button.classList.remove('hover:bg-slate-800/50', 'text-slate-300');
+            buttons[state.activeMode].classList.add('active');
         }
         
         // Re-initialize icons if their container's innerHTML was changed
