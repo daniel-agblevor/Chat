@@ -127,35 +127,43 @@ document.addEventListener('DOMContentLoaded', () => {
      * Switches the application to a new mode (chat, flashcards, quiz).
      * @param {string} mode The mode to switch to.
      */
+
     function switchMode(mode) {
         // Prevent switching to protected modes if not logged in
         if (!state.isLoggedIn && (mode === 'flashcards' || mode === 'quiz')) {
             showToast('Please log in to use this feature.', 'info');
             return;
         }
-
+    
+        const isMobile = window.innerWidth < 768;
+    
         if (state.activeMode === mode) {
-            // On mobile, second click on the same mode opens the left sidebar
-            const isMobile = window.innerWidth < 768;
+            // Same mode tapped again
             if (isMobile) {
-                sidebar.classList.remove('-translate-x-full');
-                sidebarOverlay.classList.remove('hidden');
-                updateLeftSidebarHandle();
+                // Toggle sidebar visibility ONLY on second tap
+                state.isRightSidebarVisible = !state.isRightSidebarVisible;
             }
         } else {
-            // Switch to a new mode and preserve current right sidebar visibility
+            // Switching to a new mode
             state.activeMode = mode;
+    
+            // On mobile, keep sidebar hidden until second tap
+            // On desktop, keep it visible by default
+            state.isRightSidebarVisible = !isMobile;
         }
+    
+        // Load mode-specific data
         if (mode === 'quiz') {
             loadQuizQuestion();
-        }
-        if (mode === 'flashcards') {
+        } else if (mode === 'flashcards') {
             loadFlashcard(state.currentFlashcardIndex || 0);
         }
+    
+        // Update UI based on the new state
         updateUI();
         updateMainSidebarToggleIcon();
     }
-
+    
     /**
      * Updates the entire UI based on the current application state (auth and active mode).
      */
@@ -823,6 +831,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function setupRightSidebarTogglePerViewport() {
         if (!rightSidebarToggleButton) return;
         const isMobile = window.innerWidth < 768;
+        
         if (isMobile) {
             rightSidebarToggleButton.classList.remove('hidden');
             rightSidebarToggleButton.onclick = () => {
