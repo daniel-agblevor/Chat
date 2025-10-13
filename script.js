@@ -134,12 +134,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (state.activeMode === mode) {
-            // Toggle sidebar visibility if the same mode button is clicked
-            state.isRightSidebarVisible = !state.isRightSidebarVisible;
+            // Do not auto-toggle the right sidebar on same mode clicks anymore
         } else {
-            // Switch to a new mode and ensure its sidebar is visible
+            // Switch to a new mode and preserve current right sidebar visibility
             state.activeMode = mode;
-            state.isRightSidebarVisible = true;
         }
         if (mode === 'quiz') {
             loadQuizQuestion();
@@ -201,11 +199,14 @@ document.addEventListener('DOMContentLoaded', () => {
             closeRightSidebarIcon.classList.add('hidden');
         }
 
-        // Desktop open handle visibility (only relevant for chat right sidebar)
+        // Desktop handle visibility and label (sole toggle for right sidebars)
         if (openRightSidebarHandle) {
-            const showHandle = state.isLoggedIn && state.activeMode === 'chat' && !state.isRightSidebarVisible;
+            const showHandle = state.isLoggedIn;
             openRightSidebarHandle.classList.toggle('hidden', !showHandle);
-            openRightSidebarHandle.setAttribute('aria-expanded', state.isRightSidebarVisible ? 'true' : 'false');
+            const isOpen = !!state.isRightSidebarVisible;
+            openRightSidebarHandle.textContent = isOpen ? '>' : '<';
+            openRightSidebarHandle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            openRightSidebarHandle.setAttribute('aria-label', isOpen ? 'Hide right sidebar' : 'Open right sidebar');
         }
 
         if (buttons[state.activeMode]) {
@@ -772,15 +773,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (rightSidebarToggleButton) {
-        rightSidebarToggleButton.addEventListener('click', () => {
-            state.isRightSidebarVisible = !state.isRightSidebarVisible;
-            updateUI();
+        // Disable header toggle in favor of the handle
+        rightSidebarToggleButton.addEventListener('click', (e) => {
+            e.preventDefault();
         });
+        rightSidebarToggleButton.classList.add('hidden');
     }
 
     if (openRightSidebarHandle) {
         openRightSidebarHandle.addEventListener('click', () => {
-            state.isRightSidebarVisible = true;
+            state.isRightSidebarVisible = !state.isRightSidebarVisible;
             updateUI();
         });
     }

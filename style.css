@@ -272,3 +272,10 @@ body.light-mode {
 #open-right-sidebar-handle {
     line-height: 1;
 }
+
+/* Hide the right sidebar handle on mobile; it is desktop-only */
+@media (max-width: 767px) {
+    #open-right-sidebar-handle {
+        display: none !important;
+    }
+}
