@@ -150,6 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.classList.toggle('logged-in', state.isLoggedIn);
         fileManagementSection.style.display = state.isLoggedIn ? 'block' : 'none';
 
+        if (state.isLoggedIn) {
+            flashcardsButton.classList.remove('hidden');
+            quizButton.classList.remove('hidden');
+        } else {
+            flashcardsButton.classList.add('hidden');
+            quizButton.classList.add('hidden');
+            state.activeMode = 'chat';
+        }
+
         const views = { chat: chatView, flashcards: flashcardsView, quiz: quizView };
         const rightSidebars = { chat: rightSidebar, flashcards: flashcardsRightSidebar, quiz: quizRightSidebar };
         const buttons = { chat: chatButton, flashcards: flashcardsButton, quiz: quizButton };
