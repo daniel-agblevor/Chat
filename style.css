@@ -33,26 +33,160 @@ button, a {
     transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
+/* Global Theme Transitions */
+* {
+    transition: background-color 0.3s ease-in-out,
+                color 0.3s ease-in-out,
+                border-color 0.3s ease-in-out,
+                box-shadow 0.3s ease-in-out;
+}
+
+/* Override for interactive elements to maintain snappy feel */
+button, a, input, select, textarea, .mode-button, .bg-violet-600, .bg-slate-800\/60 {
+    transition: background-color 0.2s ease-in-out,
+                color 0.2s ease-in-out,
+                border-color 0.2s ease-in-out,
+                opacity 0.2s ease-in-out,
+                transform 0.1s ease-in-out,
+                box-shadow 0.2s ease-in-out;
+}
+
 /* Add a satisfying 'press' effect to all buttons */
 button:active {
     transform: scale(0.97);
 }
 
-/* Enhanced sidebar transitions */
-.right-sidebar-mobile {
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+/* Main Sidebar Transitions */
+#sidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.3s ease-in-out;
+}
+
+#sidebar:not(.hidden) {
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Sidebar Overlay Transitions */
+#sidebar-overlay {
+    transition: opacity 0.3s ease-in-out,
+                visibility 0.3s ease-in-out;
+}
+
+#sidebar-overlay:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+#sidebar-overlay.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Enhanced sidebar transitions - Now handled by specific sidebar IDs */
+
+/* Right Sidebar Specific Transitions */
+#right-sidebar, #flashcards-right-sidebar, #quiz-right-sidebar {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease-in-out,
+                box-shadow 0.3s ease-in-out,
+                visibility 0.3s ease-in-out;
+}
+
+/* Desktop Right Sidebar Transitions */
+@media (min-width: 768px) {
+    /* Desktop: Reset mobile positioning and use normal flow */
+    #right-sidebar, #flashcards-right-sidebar, #quiz-right-sidebar {
+        position: relative;
+        transform: none;
+        transition: opacity 0.3s ease-in-out,
+                    box-shadow 0.3s ease-in-out,
+                    visibility 0.3s ease-in-out;
+    }
+    
+    #right-sidebar:not(.hidden), #flashcards-right-sidebar:not(.hidden), #quiz-right-sidebar:not(.hidden) {
+        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Right Sidebar Handle Button Transitions */
+    #open-right-sidebar-handle {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #open-right-sidebar-handle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    #open-right-sidebar-handle:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Right Sidebar Content Transitions */
+#chat-history-container, #flashcards-history-container, #quiz-history-container {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#chat-history-list, #flashcards-history-list, #quiz-history-list {
+    transition: all 0.3s ease-in-out;
+}
+
+#chat-history-list li, #flashcards-history-list li, #quiz-history-list li {
+    transition: all 0.2s ease-in-out;
+}
+
+#chat-history-list li:hover, #flashcards-history-list li:hover, #quiz-history-list li:hover {
+    transform: translateX(4px);
+    background-color: rgba(139, 92, 246, 0.1);
+}
+
+/* Right Sidebar Loading States */
+#chat-history-loading, #flashcards-history-loading, #quiz-history-loading {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#chat-history-empty, #flashcards-history-empty, #quiz-history-empty {
+    transition: opacity 0.3s ease-in-out;
 }
 
 /* Improved mobile sidebar behavior */
 @media (max-width: 767px) {
-    .right-sidebar-mobile {
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+    /* Mobile Right Sidebars - Slide in from right like main sidebar slides from left */
+    #right-sidebar, #flashcards-right-sidebar, #quiz-right-sidebar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        height: 100vh;
+        width: 100%;
+        max-width: 320px;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 50;
         will-change: transform;
     }
     
-    .right-sidebar-mobile.is-open {
+    /* When right sidebars are open/visible */
+    #right-sidebar:not(.hidden), #flashcards-right-sidebar:not(.hidden), #quiz-right-sidebar:not(.hidden) {
         transform: translateX(0);
-        opacity: 1;
+    }
+    
+    /* When right sidebars are closed/hidden */
+    #right-sidebar.hidden, #flashcards-right-sidebar.hidden, #quiz-right-sidebar.hidden {
+        transform: translateX(100%);
+    }
+    
+    /* Mobile Right Sidebar Handle Transitions */
+    #open-right-sidebar-handle {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #open-right-sidebar-handle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    #open-right-sidebar-handle:active {
+        transform: scale(0.95);
     }
 }
 
@@ -151,6 +285,14 @@ button:active {
     border-radius: 1rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 
                 0 0 0 1px rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease-in-out;
+}
+
+.glass-effect:hover {
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 
+                0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 @keyframes blob {
@@ -258,13 +400,55 @@ button:active {
     animation: view-enter 0.3s ease-in-out;
 }
 
+/* View transitions are handled by view-enter-active class */
+
+/* Modal Transitions */
+#login-modal, #register-modal, #settings-modal, #feedback-modal {
+    transition: opacity 0.3s ease-in-out,
+                visibility 0.3s ease-in-out;
+}
+
+#login-modal:not(.hidden), #register-modal:not(.hidden), 
+#settings-modal:not(.hidden), #feedback-modal:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+#login-modal.hidden, #register-modal.hidden, 
+#settings-modal.hidden, #feedback-modal.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Modal Content Transitions */
+#login-modal .glass-effect, #register-modal .glass-effect,
+#settings-modal .glass-effect, #feedback-modal .glass-effect {
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+                opacity 0.3s ease-in-out;
+}
+
+#login-modal:not(.hidden) .glass-effect, #register-modal:not(.hidden) .glass-effect,
+#settings-modal:not(.hidden) .glass-effect, #feedback-modal:not(.hidden) .glass-effect {
+    transform: scale(1);
+    opacity: 1;
+}
+
+#login-modal.hidden .glass-effect, #register-modal.hidden .glass-effect,
+#settings-modal.hidden .glass-effect, #feedback-modal.hidden .glass-effect {
+    transform: scale(0.95);
+    opacity: 0;
+}
+
+/* View transitions */
 .view {
-    /* The old transition properties are no longer needed here */
+    transition: opacity 0.3s ease-in-out,
+                transform 0.3s ease-in-out;
 }
 
 .view-hidden {
-    /* This class is not used for view switching to preserve layout */
-    display: none;
+    opacity: 0;
+    transform: scale(0.98);
+    pointer-events: none;
 }
 
 /* --- Spinner --- */
@@ -296,6 +480,70 @@ button:active {
 
 .message-fade-in {
     animation: fadeInMessage 0.3s ease-in-out;
+}
+
+/* Chat Interface Transitions */
+#chat-window {
+    transition: all 0.3s ease-in-out;
+}
+
+#typing-indicator {
+    transition: opacity 0.3s ease-in-out,
+                transform 0.3s ease-in-out;
+}
+
+#typing-indicator:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#typing-indicator.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+/* Form Input Transitions */
+#message-input, #email, #password, #register-username, #register-email, #register-password {
+    transition: border-color 0.2s ease-in-out,
+                box-shadow 0.2s ease-in-out,
+                transform 0.1s ease-in-out;
+}
+
+#message-input:focus, #email:focus, #password:focus, 
+#register-username:focus, #register-email:focus, #register-password:focus {
+    transform: scale(1.02);
+}
+
+/* Progress Bar Transitions */
+#quiz-progress-bar {
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Flashcard Transitions */
+.flashcard {
+    transition: transform 0.3s ease-in-out;
+}
+
+.flashcard:hover {
+    transform: scale(1.02);
+}
+
+.flashcard-inner {
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Quiz Options Transitions */
+#quiz-options button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#quiz-options button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+#quiz-options button:active {
+    transform: translateY(0);
 }
 
 /* --- Toast Notifications --- */
@@ -507,6 +755,7 @@ body.light-mode {
         overflow-y: auto;
         padding-bottom: 72px; /* Space for input form */
         scroll-behavior: smooth;
+        transition: all 0.3s ease-in-out;
     }
 
     /* The bottom input container */
@@ -522,6 +771,52 @@ body.light-mode {
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
         padding: 10px 12px;
         z-index: 50;
+        transition: all 0.3s ease-in-out;
+    }
+    
+    /* Mobile sidebar handle transitions */
+    #open-left-sidebar-handle, #open-right-sidebar-handle {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    #open-left-sidebar-handle:hover, #open-right-sidebar-handle:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    
+    /* Mobile menu button transitions */
+    #menu-button {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    #menu-button:hover {
+        transform: scale(1.1);
+        background-color: rgba(139, 92, 246, 0.1);
+    }
+    
+    /* Mobile mode button transitions */
+    .mode-button {
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+    
+    .mode-button:active {
+        transform: scale(0.95);
+    }
+    
+    /* Mobile form transitions */
+    #chat-form {
+        transition: all 0.3s ease-in-out;
+    }
+    
+    #message-input {
+        transition: all 0.2s ease-in-out;
+    }
+    
+    #message-input:focus {
+        transform: scale(1.02);
+        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
     }
 
     /* Light mode adaptation */
