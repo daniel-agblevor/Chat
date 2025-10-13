@@ -267,3 +267,8 @@ body.light-mode {
 .logged-in #open-settings-button {
     display: flex;
 }
+
+/* Right sidebar open handle (desktop) */
+#open-right-sidebar-handle {
+    line-height: 1;
+}

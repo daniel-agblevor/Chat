@@ -16,6 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.getElementById('sidebar');
     const menuButton = document.getElementById('menu-button');
     const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const closeMainSidebarButton = document.getElementById('close-main-sidebar');
     const uploadFileButton = document.getElementById('upload-file-button');
     const fileInput = document.getElementById('file-input');
     const rightSidebarToggleButton = document.getElementById('right-sidebar-toggle-button');
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const flashcardsView = document.getElementById('flashcards-view');
     const quizView = document.getElementById('quiz-view');
     const rightSidebar = document.getElementById('right-sidebar');
+    const openRightSidebarHandle = document.getElementById('open-right-sidebar-handle');
     const chatHistoryList = document.getElementById('chat-history-list');
     const chatHistoryLoading = document.getElementById('chat-history-loading');
     const chatHistoryEmpty = document.getElementById('chat-history-empty');
@@ -181,15 +183,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSidebar.classList.remove('hidden');
                 activeSidebar.classList.add('md:flex');
                 activeSidebar.classList.add('is-open');
+                activeSidebar.setAttribute('aria-hidden', 'false');
                 openRightSidebarIcon.classList.add('hidden');
                 closeRightSidebarIcon.classList.remove('hidden');
             } else {
+                activeSidebar.setAttribute('aria-hidden', 'true');
                 openRightSidebarIcon.classList.remove('hidden');
                 closeRightSidebarIcon.classList.add('hidden');
             }
         } else {
             openRightSidebarIcon.classList.remove('hidden');
             closeRightSidebarIcon.classList.add('hidden');
+        }
+
+        // Desktop open handle visibility (only relevant for chat right sidebar)
+        if (openRightSidebarHandle) {
+            const showHandle = state.isLoggedIn && state.activeMode === 'chat' && !state.isRightSidebarVisible;
+            openRightSidebarHandle.classList.toggle('hidden', !showHandle);
+            openRightSidebarHandle.setAttribute('aria-expanded', state.isRightSidebarVisible ? 'true' : 'false');
         }
 
         if (buttons[state.activeMode]) {
@@ -702,6 +713,13 @@ document.addEventListener('DOMContentLoaded', () => {
             sidebarOverlay.classList.toggle('hidden');
         });
     }
+    if (closeMainSidebarButton) {
+        closeMainSidebarButton.addEventListener('click', () => {
+            // Close main sidebar (primarily for mobile)
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+        });
+    }
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
@@ -712,6 +730,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rightSidebarToggleButton) {
         rightSidebarToggleButton.addEventListener('click', () => {
             state.isRightSidebarVisible = !state.isRightSidebarVisible;
+            updateUI();
+        });
+    }
+
+    if (openRightSidebarHandle) {
+        openRightSidebarHandle.addEventListener('click', () => {
+            state.isRightSidebarVisible = true;
+            updateUI();
+        });
+    }
+    if (closeRightSidebar) {
+        closeRightSidebar.addEventListener('click', () => {
+            state.isRightSidebarVisible = false;
             updateUI();
         });
     }
