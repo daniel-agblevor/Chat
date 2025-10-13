@@ -245,12 +245,7 @@ body.light-mode {
 
 /* --- Fix & Optimize: Mobile chat message input (dark + light mode) --- */
 @media (max-width: 767px) {
-    #chat-view {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        overflow: hidden;
-    }
+    /* The specific #chat-view block was removed to create a consistent mobile layout for all views */
 
     #chat-window {
         flex: 1;

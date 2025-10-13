@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         activeFileId: null,
         isLoggedIn: false, // Assume logged out by default
         activeMode: 'chat', // Track the active mode: 'chat', 'flashcards', or 'quiz'
-        isRightSidebarVisible: true, // Manages the visibility of the right sidebar
+        isRightSidebarVisible: window.innerWidth >= 768, // Manages the visibility of the right sidebar
         chatHistory: [],
         flashcardSets: [],
         quizSets: [],
