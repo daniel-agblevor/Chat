@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const openRegisterModal = document.getElementById('open-register-modal');
     const themeSwitcher = document.getElementById('theme-switcher');
     const themeSwitcherIndicator = document.getElementById('theme-switcher-indicator');
+    const loginSignupButton = document.getElementById('login-signup-button');
+    const fileManagementSection = document.getElementById('file-management-section');
 
     // --- App State ---
     let state = {
@@ -145,49 +147,31 @@ document.addEventListener('DOMContentLoaded', () => {
      * Updates the entire UI based on the current application state (auth and active mode).
      */
     function updateUI() {
-        // --- 1. Authentication-based UI Control ---
-        const originalSettingsButtonContent = `<i data-lucide="user-cog" class="h-5 w-5"></i><span>User / Settings</span>`;
-        const loginButtonContent = `<i data-lucide="log-in" class="h-5 w-5"></i><span>Login / Sign Up</span>`;
+        document.body.classList.toggle('logged-in', state.isLoggedIn);
+        fileManagementSection.style.display = state.isLoggedIn ? 'block' : 'none';
 
-        if (state.isLoggedIn) {
-            flashcardsButton.classList.remove('hidden');
-            quizButton.classList.remove('hidden');
-            openSettingsButton.innerHTML = originalSettingsButtonContent;
-        } else {
-            flashcardsButton.classList.add('hidden');
-            quizButton.classList.add('hidden');
-            openSettingsButton.innerHTML = loginButtonContent;
-            // Force chat mode if the user logs out while on another tab
-            state.activeMode = 'chat';
-        }
-
-        // --- 2. Dynamic View and Sidebar Switching ---
         const views = { chat: chatView, flashcards: flashcardsView, quiz: quizView };
         const rightSidebars = { chat: rightSidebar, flashcards: flashcardsRightSidebar, quiz: quizRightSidebar };
         const buttons = { chat: chatButton, flashcards: flashcardsButton, quiz: quizButton };
 
-        // Hide all views and right sidebars first
         Object.values(views).forEach(v => v.classList.add('hidden'));
         Object.values(rightSidebars).forEach(sb => {
             sb.classList.add('hidden');
             sb.classList.remove('md:flex', 'is-open');
         });
 
-        // Deactivate all mode buttons
         Object.values(buttons).forEach(b => b.classList.remove('active'));
 
-        // Show the view for the active mode
         if (views[state.activeMode]) {
             views[state.activeMode].classList.remove('hidden');
         }
 
-        // Show the right sidebar if logged in, a sidebar exists, and it's set to be visible
         if (state.isLoggedIn && rightSidebars[state.activeMode]) {
             const activeSidebar = rightSidebars[state.activeMode];
             if (state.isRightSidebarVisible) {
                 activeSidebar.classList.remove('hidden');
                 activeSidebar.classList.add('md:flex');
-                activeSidebar.classList.add('is-open'); // For mobile animation
+                activeSidebar.classList.add('is-open');
                 openRightSidebarIcon.classList.add('hidden');
                 closeRightSidebarIcon.classList.remove('hidden');
             } else {
@@ -195,17 +179,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 closeRightSidebarIcon.classList.add('hidden');
             }
         } else {
-            // Fallback for when no sidebar should be shown (e.g., logged out)
             openRightSidebarIcon.classList.remove('hidden');
             closeRightSidebarIcon.classList.add('hidden');
         }
 
-        // Activate the button for the current mode
         if (buttons[state.activeMode]) {
             buttons[state.activeMode].classList.add('active');
         }
         
-        // Re-initialize icons if their container's innerHTML was changed
         safeCreateIcons();
     }
 
@@ -225,28 +206,21 @@ document.addEventListener('DOMContentLoaded', () => {
     async function apiRequest(endpoint, options = {}) {
         const { method = 'GET', body = null } = options;
         
-        // --- Production-Ready Header Configuration ---
-        // In production, you would use a robust authentication token solution.
-        // This example uses localStorage for simplicity.
         const headers = {};
         if (apiToken) {
             headers['Authorization'] = `Bearer ${apiToken}`;
         }
-        // --- End Production-Ready Header Configuration ---
 
         if (body && !(body instanceof FormData)) {
             headers['Content-Type'] = 'application/json';
         }
 
         try {
-            // --- Production-Ready API Request ---
-            // This fetch call is ready for a production environment.
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method,
                 headers,
                 body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null
             });
-            // --- End Production-Ready API Request ---
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: { message: 'An unknown API error occurred.' } }));
@@ -277,11 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- File Management ---
     async function loadFiles() {
         try {
-            // --- Production-Ready File Loading ---
-            // This line fetches the user's file list from the backend.
-            // It's ready for production use.
             const data = await apiRequest('/files');
-            // --- End Production-Ready File Loading ---
             
             state.files = data.files || [];
             if (!state.activeFileId && state.files.length > 0) {
@@ -290,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
             renderFiles();
         } catch (error) {
             console.error("Failed to load files:", error);
-            // In production, you might want to show a more user-friendly error message.
             showToast("Could not load your files. Please try again later.", "error");
         }
     }
@@ -323,31 +292,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function deleteFile(fileId) {
-        // Confirmation dialog before deleting
         if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
             return;
         }
 
         try {
-            // --- Production-Ready File Deletion ---
-            // This performs an authenticated DELETE request to the file resource.
             await apiRequest(`/files/${fileId}`, { method: 'DELETE' });
-            // --- End Production-Ready File Deletion ---
 
             const fileName = state.files.find(f => f.id === fileId)?.name || 'Unknown file';
             state.files = state.files.filter(f => f.id !== fileId);
             
             if (state.activeFileId === fileId) {
                 state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
-                chatWindow.innerHTML = ''; // Clear chat window
-                renderChatHistory(); // Render empty state
+                chatWindow.innerHTML = '';
+                renderChatHistory();
             }
             
             renderFiles();
             showToast(`File "${fileName}" has been deleted.`, 'success');
         } catch (error) {
             console.error(`Failed to delete file ${fileId}:`, error);
-            // Production-ready error feedback
             showToast('Failed to delete the file. Please check your connection or try again.', 'error');
         }
     }
@@ -371,7 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Upload handling ---
-    // Trigger the hidden file input when the upload button is pressed
     if (uploadFileButton && fileInput) {
         uploadFileButton.addEventListener('click', () => fileInput.click());
 
@@ -379,34 +342,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const files = Array.from(e.target.files || []);
             if (files.length === 0) return;
             await uploadFiles(files);
-            // Reset input so the same file can be re-selected later
             fileInput.value = '';
         });
     }
 
-    /**
-     * Upload files to the backend. Uses FormData so binary content is preserved.
-     * Production: the backend must accept multipart/form-data at POST /files and return the created file list.
-     */
     async function uploadFiles(files) {
         const formData = new FormData();
         files.forEach(f => formData.append('files', f));
 
-        // --- Production-Ready File Upload ---
-        // This function sends files as multipart/form-data. The `apiRequest` helper
-        // handles the authentication token. The backend at POST /files is expected
-        // to handle this format and return the list of created files.
         try {
             await apiRequest('/files', { method: 'POST', body: formData });
             showToast('Files uploaded successfully and are being processed.', 'success');
-            // Refresh the file list to show the new files
             await loadFiles();
         } catch (err) {
             console.error('File upload failed:', err);
-            // Provide more specific feedback in a production scenario
             showToast('File upload failed. Please ensure the file is a supported format and try again.', 'error');
         }
-        // --- End Production-Ready File Upload ---
     }
     
     // --- Event Listeners for Mode Switching ---
@@ -422,10 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistoryList.innerHTML = '';
         chatWindow.innerHTML = '';
         try {
-            // --- Production-Ready Chat History Loading ---
-            // Fetches the chat history from the backend.
             const data = await apiRequest(`/chat`);
-            // --- End Production-Ready Chat History Loading ---
             
             state.chatHistory = data.history || [];
             renderChatHistory();
@@ -433,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error(`Failed to load chat history:`, error);
             chatHistoryEmpty.classList.remove('hidden');
-            // Production-ready error display
             addMessage("Could not load chat history. Please try again later.", 'bot', false);
         } finally {
             chatHistoryLoading.classList.add('hidden');
@@ -471,16 +418,12 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
-            // --- Production-Ready Chat Response ---
-            // Sends the user's message to the server and receives the assistant's response.
             const data = await apiRequest(`/chat`, {
                 method: 'POST',
                 body: { message: userMessage }
             });
-            // --- End Production-Ready Chat Response ---
             addMessage(data.response.message, 'bot');
         } catch (error) {
-            // Production-ready error handling
             addMessage("Sorry, I encountered an error trying to respond. Please check your connection and try again.", 'bot', false);
         } finally {
             typingIndicator.classList.add('hidden');
@@ -516,13 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
         generateFlashcardsButton.disabled = true;
 
         try {
-            // --- Production-Ready Flashcard Generation ---
-            // This requests the server to generate a set of flashcards for the active file.
             const data = await apiRequest(`/files/${state.activeFileId}/flashcards`, {
                 method: 'POST',
                 body: { count }
             });
-            // --- End Production-Ready Flashcard Generation ---
 
             state.currentFlashcards = data.flashcards || [];
             state.currentFlashcardIndex = 0;
@@ -531,7 +471,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Flashcards generated successfully!', 'success');
         } catch (error) {
             console.error("Failed to generate flashcards:", error);
-            // Production-ready error feedback
             showToast('Could not generate flashcards. The document may be too short or an error occurred.', 'error');
         } finally {
             flashcardGenerationLoading.classList.add('hidden');
@@ -541,22 +480,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFlashcardHistory(fileId) {
         try {
-            // --- Production-Ready Flashcard History ---
-            // Fetches previously generated flashcard sets for the specified file.
             const data = await apiRequest(`/files/${fileId}/flashcards`);
-            // --- End Production-Ready Flashcard History ---
             
             state.flashcardSets = data.flashcardSets || [];
             renderFlashcardHistory();
         } catch (error) {
             console.error(`Failed to load flashcard history for ${fileId}:`, error);
-            // Silently fail or show a non-intrusive error
         }
     }
 
     function renderFlashcardHistory(searchTerm = '') {
         flashcardHistoryList.innerHTML = '';
-        // This needs adjustment based on what we want to show. For now, it's empty.
     }
 
     function loadFlashcard(index) {
@@ -573,7 +507,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Flashcard navigation and interaction
     if (flashcard) {
         flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
     }
@@ -601,13 +534,10 @@ document.addEventListener('DOMContentLoaded', () => {
         generateQuizButton.disabled = true;
 
         try {
-            // --- Production-Ready Quiz Generation ---
-            // Requests the server to build a quiz for the active file.
             const data = await apiRequest(`/files/${state.activeFileId}/quizzes`, {
                 method: 'POST',
                 body: { questionCount: count }
             });
-            // --- End Production-Ready Quiz Generation ---
 
             state.currentQuiz = data.questions || [];
             state.currentQuizIndex = 0;
@@ -617,7 +547,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Quiz generated successfully!', 'success');
         } catch (error) {
             console.error("Failed to generate quiz:", error);
-            // Production-ready error feedback
             showToast('Could not generate a quiz. The document may not be suitable or an error occurred.', 'error');
         } finally {
             quizGenerationLoading.classList.add('hidden');
@@ -627,22 +556,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadQuizHistory(fileId) {
         try {
-            // --- Production-Ready Quiz History Loading ---
-            // Fetches the quiz history for the specified file from the backend.
             const data = await apiRequest(`/files/${fileId}/quizzes`);
-            // --- End Production-Ready Quiz History Loading ---
             
             state.quizSets = data.quizzes || [];
             renderQuizHistory();
         } catch (error) {
             console.error(`Failed to load quiz history for ${fileId}:`, error);
-            // Silently fail on history load
         }
     }
 
     function renderQuizHistory(searchTerm = '') {
         quizHistoryList.innerHTML = '';
-        // This needs adjustment. For now, it's empty.
     }
 
     function loadQuizQuestion() {
@@ -698,7 +622,6 @@ document.addEventListener('DOMContentLoaded', () => {
         nextQuestionButton.classList.remove('hidden');
     }
 
-    // Move to next question when user clicks the Next button
     if (nextQuestionButton) nextQuestionButton.addEventListener('click', () => {
         loadQuizQuestion();
     });
@@ -734,8 +657,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         feedbackValidation.classList.add('hidden');
         
-        // --- Production-Ready Feedback Submission ---
-        // Sends feedback to the backend, including the active file ID for context.
         try {
             await apiRequest('/feedback', { 
                 method: 'POST', 
@@ -749,13 +670,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (err) {
             console.error('Failed to submit feedback:', err);
             showToast('Failed to submit feedback. Please try again later.', 'error');
-            return; // Stop execution if feedback fails
+            return;
         }
-        // --- End Production-Ready Feedback Submission ---
 
         feedbackModal.classList.add('hidden');
         
-        // Reset form for next use
         feedbackComments.value = '';
         Array.from(feedbackRating.children).forEach(star => {
             star.classList.remove('text-yellow-400', 'text-slate-600');
@@ -765,11 +684,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     submitFeedbackButton.addEventListener('click', submitFeedback);
 
-    // --- Generate / Quiz Buttons Wiring ---
     if (generateFlashcardsButton) generateFlashcardsButton.addEventListener('click', generateFlashcards);
     if (generateQuizButton) generateQuizButton.addEventListener('click', generateQuiz);
 
-    // --- Sidebar / Mobile UI Toggles ---
     if (menuButton) {
         menuButton.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
@@ -783,10 +700,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Mobile right-sidebar toggle: opens the sidebar corresponding to the active mode
     if (rightSidebarToggleButton) {
         rightSidebarToggleButton.addEventListener('click', () => {
-            // The button's only job is to toggle the sidebar's visibility state
             state.isRightSidebarVisible = !state.isRightSidebarVisible;
             updateUI();
         });
@@ -810,16 +725,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    loginSignupButton.addEventListener('click', () => {
+        loginModal.classList.remove('hidden');
+    });
+
     closeLoginModal.addEventListener('click', () => {
         loginModal.classList.add('hidden');
     });
 
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        // In a real app, you'd validate credentials here
         state.isLoggedIn = true;
         loginModal.classList.add('hidden');
-        initializeApp(); // Re-initialize the app in a logged-in state
+        initializeApp();
         showToast('Login successful!', 'success');
     });
 
@@ -838,7 +756,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        // In a real app, you'd register the user here
         console.log('Registering user...');
         registerModal.classList.add('hidden');
         showToast('Registration successful! Please log in.', 'success');
@@ -847,17 +764,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- App Initialization ---
     async function initializeApp() {
-        // Here you would typically check for a real authentication token
-        // For now, we can toggle `state.isLoggedIn` manually for testing
-        // state.isLoggedIn = true; // <-- uncomment to test logged-in state
-        
-        // Load initial data
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
         await loadChatHistory();
         if (state.isLoggedIn) {
             await loadFiles();
         }
         
-        // Set the initial UI state based on auth and default mode
         updateUI();
     }
 
@@ -878,25 +792,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', newTheme);
         applyTheme(newTheme);
     });
-
-    // --- App Initialization ---
-    async function initializeApp() {
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        applyTheme(savedTheme);
-
-        // Here you would typically check for a real authentication token
-        // For now, we can toggle `state.isLoggedIn` manually for testing
-        // state.isLoggedIn = true; // <-- uncomment to test logged-in state
-        
-        // Load initial data
-        await loadChatHistory();
-        if (state.isLoggedIn) {
-            await loadFiles();
-        }
-        
-        // Set the initial UI state based on auth and default mode
-        updateUI();
-    }
 
     initializeApp();
 });

@@ -246,3 +246,24 @@ body.light-mode {
 .light-mode .toast {
     color: #0f172a; /* Slate 900 */
 }
+
+#file-management-section {
+    display: none;
+}
+
+.logged-in #file-management-section {
+    display: block;
+}
+
+#login-signup-button {
+    background-color: #8b5cf6;
+    font-weight: bold;
+}
+
+.logged-in #login-signup-button {
+    display: none;
+}
+
+.logged-in #open-settings-button {
+    display: flex;
+}
