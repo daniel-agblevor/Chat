@@ -146,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loadFlashcard(state.currentFlashcardIndex || 0);
         }
         updateUI();
+        updateMainSidebarToggleIcon();
     }
 
     /**
@@ -214,6 +215,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         safeCreateIcons();
+    }
+
+    // Keep the main sidebar control showing '>' when open and '<' when closed (mobile control)
+    function updateMainSidebarToggleIcon() {
+        if (!closeMainSidebarButton) return;
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        closeMainSidebarButton.textContent = isOpen ? '>' : '<';
+        closeMainSidebarButton.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
     }
 
 
@@ -756,6 +765,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menuButton.addEventListener('click', () => {
             sidebar.classList.toggle('-translate-x-full');
             sidebarOverlay.classList.toggle('hidden');
+            updateMainSidebarToggleIcon();
         });
     }
     if (closeMainSidebarButton) {
@@ -763,12 +773,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Close main sidebar (primarily for mobile)
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
+            updateMainSidebarToggleIcon();
         });
     }
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', () => {
             sidebar.classList.add('-translate-x-full');
             sidebarOverlay.classList.add('hidden');
+            updateMainSidebarToggleIcon();
         });
     }
 
@@ -859,6 +871,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         updateUI();
+        updateMainSidebarToggleIcon();
     }
 
     // --- Theme Management ---

@@ -69,8 +69,8 @@
                 <svg class="h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
                 <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
                 <button id="close-main-sidebar" aria-controls="sidebar" aria-expanded="true" class="md:hidden absolute right-0 top-0 -mt-1 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    <span class="sr-only">Close main sidebar</span>
+                    <span class="text-lg">&gt;</span>
+                    <span class="sr-only">Hide main sidebar</span>
                 </button>
             </div>
             <div id="file-management-section" class="flex-grow pt-4 overflow-y-auto sidebar-scroll">
@@ -223,7 +223,6 @@
             <span class="sr-only">Open right sidebar</span>
         </button>
         <aside id="right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full" aria-hidden="true">
-            <button id="close-right-sidebar" aria-controls="right-sidebar" aria-expanded="true" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg><span class="sr-only">Close right sidebar</span></button>
             <h3 class="text-lg font-semibold mb-4">Chat History</h3>
             <div id="chat-history-container" class="flex-grow overflow-y-auto">
                 <!-- Chat history will be rendered here -->
@@ -242,7 +241,6 @@
 
         <!-- Right Sidebar for Flashcards -->
         <aside id="flashcards-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 md:border-l md:border-white/10 h-full" aria-hidden="true">
-            <button id="close-flashcards-right-sidebar" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             <h3 class="text-lg font-semibold mb-4">Flashcard Options</h3>
             <div class="space-y-4">
                 <div>
@@ -278,7 +276,6 @@
 
         <!-- Right Sidebar for Quiz -->
         <aside id="quiz-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full" aria-hidden="true">
-            <button id="close-quiz-right-sidebar" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             <h3 class="text-lg font-semibold mb-4">Quiz Options</h3>
             <div class="space-y-4">
                 <div>
