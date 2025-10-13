@@ -71,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizOptionsEl = document.getElementById('quiz-options');
     const quizFeedbackEl = document.getElementById('quiz-feedback');
     const nextQuestionButton = document.getElementById('next-question-button');
+    const restartFlashcardsButton = document.getElementById('restart-flashcards-button');
+    const restartQuizButton = document.getElementById('restart-quiz-button');
     const progressText = document.getElementById('quiz-progress-text');
     const progressBar = document.getElementById('quiz-progress-bar');
     const loginModal = document.getElementById('login-modal');
@@ -523,10 +525,20 @@ document.addEventListener('DOMContentLoaded', () => {
             flashcardQuestion.textContent = card.q;
             flashcardAnswer.textContent = card.a;
             cardCounter.textContent = `${index + 1} / ${state.currentFlashcards.length}`;
+            // Update next button label and restart visibility
+            if (nextCardButton) {
+                const isLast = index >= state.currentFlashcards.length - 1;
+                nextCardButton.textContent = isLast ? 'Finish' : 'Next';
+            }
+            if (restartFlashcardsButton) {
+                restartFlashcardsButton.classList.toggle('hidden', !(index >= state.currentFlashcards.length - 1));
+            }
         } else {
             flashcardQuestion.textContent = 'No flashcards generated yet.';
             flashcardAnswer.textContent = 'Generate flashcards from a file to get started.';
             cardCounter.textContent = '0 / 0';
+            if (nextCardButton) nextCardButton.textContent = 'Next';
+            if (restartFlashcardsButton) restartFlashcardsButton.classList.add('hidden');
         }
     }
 
@@ -540,10 +552,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     if (nextCardButton) nextCardButton.addEventListener('click', () => {
-        if (state.currentFlashcardIndex < state.currentFlashcards.length - 1) {
+        const lastIndex = state.currentFlashcards.length - 1;
+        if (state.currentFlashcardIndex < lastIndex) {
             state.currentFlashcardIndex += 1;
             loadFlashcard(state.currentFlashcardIndex);
+        } else {
+            // Finished flashcards
+            showToast('Flashcards complete!', 'success');
+            if (restartFlashcardsButton) restartFlashcardsButton.classList.remove('hidden');
         }
+    });
+
+    if (restartFlashcardsButton) restartFlashcardsButton.addEventListener('click', () => {
+        state.currentFlashcardIndex = 0;
+        loadFlashcard(0);
+        restartFlashcardsButton.classList.add('hidden');
     });
 
     // --- Quiz Logic ---
@@ -609,6 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quizQuestionEl.textContent = `Quiz Complete! You scored ${state.quizScore} out of ${state.currentQuiz.length}.`;
             progressText.textContent = 'Finished!';
             progressBar.style.width = '100%';
+            if (restartQuizButton) restartQuizButton.classList.remove('hidden');
             return;
         }
 
@@ -643,9 +667,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         state.currentQuizIndex++;
         nextQuestionButton.classList.remove('hidden');
+        // If next action will complete the quiz, label as Finish
+        if (state.currentQuizIndex >= state.currentQuiz.length) {
+            nextQuestionButton.textContent = 'Finish';
+        } else {
+            nextQuestionButton.textContent = 'Next Question';
+        }
     }
 
     if (nextQuestionButton) nextQuestionButton.addEventListener('click', () => {
+        loadQuizQuestion();
+        // Reset label after loading if not finished
+        if (state.currentQuizIndex < state.currentQuiz.length) {
+            nextQuestionButton.textContent = 'Next Question';
+        }
+    });
+
+    if (restartQuizButton) restartQuizButton.addEventListener('click', () => {
+        state.currentQuizIndex = 0;
+        state.quizScore = 0;
+        restartQuizButton.classList.add('hidden');
         loadQuizQuestion();
     });
 

@@ -191,7 +191,10 @@
                         <div class="flex justify-between items-center">
                             <button id="prev-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Prev</button>
                             <p id="card-counter" class="text-sm text-slate-400"></p>
-                            <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
+                            <div class="flex items-center gap-2">
+                                <button id="restart-flashcards-button" class="hidden flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Restart</button>
+                                <button id="next-card-button" class="flex items-center gap-2 py-2 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors text-sm font-semibold">Next</button>
+                            </div>
                         </div>
                     </div>
                 </main>
@@ -206,7 +209,8 @@
                         <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
                         <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
                         <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
-                        <div class="flex justify-end items-center">
+                        <div class="flex justify-end items-center gap-2">
+                             <button id="restart-quiz-button" class="hidden py-2.5 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors font-semibold">Restart</button>
                              <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
                         </div>
                     </div>
