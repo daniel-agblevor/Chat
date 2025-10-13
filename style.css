@@ -279,3 +279,9 @@ body.light-mode {
         display: none !important;
     }
 }
+
+/* Left sidebar handle (desktop only) */
+#open-left-sidebar-handle { line-height: 1; }
+@media (max-width: 767px) {
+    #open-left-sidebar-handle { display: none !important; }
+}

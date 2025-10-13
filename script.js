@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const themeSwitcherIndicator = document.getElementById('theme-switcher-indicator');
     const loginSignupButton = document.getElementById('login-signup-button');
     const fileManagementSection = document.getElementById('file-management-section');
+    const openLeftSidebarHandle = document.getElementById('open-left-sidebar-handle');
 
     // --- App State ---
     let state = {
@@ -223,6 +224,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const isOpen = !sidebar.classList.contains('-translate-x-full');
         closeMainSidebarButton.textContent = isOpen ? '>' : '<';
         closeMainSidebarButton.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
+    }
+
+    function updateLeftSidebarHandle() {
+        if (!openLeftSidebarHandle) return;
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        openLeftSidebarHandle.firstElementChild && (openLeftSidebarHandle.firstElementChild.textContent = isOpen ? '<' : '>');
+        openLeftSidebarHandle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        openLeftSidebarHandle.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
     }
 
 
@@ -660,6 +669,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    if (openLeftSidebarHandle) {
+        openLeftSidebarHandle.addEventListener('click', () => {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
+            if (isOpen) {
+                sidebar.classList.add('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            } else {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.add('hidden');
+            }
+            updateMainSidebarToggleIcon();
+            updateLeftSidebarHandle();
+        });
+    }
+
     function selectQuizAnswer(button, selected, correct) {
         Array.from(quizOptionsEl.children).forEach(btn => {
             btn.disabled = true;
@@ -872,6 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         updateUI();
         updateMainSidebarToggleIcon();
+        updateLeftSidebarHandle();
     }
 
     // --- Theme Management ---

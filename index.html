@@ -63,6 +63,12 @@
     </div>
     
     <div class="relative flex flex-col md:flex-row h-screen overflow-hidden">
+        <!-- Left Sidebar Handle (desktop) -->
+        <button id="open-left-sidebar-handle" aria-controls="sidebar" aria-expanded="true" class="hidden md:block fixed left-2 top-1/2 -translate-y-1/2 z-40 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 px-3 py-2 shadow">
+            <span class="text-lg">&gt;</span>
+            <span class="sr-only">Toggle main sidebar</span>
+        </button>
+
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col glass-effect p-4 border-r border-white/10 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
             <div class="flex items-center space-x-2 pb-4 border-b border-white/10 relative">
