@@ -193,7 +193,14 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(buttons).forEach(b => b.classList.remove('active'));
 
         if (views[state.activeMode]) {
-            views[state.activeMode].classList.remove('hidden');
+            const activeView = views[state.activeMode];
+            activeView.classList.remove('hidden');
+            
+            // Add animation class and remove it after animation ends
+            activeView.classList.add('view-enter-active');
+            setTimeout(() => {
+                activeView.classList.remove('view-enter-active');
+            }, 300); // Must match animation duration in CSS
         }
 
         if (state.isLoggedIn && rightSidebars[state.activeMode]) {
