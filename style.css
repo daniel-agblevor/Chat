@@ -1,3 +1,26 @@
+/* Seance Color Palette */
+:root {
+    --seance-50: #faf5fe;
+    --seance-100: #f6ebfc;
+    --seance-200: #ebd5f9;
+    --seance-300: #deb4f3;
+    --seance-400: #ca87eb;
+    --seance-500: #b259dc;
+    --seance-600: #973abf;
+    --seance-700: #772a95;
+    --seance-800: #692682;
+    --seance-900: #59246b;
+    --seance-950: #380c46;
+}
+
+/* Seance Utility Classes */
+.bg-seance-500 { background-color: var(--seance-500); }
+.bg-seance-600 { background-color: var(--seance-600); }
+.bg-seance-400 { background-color: var(--seance-400); }
+.text-seance-500 { color: var(--seance-500); }
+.text-seance-600 { color: var(--seance-600); }
+.border-seance-500 { border-color: var(--seance-500); }
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: #0f172a; /* Slate 900 */
@@ -15,34 +38,119 @@ button:active {
     transform: scale(0.97);
 }
 
-/* All sidebars should have the same smooth transition */
+/* Enhanced sidebar transitions */
 .right-sidebar-mobile {
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
 }
 
-/* --- Button System --- */
+/* Improved mobile sidebar behavior */
+@media (max-width: 767px) {
+    .right-sidebar-mobile {
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out;
+        will-change: transform;
+    }
+    
+    .right-sidebar-mobile.is-open {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
 
-/* Primary Action Button (Violet) */
+/* Enhanced tablet responsiveness */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .glass-effect {
+        backdrop-filter: blur(16px) saturate(120%);
+        -webkit-backdrop-filter: blur(16px) saturate(120%);
+    }
+    
+    .mode-button {
+        padding: 0.75rem 1rem;
+        font-size: 0.875rem;
+    }
+}
+
+/* Large desktop optimizations */
+@media (min-width: 1440px) {
+    .glass-effect {
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+    }
+    
+    .mode-button {
+        padding: 1rem 1.5rem;
+        font-size: 1rem;
+    }
+}
+
+/* --- Professional Button System --- */
+
+/* Primary Action Buttons (Seance) */
+.bg-violet-600 {
+    background-color: var(--seance-500);
+    color: #ffffff;
+    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
 .bg-violet-600:hover {
-    background-color: #6d28d9; /* Darker violet */
+    background-color: var(--seance-600);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(178, 89, 220, 0.3);
+}
+
+.bg-violet-600:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(178, 89, 220, 0.2);
 }
 
 .light-mode .bg-violet-600 {
-    background-color: #7c3aed; /* Brighter violet for better contrast */
+    background-color: var(--seance-400);
     color: #ffffff;
+    box-shadow: 0 2px 4px rgba(202, 135, 235, 0.2);
 }
 
 .light-mode .bg-violet-600:hover {
-    background-color: #6d28d9;
+    background-color: var(--seance-500);
+    box-shadow: 0 4px 12px rgba(202, 135, 235, 0.3);
+}
+
+/* Secondary Action Buttons */
+.bg-slate-800\/60 {
+    background-color: rgba(30, 41, 59, 0.6);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-slate-800\/60:hover {
+    background-color: rgba(30, 41, 59, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.light-mode .bg-slate-800\/60 {
+    background-color: rgba(226, 232, 240, 0.6);
+    color: #0f172a;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .bg-slate-800\/60:hover {
+    background-color: rgba(226, 232, 240, 0.8);
+    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .glass-effect {
-    background: rgba(30, 41, 59, 0.5); /* Slightly more transparent */
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 1rem; /* Softer edges */
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Deeper shadow */
+    background: rgba(30, 41, 59, 0.6); /* Enhanced opacity for better contrast */
+    backdrop-filter: blur(20px) saturate(150%);
+    -webkit-backdrop-filter: blur(20px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 
+                0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 @keyframes blob {
@@ -62,9 +170,14 @@ button:active {
 #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
 #chat-window::-webkit-scrollbar-track, .sidebar-scroll::-webkit-scrollbar-track, .modal-scroll::-webkit-scrollbar-track { background: transparent; }
 #chat-window::-webkit-scrollbar-thumb, .sidebar-scroll::-webkit-scrollbar-thumb, .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(124, 58, 237, 0.5);
+    background-color: rgba(178, 89, 220, 0.6); /* Seance 500 with opacity */
     border-radius: 20px;
     border: 3px solid transparent;
+    transition: background-color 0.2s ease-in-out;
+}
+
+#chat-window::-webkit-scrollbar-thumb:hover, .sidebar-scroll::-webkit-scrollbar-thumb:hover, .modal-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(178, 89, 220, 0.8); /* Seance 500 with higher opacity */
 }
 
 @keyframes bounce {
@@ -83,20 +196,56 @@ button:active {
 }
 .flashcard-back { transform: rotateY(180deg); }
 
+/* Mode Buttons (Chat, Flashcards, Quiz) */
 .mode-button {
-    background-color: rgba(51, 65, 85, 0.6); /* slate-700/60 */
-    color: #d1d5db; /* slate-300 */
+    background-color: rgba(51, 65, 85, 0.6);
+    color: #d1d5db;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
 }
 
 .mode-button:hover {
-    background-color: rgba(51, 65, 85, 0.8); /* slate-700/80 */
+    background-color: rgba(51, 65, 85, 0.8);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mode-button:active {
+    transform: translateY(0);
 }
 
 .mode-button.active {
-    background-color: rgba(30, 41, 59, 0.9); /* slate-800/90 */
-    color: #f8fafc; /* slate-50 */
+    background-color: rgba(30, 41, 59, 0.9);
+    color: #f8fafc;
     font-weight: 600;
-    border-bottom: 2px solid #a78bfa; /* violet-400 */
+    border: 1px solid var(--seance-500);
+    box-shadow: 0 0 0 1px rgba(178, 89, 220, 0.3), 
+                0 4px 12px rgba(178, 89, 220, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Light mode mode buttons */
+.light-mode .mode-button {
+    background-color: rgba(226, 232, 240, 0.6);
+    color: #334155;
+    border-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .mode-button:hover {
+    background-color: rgba(226, 232, 240, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.light-mode .mode-button.active {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #0f172a;
+    border-color: var(--seance-400);
+    box-shadow: 0 0 0 1px rgba(202, 135, 235, 0.3), 
+                0 4px 12px rgba(202, 135, 235, 0.2);
 }
 
 /* --- View Transitions --- */
@@ -123,10 +272,15 @@ button:active {
     width: 24px;
     height: 24px;
     border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top-color: #a78bfa; /* Corresponds to violet-400 */
+    border-top-color: #b259dc; /* Seance 500 */
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto; /* Center the spinner */
+}
+
+.light-mode .spinner {
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #ca87eb; /* Seance 400 for light mode */
 }
 
 @keyframes spin {
@@ -191,9 +345,10 @@ body.light-mode {
 }
 
 .light-mode .glass-effect {
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.7);
     border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
 .light-mode .text-slate-100 {
@@ -245,18 +400,46 @@ body.light-mode {
     background-color: rgba(203, 213, 225, 0.5); /* Slate 300/50 */
 }
 
-.light-mode .mode-button {
-    background-color: rgba(226, 232, 240, 0.6); /* slate-200/60 */
-    color: #334155; /* slate-700 */
+/* Close Buttons and Utility Buttons */
+.rounded-full {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.light-mode .mode-button:hover {
-    background-color: rgba(203, 213, 225, 0.8); /* slate-300/80 */
+.rounded-full:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
-.light-mode .mode-button.active {
-    background-color: rgba(255, 255, 255, 0.8); /* white/80 */
-    color: #0f172a; /* slate-900 */
+.light-mode .rounded-full:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Star Rating Buttons */
+.star {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.star:hover {
+    transform: scale(1.2);
+    filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.3));
+}
+
+.star:active {
+    transform: scale(1.1);
+}
+
+/* Theme Switcher Button */
+#theme-switcher {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#theme-switcher:hover {
+    transform: scale(1.05);
+}
+
+#theme-switcher:active {
+    transform: scale(0.95);
 }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, .light-mode .modal-scroll::-webkit-scrollbar-thumb {
@@ -300,14 +483,20 @@ body.light-mode {
 .light-mode #quiz-options button.bg-red-500\/80 { background-color: rgba(239,68,68,0.8) !important; color: #ffffff; }
 
 /* --- Theme-Specific Overrides --- */
-.light-mode .bg-violet-600 { background-color: #c4b5fd; } /* violet-300 */
-.light-mode .bg-indigo-600 { background-color: #a5b4fc; } /* indigo-300 */
-.light-mode .bg-sky-600 { background-color: #7dd3fc; } /* sky-300 */
+.light-mode .bg-violet-600 { background-color: #ca87eb; } /* Seance 400 */
+.light-mode .bg-indigo-600 { background-color: #deb4f3; } /* Seance 300 */
+.light-mode .bg-sky-600 { background-color: #ebd5f9; } /* Seance 200 */
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, 
 .light-mode .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(167, 139, 250, 0.6); /* A lighter, less intense violet */
+    background-color: rgba(202, 135, 235, 0.6); /* Seance 400 with opacity */
+}
+
+.light-mode #chat-window::-webkit-scrollbar-thumb:hover, 
+.light-mode .sidebar-scroll::-webkit-scrollbar-thumb:hover, 
+.light-mode .modal-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(202, 135, 235, 0.8); /* Seance 400 with higher opacity */
 }
 
 
@@ -375,20 +564,25 @@ body.light-mode {
 
     /* Send button */
     #chat-form button {
-        background-color: #8b5cf6;
+        background-color: #b259dc; /* Seance 500 */
         color: #ffffff;
         border-radius: 0.5rem;
         padding: 10px;
-        transition: background-color 0.2s ease-in-out;
+        transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
     }
 
     #chat-form button:hover {
-        background-color: #7c3aed;
+        background-color: #973abf; /* Seance 600 */
+        transform: scale(1.02);
     }
 
     body.light-mode #chat-form button {
-        background-color: #7c3aed;
+        background-color: #ca87eb; /* Seance 400 */
         color: #ffffff;
+    }
+
+    body.light-mode #chat-form button:hover {
+        background-color: #b259dc; /* Seance 500 */
     }
 
     body {
@@ -414,8 +608,14 @@ body.light-mode {
 }
 
 #login-signup-button {
-    background-color: #8b5cf6;
+    background-color: #b259dc; /* Seance 500 */
     font-weight: bold;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+#login-signup-button:hover {
+    background-color: #973abf; /* Seance 600 */
+    transform: scale(1.02);
 }
 
 .logged-in #login-signup-button {
