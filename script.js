@@ -693,7 +693,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectQuizAnswer(button, selected, correct) {
         Array.from(quizOptionsEl.children).forEach(btn => {
             btn.disabled = true;
-            if (btn.textContent === correct) btn.classList.add('bg-green-500/80');
+            // Clean previous highlight classes for reliable overrides across themes
+            btn.classList.remove('bg-green-500/80', 'bg-red-500/80');
+            if (btn.textContent === correct) {
+                btn.classList.remove('bg-slate-800/60');
+                btn.classList.add('bg-green-500/80');
+            }
         });
         
         if (selected === correct) {
@@ -701,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quizFeedbackEl.textContent = 'Correct!';
             quizFeedbackEl.className = 'text-center mb-4 text-green-400';
         } else {
+            button.classList.remove('bg-slate-800/60');
             button.classList.add('bg-red-500/80');
             quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}"`;
             quizFeedbackEl.className = 'text-center mb-4 text-red-400';

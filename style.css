@@ -239,6 +239,24 @@ body.light-mode {
     background-color: rgba(203, 213, 225, 0.8);
 }
 
+/* Ensure highlight colors are visible in light mode */
+.light-mode #quiz-options button.bg-green-500\/80 { background-color: rgba(34,197,94,0.8) !important; color: #0f172a; }
+.light-mode #quiz-options button.bg-red-500\/80 { background-color: rgba(239,68,68,0.8) !important; color: #ffffff; }
+
+/* Make Next button visible/sticky on mobile quiz view */
+@media (max-width: 767px) {
+    #quiz-view {
+        padding-bottom: 64px; /* space for sticky controls */
+    }
+    #next-question-button {
+        position: sticky;
+        bottom: 12px;
+        right: 12px;
+        display: inline-flex;
+        z-index: 30;
+    }
+}
+
 .light-mode #chat-history-list li, .light-mode #flashcard-history-list li, .light-mode #quiz-history-list li {
     background-color: rgba(226, 232, 240, 0.6);
 }
