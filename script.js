@@ -135,7 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (state.activeMode === mode) {
-            // Do not auto-toggle the right sidebar on same mode clicks anymore
+            // On mobile, second click on the same mode opens the left sidebar
+            const isMobile = window.innerWidth < 768;
+            if (isMobile) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebarOverlay.classList.remove('hidden');
+                updateLeftSidebarHandle();
+            }
         } else {
             // Switch to a new mode and preserve current right sidebar visibility
             state.activeMode = mode;
@@ -808,13 +814,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (rightSidebarToggleButton) {
-        // Disable header toggle in favor of the handle
-        rightSidebarToggleButton.addEventListener('click', (e) => {
-            e.preventDefault();
-        });
-        rightSidebarToggleButton.classList.add('hidden');
+    function setupRightSidebarTogglePerViewport() {
+        if (!rightSidebarToggleButton) return;
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            rightSidebarToggleButton.classList.remove('hidden');
+            rightSidebarToggleButton.onclick = () => {
+                state.isRightSidebarVisible = !state.isRightSidebarVisible;
+                updateUI();
+            };
+        } else {
+            rightSidebarToggleButton.classList.add('hidden');
+            rightSidebarToggleButton.onclick = null;
+        }
     }
+    setupRightSidebarTogglePerViewport();
+    window.addEventListener('resize', setupRightSidebarTogglePerViewport);
 
     if (openRightSidebarHandle) {
         openRightSidebarHandle.addEventListener('click', () => {
