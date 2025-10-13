@@ -142,6 +142,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mode === 'quiz') {
             loadQuizQuestion();
         }
+        if (mode === 'flashcards') {
+            loadFlashcard(state.currentFlashcardIndex || 0);
+        }
         updateUI();
     }
 
