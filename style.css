@@ -7,12 +7,33 @@ body {
 
 /* --- Global Component Styles & Transitions --- */
 button, a {
-    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out, opacity 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+/* Add a satisfying 'press' effect to all buttons */
+button:active {
+    transform: scale(0.97);
 }
 
 /* All sidebars should have the same smooth transition */
 .right-sidebar-mobile {
     transition: transform 0.3s ease-in-out;
+}
+
+/* --- Button System --- */
+
+/* Primary Action Button (Violet) */
+.bg-violet-600:hover {
+    background-color: #6d28d9; /* Darker violet */
+}
+
+.light-mode .bg-violet-600 {
+    background-color: #7c3aed; /* Brighter violet for better contrast */
+    color: #ffffff;
+}
+
+.light-mode .bg-violet-600:hover {
+    background-color: #6d28d9;
 }
 
 .glass-effect {
@@ -196,7 +217,24 @@ body.light-mode {
 }
 
 .light-mode .bg-slate-800\/60 {
-    background-color: rgba(226, 232, 240, 0.6); /* Slate 200/60 */
+    background-color: #f8fafc; /* slate-50 */
+    border: 1px solid #e2e8f0; /* slate-200 */
+    color: #334155; /* slate-700 */
+}
+
+.light-mode .bg-slate-800\/60:hover {
+    background-color: #f1f5f9; /* slate-100 */
+    border-color: #cbd5e1; /* slate-300 */
+}
+
+/* Icon Button - Delete */
+.delete-file-button:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    color: #ef4444; /* red-500 */
+}
+
+.light-mode .delete-file-button:hover {
+    background-color: rgba(239, 68, 68, 0.15);
 }
 
 .light-mode .border-white\/10 {
