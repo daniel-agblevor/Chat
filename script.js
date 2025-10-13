@@ -56,9 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const submitFeedbackButton = document.getElementById('submit-feedback-button');
     const feedbackValidation = document.getElementById('feedback-validation');
     const feedbackButton = document.getElementById('feedback-button');
-    const closeRightSidebar = document.getElementById('close-right-sidebar');
-    const closeFlashcardsRightSidebar = document.getElementById('close-flashcards-right-sidebar');
-    const closeQuizRightSidebar = document.getElementById('close-quiz-right-sidebar');
     const sidebarFileList = document.getElementById('sidebar-file-list');
     const manageFilesList = document.getElementById('manage-files-list');
     const flashcard = document.getElementById('flashcard');
@@ -859,20 +856,46 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         });
     }
-    if (closeRightSidebar) {
-        closeRightSidebar.addEventListener('click', () => {
-            state.isRightSidebarVisible = false;
-            updateUI();
-        });
+
+    // --- Mobile Right Sidebar Click-Outside-to-Close ---
+    function setupMobileSidebarClickOutside() {
+        // Only apply to mobile viewports
+        if (window.innerWidth >= 768) return;
+        
+        // Get the main content area (where users can click to close sidebar)
+        const mainContent = document.querySelector('.flex.flex-col.flex-1.overflow-hidden');
+        
+        if (mainContent) {
+            mainContent.addEventListener('click', (e) => {
+                // Only close if sidebar is visible and we're on mobile
+                if (state.isRightSidebarVisible && window.innerWidth < 768) {
+                    // Check if the click is not on the sidebar itself
+                    const rightSidebars = [rightSidebar, flashcardsRightSidebar, quizRightSidebar];
+                    const activeSidebar = rightSidebars.find(sidebar => 
+                        sidebar && !sidebar.classList.contains('hidden')
+                    );
+                    
+                    // Don't close if clicking on mode buttons (they have their own logic)
+                    const isModeButton = e.target.closest('.mode-button') || 
+                                       e.target.closest('#chat-button') || 
+                                       e.target.closest('#flashcards-button') || 
+                                       e.target.closest('#quiz-button');
+                    
+                    if (activeSidebar && !activeSidebar.contains(e.target) && !isModeButton) {
+                        state.isRightSidebarVisible = false;
+                        updateUI();
+                    }
+                }
+            });
+        }
     }
 
-    if (closeFlashcardsRightSidebar) closeFlashcardsRightSidebar.addEventListener('click', () => {
-        flashcardsRightSidebar.classList.remove('is-open');
-        flashcardsRightSidebar.classList.add('hidden');
-    });
-    if (closeQuizRightSidebar) closeQuizRightSidebar.addEventListener('click', () => {
-        quizRightSidebar.classList.remove('is-open');
-        quizRightSidebar.classList.add('hidden');
+    // Setup click-outside-to-close on mobile
+    setupMobileSidebarClickOutside();
+    
+    // Re-setup on window resize to handle mobile/desktop transitions
+    window.addEventListener('resize', () => {
+        setupMobileSidebarClickOutside();
     });
 
     // --- Modal and Auth Logic ---
