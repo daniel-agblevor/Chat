@@ -17,6 +17,7 @@
     -   **Flashcard Generation:** Automatically create flashcard sets from document content.
     -   **Quiz Generation:** Automatically generate quizzes to test knowledge on the document's subject matter.
 -   **User Feedback:** All users can submit feedback on their experience.
+-   **Secure Registration:** Includes password confirmation to ensure account security.
 
 ---
 

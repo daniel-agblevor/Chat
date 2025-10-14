@@ -12,7 +12,7 @@ This project is a web-based chat application called "Starlight RAG". It provides
     *   A sleek, dark interface with full light mode support.
     *   Responsive design that works on all screen sizes.
     *   Smooth, consistent animations for all interactions, sidebars, and view transitions.
-*   **Authenticated Access:** Secure login restricts access to learning tools, with a public-facing chat interface.
+*   **Authenticated Access:** Secure login restricts access to learning tools, with a public-facing chat interface. Includes password confirmation on registration.
 *   **Chat Interface:** A clean and modern chat window for interacting with the RAG assistant.
 *   **File Management:**
     *   Upload and manage your documents.

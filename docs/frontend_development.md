@@ -42,6 +42,7 @@ A comprehensive review and refinement pass was conducted to elevate the user exp
     -   Primary, secondary, and tertiary buttons were refined for color, contrast, and consistency across both light and dark modes.
 -   **Theme Completion:** The light mode was made more cohesive by adding styles for the animated background blobs and scrollbars.
 -   **Mobile Layout Fixes:** Corrected layout issues on mobile to ensure all views render correctly and content is scrollable.
+-   **Password Confirmation:** Added a "Confirm Password" field to the registration modal to ensure users enter their password correctly.
 
 ---
 

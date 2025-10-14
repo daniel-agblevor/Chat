@@ -958,6 +958,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     registerForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        const password = document.getElementById('register-password').value;
+        const passwordConfirm = document.getElementById('register-password-confirm').value;
+
+        if (password !== passwordConfirm) {
+            showToast('Passwords do not match.', 'error');
+            return;
+        }
+
         console.log('Registering user...');
         registerModal.classList.add('hidden');
         showToast('Registration successful! Please log in.', 'success');

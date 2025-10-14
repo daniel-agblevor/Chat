@@ -728,7 +728,15 @@ body.light-mode {
 }
 
 .light-mode .flashcard-back {
-    background-color: #f3e8ff; /* Violet 100 */
+    background-color: #E5E5E5; /* Light Grey */
+}
+
+#open-settings-button img {
+    background-color: #333; /* Dark Grey */
+}
+
+.light-mode #open-settings-button img {
+    background-color: #ccc; /* Light Grey */
 }
 
 .light-mode #quiz-options button {
