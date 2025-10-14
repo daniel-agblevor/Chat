@@ -738,9 +738,15 @@ body.light-mode {
 .light-mode #quiz-options button.incorrect-answer { background-color: var(--emphasis) !important; color: var(--primary-bg); }
 
 /* --- Theme-Specific Overrides --- */
-.light-mode .bg-violet-600 { background-color: var(--accent); }
-.light-mode .bg-indigo-600 { background-color: var(--accent); opacity: 0.8; }
-.light-mode .bg-sky-600 { background-color: var(--accent); opacity: 0.6; }
+.light-mode {
+    --light-blob-1: #A78BFA; /* Light Purple */
+    --light-blob-2: #7DD3FC; /* Light Blue */
+    --light-blob-3: #FBBF24; /* Amber */
+}
+
+.light-mode .bg-violet-600 { background-color: var(--light-blob-1); }
+.light-mode .bg-indigo-600 { background-color: var(--light-blob-2); }
+.light-mode .bg-sky-600 { background-color: var(--light-blob-3); }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, 
