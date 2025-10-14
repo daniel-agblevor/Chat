@@ -52,9 +52,9 @@
 
     <!-- Background -->
     <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
-        <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-violet-600 rounded-full opacity-30 filter blur-3xl animate-blob"></div>
-        <div class="absolute top-0 -right-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-indigo-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-sky-600 rounded-full opacity-30 filter blur-3xl animate-blob animation-delay-4000"></div>
+        <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-20 filter blur-3xl animate-blob"></div>
+        <div class="absolute top-0 -right-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-10 filter blur-3xl animate-blob animation-delay-2000"></div>
+        <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-15 filter blur-3xl animate-blob animation-delay-4000"></div>
     </div>
     
     <div class="relative flex flex-col md:flex-row h-screen overflow-hidden">
@@ -66,12 +66,12 @@
 
         <!-- Sidebar -->
         <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col glass-effect p-4 border-r border-white/10 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out">
-            <div class="flex items-center space-x-2 pb-4 border-b border-white/10 relative">
-                <svg class="h-8 w-8 text-violet-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+            <div class="flex items-center space-x-2 pb-4 border-b border-border-main relative">
+                <svg class="h-8 w-8 text-accent" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
                 <span class="text-xl font-bold text-slate-100">Starlight RAG</span>
             </div>
             <div id="file-management-section" class="flex-grow pt-4 overflow-y-auto sidebar-scroll">
-                <button id="upload-file-button" class="flex items-center justify-center w-full gap-2 py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors mb-4 text-sm font-semibold">
+                <button id="upload-file-button" class="flex items-center justify-center w-full gap-2 py-2.5 px-4 bg-accent hover:bg-accent/80 text-primary-text rounded-lg transition-colors mb-4 text-sm font-semibold">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload-cloud h-5 w-5"><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></svg>
                     <span>Upload File</span>
                 </button>
@@ -79,10 +79,10 @@
                 <h3 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">My Files</h3>
                 <ul id="sidebar-file-list" class="space-y-1 text-sm"></ul>
             </div>
-            <div class="flex-shrink-0 pt-4 border-t border-white/10">
+            <div class="flex-shrink-0 pt-4 border-t border-border-main">
                 <div id="user-actions-container">
-                    <button id="login-signup-button" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-violet-600 hover:bg-violet-700 text-white rounded-lg transition-colors text-sm font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in h-5 w-5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    <button id="login-signup-button" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-accent hover:bg-accent/80 text-primary-text rounded-lg transition-colors text-sm font-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-in h-5 w-5 text-primary-text"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
                         <span>Login & Sign Up</span>
                     </button>
                     <button id="open-settings-button" class="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-slate-800/50 transition-colors hidden">
@@ -103,7 +103,7 @@
                 <!-- Header -->
                 <header class="flex-shrink-0 mb-2 sm:mb-4">
                     <div class="glass-effect flex items-center rounded-xl px-3 py-2 sm:px-4 sm:py-3 shadow-lg max-w-3xl mx-auto w-full">
-                        <button id="menu-button" class="p-1 text-slate-300 hover:text-violet-400 rounded-md md:hidden mr-2 sm:mr-4">
+                        <button id="menu-button" class="p-1 text-text-secondary hover:text-accent rounded-md md:hidden mr-2 sm:mr-4">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
                         </button>
                         <h1 class="text-lg sm:text-xl font-bold text-slate-100 md:hidden whitespace-nowrap">Starlight RAG</h1>
@@ -113,24 +113,24 @@
                             
                             <!-- Chat Button -->
                             <button id="chat-button" type="button" aria-label="Open Chat"
-                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-green-400">
+                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-accent">
                             <!-- Icon with descriptive role -->
-                            <i data-lucide="message-circle" class="h-5 w-5 text-green-500 dark:text-green-300" aria-hidden="true"></i>
+                            <i data-lucide="message-circle" class="h-5 w-5 text-icon-color" aria-hidden="true"></i>
                             <!-- Text label visible only on larger screens -->
                             <span class="hidden sm:inline">Chat</span>
                             </button>
 
                             <!-- Flashcards Button -->
                             <button id="flashcards-button" type="button" aria-label="View Flashcards"
-                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-violet-400">
-                            <i data-lucide="copy" class="h-5 w-5 text-violet-500 dark:text-violet-300" aria-hidden="true"></i>
+                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-accent">
+                            <i data-lucide="copy" class="h-5 w-5 text-icon-color" aria-hidden="true"></i>
                             <span class="hidden sm:inline">Flashcards</span>
                             </button>
 
                             <!-- Quiz Button -->
                             <button id="quiz-button" type="button" aria-label="Start Quiz"
-                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-sky-400">
-                            <i data-lucide="swords" class="h-5 w-5 text-sky-500 dark:text-sky-300" aria-hidden="true"></i>
+                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-accent">
+                            <i data-lucide="swords" class="h-5 w-5 text-icon-color" aria-hidden="true"></i>
                             <span class="hidden sm:inline">Quiz Me</span>
                             </button>
 
@@ -142,8 +142,8 @@
                 <main id="chat-view" class="view flex-grow flex flex-col glass-effect rounded-2xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
                     <div id="chat-window" class="flex-grow p-4 space-y-4 sm:p-6 sm:space-y-6 overflow-y-auto">
                         <div class="flex items-start gap-2.5 sm:gap-3">
-                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-accent" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                             </div>
                             <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] sm:max-w-md">
                                 <p class="text-slate-200">Hello! I'm the Starlight RAG assistant. How can I help you today?</p>
@@ -152,20 +152,20 @@
                     </div>
                     <div id="typing-indicator" class="hidden p-4 pt-0 sm:p-6 sm:pt-0">
                         <div class="flex items-start gap-2.5 sm:gap-3">
-                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-violet-500/20 flex items-center justify-center">
-                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                            <div class="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-accent/20 flex items-center justify-center">
+                                 <svg class="w-5 h-5 sm:w-6 sm:h-6 text-accent" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
                             </div>
                             <div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-4 flex items-center space-x-2">
-                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
-                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
-                                <div class="dot w-2 h-2 bg-violet-400 rounded-full"></div>
+                                <div class="dot w-2 h-2 bg-accent rounded-full"></div>
+                                <div class="dot w-2 h-2 bg-accent rounded-full"></div>
+                                <div class="dot w-2 h-2 bg-accent rounded-full"></div>
                             </div>
                         </div>
                     </div>
-                    <div class="p-2 sm:p-4 border-t border-white/10">
+                    <div class="p-2 sm:p-4 border-t border-border-main">
                         <form id="chat-form" class="flex items-center gap-2 sm:gap-3">
-                            <input type="text" id="message-input" placeholder="Ask a question..." class="flex-grow bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 sm:py-3 sm:px-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
-                            <button type="submit" class="bg-violet-600 hover:bg-violet-700 text-white rounded-lg p-2.5 sm:p-3 transition-colors flex-shrink-0">
+                            <input type="text" id="message-input" placeholder="Ask a question..." class="flex-grow bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 sm:py-3 sm:px-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-shadow">
+                            <button type="submit" class="bg-accent hover:bg-accent/80 text-primary-text rounded-lg p-2.5 sm:p-3 transition-colors flex-shrink-0">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send-horizontal h-5 w-5 sm:h-6 sm:w-6"><path d="m3 3 3 9-3 9 19-9Z"/><path d="M6 12h16"/></svg>
                             </button>
                         </form>
@@ -180,7 +180,7 @@
                                 <div class="flashcard-front absolute w-full h-full bg-slate-800/80 rounded-xl flex items-center justify-center p-6 text-center">
                                     <p id="flashcard-question" class="text-lg sm:text-xl font-semibold text-slate-100"></p>
                                 </div>
-                                <div class="flashcard-back absolute w-full h-full bg-violet-900/80 rounded-xl flex items-center justify-center p-6 text-center">
+                                <div class="flashcard-back absolute w-full h-full bg-accent/20 rounded-xl flex items-center justify-center p-6 text-center">
                                     <p id="flashcard-answer" class="text-md sm:text-lg text-slate-100"></p>
                                 </div>
                             </div>
@@ -200,15 +200,15 @@
                     <div class="p-4 sm:p-6 h-full overflow-y-auto">
                         <h2 class="text-xl sm:text-2xl font-bold text-slate-100 mb-2">Quiz Time!</h2>
                         <p id="quiz-progress-text" class="text-sm text-slate-400 mb-4">Question 1 of 5</p>
-                        <div class="w-full bg-slate-700/50 rounded-full h-2 mb-6">
-                            <div id="quiz-progress-bar" class="bg-seance-500 h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
+                        <div class="w-full bg-bg-surface rounded-full h-2 mb-6">
+                            <div id="quiz-progress-bar" class="bg-accent h-2 rounded-full transition-all duration-300" style="width: 20%"></div>
                         </div>
                         <p id="quiz-question" class="text-lg font-semibold text-slate-100 mb-6 min-h-[56px]"></p>
                         <div id="quiz-options" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
                         <div id="quiz-feedback" class="text-center mb-4 min-h-[24px]"></div>
                         <div class="flex justify-end items-center gap-2">
                              <button id="restart-quiz-button" class="hidden py-2.5 px-4 bg-slate-800/60 hover:bg-slate-700/80 rounded-lg transition-colors font-semibold">Restart</button>
-                             <button id="next-question-button" class="py-2.5 px-6 bg-violet-600 hover:bg-violet-700 rounded-lg transition-colors font-semibold hidden">Next Question</button>
+                             <button id="next-question-button" class="py-2.5 px-6 bg-accent hover:bg-accent/80 text-primary-text rounded-lg transition-colors font-semibold hidden">Next Question</button>
                         </div>
                     </div>
                 </main>
@@ -219,7 +219,7 @@
             <span class="text-lg">&lt;</span>
             <span class="sr-only">Open right sidebar</span>
         </button>
-        <aside id="right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full" aria-hidden="true">
+        <aside id="right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-border-main h-full" aria-hidden="true">
             <h3 class="text-lg font-semibold mb-4">Chat History</h3>
             <div id="chat-history-container" class="flex-grow overflow-y-auto">
                 <!-- Chat history will be rendered here -->
@@ -237,7 +237,7 @@
         </aside>
 
         <!-- Right Sidebar for Flashcards -->
-        <aside id="flashcards-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 md:border-l md:border-white/10 h-full" aria-hidden="true">
+        <aside id="flashcards-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 md:border-l md:border-border-main h-full" aria-hidden="true">
             <h3 class="text-lg font-semibold mb-4">Flashcard Options</h3>
             <div class="space-y-4">
                 <div>
@@ -250,7 +250,7 @@
                         <option>25</option>
                     </select>
                 </div>
-                <button id="generate-flashcards-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
+                <button id="generate-flashcards-button" class="w-full bg-accent hover:bg-accent/80 text-primary-text rounded-lg py-2.5">Generate</button>
                 <div id="flashcard-generation-loading" class="hidden text-center">
                     <div class="spinner"></div>
                 </div>
@@ -260,7 +260,7 @@
             </div>
             <h3 class="text-lg font-semibold mt-6 mb-4">History</h3>
             <div class="relative mb-4">
-                <input type="text" id="flashcard-history-search" placeholder="Search history..." class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2 pl-10 pr-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow">
+                <input type="text" id="flashcard-history-search" placeholder="Search history..." class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2 pl-10 pr-4 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-shadow">
                 <div class="absolute inset-y-0 left-0 flex items-center pl-3">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-slate-400"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </div>
@@ -272,7 +272,7 @@
         </aside>
 
         <!-- Right Sidebar for Quiz -->
-        <aside id="quiz-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-white/10 h-full" aria-hidden="true">
+        <aside id="quiz-right-sidebar" class="right-sidebar-mobile hidden absolute md:relative w-full md:w-64 flex-col glass-effect p-4 border-l border-border-main h-full" aria-hidden="true">
             <h3 class="text-lg font-semibold mb-4">Quiz Options</h3>
             <div class="space-y-4">
                 <div>
@@ -285,7 +285,7 @@
                         <option>25</option>
                     </select>
                 </div>
-                <button id="generate-quiz-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Generate</button>
+                <button id="generate-quiz-button" class="w-full bg-accent hover:bg-accent/80 text-primary-text rounded-lg py-2.5">Generate</button>
                 <div id="quiz-generation-loading" class="hidden text-center">
                     <div class="spinner"></div>
                 </div>
@@ -317,10 +317,10 @@
                     <label for="password" class="text-sm font-medium text-slate-300">Password</label>
                     <input type="password" id="password" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="••••••••">
                 </div>
-                <button type="submit" id="login-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 font-semibold">Login</button>
+                <button type="submit" id="login-button" class="w-full bg-accent hover:bg-accent/80 text-primary-text rounded-lg py-2.5 font-semibold">Login</button>
             </form>
             <p class="text-center text-sm text-slate-400 my-4">Don't have an account? 
-                <button id="open-register-modal" class="font-semibold text-violet-400 hover:text-violet-300">Register</button>
+                <button id="open-register-modal" class="font-semibold text-accent hover:text-accent/80">Register</button>
             </p>
             <button id="close-login-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -345,7 +345,7 @@
                     <label for="register-password" class="text-sm font-medium text-slate-300">Password</label>
                     <input type="password" id="register-password" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg py-2.5 px-3 text-slate-100 mt-1" placeholder="••••••••">
                 </div>
-                <button type="submit" id="register-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5 font-semibold">Create Account</button>
+                <button type="submit" id="register-button" class="w-full bg-accent hover:bg-accent/80 text-primary-text rounded-lg py-2.5 font-semibold">Create Account</button>
             </form>
             <button id="close-register-modal" class="absolute top-4 right-4 p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -356,11 +356,11 @@
     <!-- Settings Modal -->
     <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 hidden">
         <div class="glass-effect w-full max-w-2xl rounded-2xl shadow-2xl p-4 sm:p-6 relative flex flex-col max-h-[90vh]">
-            <div class="flex-shrink-0 flex items-center justify-between pb-4 border-b border-white/10">
+            <div class="flex-shrink-0 flex items-center justify-between pb-4 border-b border-border-main">
                 <h2 class="text-xl sm:text-2xl font-bold text-slate-100">Settings</h2>
                 <div class="flex items-center gap-2">
                     <button id="feedback-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-heart h-4 w-4 text-violet-400"><path d="M12 21.35a1 1 0 0 1-1.45-.09L3 14.5a5 5 0 0 1 7-7 .5.5 0 0 1 .5.5v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8a.5.5 0 0 1 .5-.5 5 5 0 0 1 7 7l-7.55 6.76a1 1 0 0 1-1.45.09z"/><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-heart h-4 w-4 text-accent"><path d="M12 21.35a1 1 0 0 1-1.45-.09L3 14.5a5 5 0 0 1 7-7 .5.5 0 0 1 .5.5v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8a.5.5 0 0 1 .5-.5 5 5 0 0 1 7 7l-7.55 6.76a1 1 0 0 1-1.45.09z"/><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/></svg>
                         <span>Feedback</span>
                     </button>
                     <button id="close-settings-modal" class="p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
@@ -380,13 +380,13 @@
                 <!-- Special Instructions -->
                 <div>
                     <label for="special-instructions" class="text-sm font-semibold text-slate-300 mb-2 block">Special Instructions</label>
-                    <textarea id="special-instructions" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500/50 transition-shadow text-sm" placeholder="e.g., Explain concepts like I'm 10 years old."></textarea>
+                    <textarea id="special-instructions" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-shadow text-sm" placeholder="e.g., Explain concepts like I'm 10 years old."></textarea>
                 </div>
                 <!-- Storage Usage -->
                 <div>
                     <label class="text-sm font-semibold text-slate-300 mb-2 block">Storage Usage</label>
                     <div class="w-full bg-slate-700/50 rounded-full h-2.5">
-                        <div class="bg-violet-600 h-2.5 rounded-full" style="width: 15%"></div>
+                        <div class="bg-accent h-2.5 rounded-full" style="width: 15%"></div>
                     </div>
                     <p class="text-xs text-slate-400 mt-2 text-right">15.7 MB of 100 MB used</p>
                 </div>
@@ -406,20 +406,20 @@
             <div class="space-y-4">
                 <div>
                     <label class="text-sm font-medium text-slate-300">Rating</label>
-                    <div id="feedback-rating" class="flex items-center gap-2 text-2xl text-slate-400 mt-1">
-                        <button data-rating="1" class="star hover:text-yellow-400 transition-colors">★</button>
-                        <button data-rating="2" class="star hover:text-yellow-400 transition-colors">★</button>
-                        <button data-rating="3" class="star hover:text-yellow-400 transition-colors">★</button>
-                        <button data-rating="4" class="star hover:text-yellow-400 transition-colors">★</button>
-                        <button data-rating="5" class="star hover:text-yellow-400 transition-colors">★</button>
+                    <div id="feedback-rating" class="flex items-center gap-2 text-2xl text-text-secondary mt-1">
+                        <button data-rating="1" class="star hover:text-accent transition-colors">★</button>
+                        <button data-rating="2" class="star hover:text-accent transition-colors">★</button>
+                        <button data-rating="3" class="star hover:text-accent transition-colors">★</button>
+                        <button data-rating="4" class="star hover:text-accent transition-colors">★</button>
+                        <button data-rating="5" class="star hover:text-accent transition-colors">★</button>
                     </div>
                 </div>
                 <div>
                     <label for="feedback-comments" class="text-sm font-medium text-slate-300">Comments</label>
                     <textarea id="feedback-comments" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 mt-1" placeholder="Tell us what you think..."></textarea>
                 </div>
-                <div id="feedback-validation" class="hidden text-red-400 text-sm">Please select a rating.</div>
-                <button id="submit-feedback-button" class="w-full bg-violet-600 hover:bg-violet-700 text-white rounded-lg py-2.5">Submit</button>
+                <div id="feedback-validation" class="hidden text-emphasis text-sm">Please select a rating.</div>
+                <button id="submit-feedback-button" class="w-full bg-accent hover:bg-accent/80 text-primary-text rounded-lg py-2.5">Submit</button>
                 <div id="feedback-success" class="hidden text-center text-green-400">
                     <p>Thank you for your feedback!</p>
                 </div>

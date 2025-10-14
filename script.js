@@ -329,8 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderFiles() {
         sidebarFileList.innerHTML = '';
         manageFilesList.innerHTML = '';
-        const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
-        const fileColorMap = { 'pdf': 'text-violet-400', 'docx': 'text-sky-400', 'sql': 'text-indigo-400', 'default': 'text-slate-400' };
+        const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'txt': 'file-text', 'md': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
+        const fileColorMap = { 'default': 'text-accent' }; // Use a single accent color for all icons
 
         state.files.forEach(file => {
             const extension = file.name.split('.').pop();
@@ -339,12 +339,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const isActive = file.id === state.activeFileId;
 
             const sidebarLi = document.createElement('li');
-            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-slate-800/60 text-slate-100 font-semibold' : 'hover:bg-slate-800/50 text-slate-300'}">
+            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-accent text-primary-text font-semibold' : 'hover:bg-accent/20 text-text-secondary'}">
                 <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
             sidebarFileList.appendChild(sidebarLi);
 
             const manageLi = document.createElement('li');
-            manageLi.className = 'flex items-center justify-between bg-slate-800/50 p-2.5 rounded-lg';
+            manageLi.className = 'flex items-center justify-between bg-bg-surface p-2.5 rounded-lg';
             manageLi.dataset.fileId = file.id;
             manageLi.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${icon}" class="h-5 w-5 ${color} flex-shrink-0"></i><span class="text-sm text-slate-200 truncate">${file.name}</span></div>
                 <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`;
@@ -460,7 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistoryEmpty.classList.add('hidden');
         history.forEach(item => {
             const li = document.createElement('li');
-            li.className = `text-sm p-2 rounded-md ${item.sender === 'user' ? 'bg-slate-700' : 'bg-slate-800'}`;
+            li.className = `text-sm p-2 rounded-md bg-bg-surface`;
             li.textContent = item.message;
             chatHistoryList.appendChild(li);
         });
@@ -496,9 +496,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement('div');
         messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in`;
         if (sender === 'user') {
-            messageElement.innerHTML = `<div class="bg-violet-600 rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-white break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-slate-400"></i></div>`;
+            messageElement.innerHTML = `<div class="bg-accent rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-primary-text break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-text-secondary"></i></div>`;
         } else {
-            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-violet-400"></i></div><div class="bg-slate-800/50 rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-slate-200 break-words">${message}</p></div>`;
+            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-text-main break-words">${message}</p></div>`;
         }
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -680,8 +680,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         question.options.forEach(option => {
             const button = document.createElement('button');
-            button.textContent = option;
-            button.className = 'text-left p-4 bg-slate-800/60 hover:bg-violet-600/50 rounded-lg';
+            button.textContent = option; // Classes are now handled in style.css for .mode-button
+            button.className = 'text-left p-4 mode-button rounded-lg';
             button.onclick = () => selectQuizAnswer(button, option, question.answer);
             quizOptionsEl.appendChild(button);
         });
@@ -705,23 +705,20 @@ document.addEventListener('DOMContentLoaded', () => {
     function selectQuizAnswer(button, selected, correct) {
         Array.from(quizOptionsEl.children).forEach(btn => {
             btn.disabled = true;
-            // Clean previous highlight classes for reliable overrides across themes
-            btn.classList.remove('bg-green-500/80', 'bg-red-500/80');
+            btn.classList.remove('active'); // Remove general active state
             if (btn.textContent === correct) {
-                btn.classList.remove('bg-slate-800/60');
-                btn.classList.add('bg-green-500/80');
+                btn.classList.add('correct-answer');
             }
         });
         
         if (selected === correct) {
             state.quizScore++;
             quizFeedbackEl.textContent = 'Correct!';
-            quizFeedbackEl.className = 'text-center mb-4 text-green-400';
+            quizFeedbackEl.className = 'text-center mb-4 text-accent';
         } else {
-            button.classList.remove('bg-slate-800/60');
-            button.classList.add('bg-red-500/80');
-            quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}"`;
-            quizFeedbackEl.className = 'text-center mb-4 text-red-400';
+            button.classList.add('incorrect-answer');
+            quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}".`;
+            quizFeedbackEl.className = 'text-center mb-4 text-emphasis'; // Use emphasis for incorrect
         }
         state.currentQuizIndex++;
         nextQuestionButton.classList.remove('hidden');
@@ -762,8 +759,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('star')) {
             const newRating = e.target.dataset.rating;
             Array.from(feedbackRating.children).forEach(star => {
-                star.classList.toggle('text-yellow-400', star.dataset.rating <= newRating);
-            });
+                star.classList.toggle('text-accent', star.dataset.rating <= newRating);
+            }); // Use accent color for stars
         }
     });
 
@@ -799,8 +796,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         feedbackComments.value = '';
         Array.from(feedbackRating.children).forEach(star => {
-            star.classList.remove('text-yellow-400', 'text-slate-600');
-            star.classList.add('text-slate-600');
+            star.classList.remove('text-accent');
+            // The default color will be inherited from the parent
         });
     }
 

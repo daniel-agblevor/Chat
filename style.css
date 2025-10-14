@@ -1,30 +1,27 @@
-/* Seance Color Palette */
+/* New Color Palette */
 :root {
-    --seance-50: #faf5fe;
-    --seance-100: #f6ebfc;
-    --seance-200: #ebd5f9;
-    --seance-300: #deb4f3;
-    --seance-400: #ca87eb;
-    --seance-500: #b259dc;
-    --seance-600: #973abf;
-    --seance-700: #772a95;
-    --seance-800: #692682;
-    --seance-900: #59246b;
-    --seance-950: #380c46;
-}
+    --primary-bg: #FFFFFF;
+    --secondary-bg: #E5E5E5;
+    --accent: #FCA311;
+    --primary-text: #14213D;
+    --emphasis: #000000;
 
-/* Seance Utility Classes */
-.bg-seance-500 { background-color: var(--seance-500); }
-.bg-seance-600 { background-color: var(--seance-600); }
-.bg-seance-400 { background-color: var(--seance-400); }
-.text-seance-500 { color: var(--seance-500); }
-.text-seance-600 { color: var(--seance-600); }
-.border-seance-500 { border-color: var(--seance-500); }
+    /* Dark Mode Defaults */
+    --bg-main: var(--primary-text);
+    --bg-surface: rgba(0, 0, 0, 0.2);
+    --bg-interactive: var(--accent);
+    --bg-interactive-hover: #E89202;
+    --text-main: var(--primary-bg);
+    --text-secondary: var(--secondary-bg);
+    --border-main: rgba(255, 255, 255, 0.1);
+    --shadow-color: rgba(0, 0, 0, 0.4);
+    --icon-color: var(--accent);
+}
 
 body {
     font-family: 'Inter', sans-serif;
-    background-color: #0f172a; /* Slate 900 */
-    color: #e2e8f0; /* Slate 200 */
+    background-color: var(--bg-main);
+    color: var(--text-main);
     overflow: hidden; /* Prevent scroll on body */
 }
 
@@ -42,7 +39,7 @@ button, a {
 }
 
 /* Override for interactive elements to maintain snappy feel */
-button, a, input, select, textarea, .mode-button, .bg-violet-600, .bg-slate-800\/60 {
+button, a, input, select, textarea, .mode-button {
     transition: background-color 0.2s ease-in-out,
                 color 0.2s ease-in-out,
                 border-color 0.2s ease-in-out,
@@ -63,7 +60,7 @@ button:active {
 }
 
 #sidebar:not(.hidden) {
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 4px 0 20px var(--shadow-color);
 }
 
 /* Sidebar Overlay Transitions */
@@ -104,7 +101,7 @@ button:active {
     }
     
     #right-sidebar:not(.hidden), #flashcards-right-sidebar:not(.hidden), #quiz-right-sidebar:not(.hidden) {
-        box-shadow: -4px 0 20px rgba(0, 0, 0, 0.2);
+        box-shadow: -4px 0 20px var(--shadow-color);
     }
     
     /* Right Sidebar Handle Button Transitions */
@@ -137,7 +134,7 @@ button:active {
 
 #chat-history-list li:hover, #flashcards-history-list li:hover, #quiz-history-list li:hover {
     transform: translateX(4px);
-    background-color: rgba(139, 92, 246, 0.1);
+    background-color: rgba(252, 163, 17, 0.1);
 }
 
 /* Right Sidebar Loading States */
@@ -182,7 +179,7 @@ button:active {
     
     #open-right-sidebar-handle:hover {
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px var(--shadow-color);
     }
     
     #open-right-sidebar-handle:active {
@@ -588,15 +585,25 @@ button:active {
 
 /* Light Mode */
 body.light-mode {
-    background-color: #f1f5f9; /* Slate 100 */
-    color: #0f172a; /* Slate 900 */
+    --bg-main: var(--primary-bg);
+    --bg-surface: var(--secondary-bg);
+    --text-main: var(--primary-text);
+    --text-secondary: #4F5A70; /* Derived for less emphasis */
+    --border-main: rgba(20, 33, 61, 0.15);
+    --shadow-color: rgba(20, 33, 61, 0.15);
+    --icon-color: var(--primary-text);
+}
+
+body.light-mode {
+    background-color: var(--bg-main);
+    color: var(--text-main);
 }
 
 .light-mode .glass-effect {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(0, 0, 0, 0.1);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--border-main);
+    box-shadow: 0 8px 32px 0 var(--shadow-color),
+                0 0 0 1px rgba(20, 33, 61, 0.05);
 }
 
 .light-mode .text-slate-100 {
@@ -632,12 +639,12 @@ body.light-mode {
 
 /* Icon Button - Delete */
 .delete-file-button:hover {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #ef4444; /* red-500 */
+    background-color: rgba(255, 0, 0, 0.1);
+    color: #ff0000;
 }
 
 .light-mode .delete-file-button:hover {
-    background-color: rgba(239, 68, 68, 0.15);
+    background-color: rgba(255, 0, 0, 0.15);
 }
 
 .light-mode .border-white\/10 {
@@ -655,11 +662,11 @@ body.light-mode {
 
 .rounded-full:hover {
     transform: scale(1.05);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .light-mode .rounded-full:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 /* Star Rating Buttons */
@@ -670,7 +677,7 @@ body.light-mode {
 
 .star:hover {
     transform: scale(1.2);
-    filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.3));
+    filter: drop-shadow(0 2px 4px rgba(252, 163, 17, 0.4));
 }
 
 .star:active {
@@ -691,7 +698,7 @@ body.light-mode {
 }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, .light-mode .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(124, 58, 237, 0.5);
+    background-color: rgba(252, 163, 17, 0.6);
 }
 
 .light-mode .bg-slate-700\/50 {
@@ -703,15 +710,15 @@ body.light-mode {
 }
 
 .light-mode .placeholder-slate-400::placeholder {
-    color: #64748b; /* Slate 500 */
+    color: var(--text-secondary);
 }
 
 .light-mode .bg-violet-500\/20 {
-    background-color: rgba(139, 92, 246, 0.1);
+    background-color: rgba(252, 163, 17, 0.15);
 }
 
 .light-mode .flashcard-front {
-    background-color: #ffffff;
+    background-color: var(--primary-bg);
 }
 
 .light-mode .flashcard-back {
@@ -727,24 +734,24 @@ body.light-mode {
 }
 
 /* Ensure highlight colors are visible in light mode */
-.light-mode #quiz-options button.bg-green-500\/80 { background-color: rgba(34,197,94,0.8) !important; color: #0f172a; }
-.light-mode #quiz-options button.bg-red-500\/80 { background-color: rgba(239,68,68,0.8) !important; color: #ffffff; }
+.light-mode #quiz-options button.correct-answer { background-color: var(--accent) !important; color: var(--primary-text); }
+.light-mode #quiz-options button.incorrect-answer { background-color: var(--emphasis) !important; color: var(--primary-bg); }
 
 /* --- Theme-Specific Overrides --- */
-.light-mode .bg-violet-600 { background-color: #ca87eb; } /* Seance 400 */
-.light-mode .bg-indigo-600 { background-color: #deb4f3; } /* Seance 300 */
-.light-mode .bg-sky-600 { background-color: #ebd5f9; } /* Seance 200 */
+.light-mode .bg-violet-600 { background-color: var(--accent); }
+.light-mode .bg-indigo-600 { background-color: var(--accent); opacity: 0.8; }
+.light-mode .bg-sky-600 { background-color: var(--accent); opacity: 0.6; }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, 
 .light-mode .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(202, 135, 235, 0.6); /* Seance 400 with opacity */
+    background-color: rgba(252, 163, 17, 0.6);
 }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb:hover, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb:hover, 
 .light-mode .modal-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(202, 135, 235, 0.8); /* Seance 400 with higher opacity */
+    background-color: rgba(252, 163, 17, 0.8);
 }
 
 
@@ -764,11 +771,11 @@ body.light-mode {
         bottom: 0;
         left: 0;
         right: 0;
-        background: rgba(15, 23, 42, 0.9); /* Dark slate for dark mode */
+        background: rgba(20, 33, 61, 0.8); /* Dark primary text with blur */
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+        border-top: 1px solid var(--border-main);
+        box-shadow: 0 -2px 10px var(--shadow-color);
         padding: 10px 12px;
         z-index: 50;
         transition: all 0.3s ease-in-out;
@@ -781,7 +788,7 @@ body.light-mode {
     
     #open-left-sidebar-handle:hover, #open-right-sidebar-handle:hover {
         transform: scale(1.1);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px var(--shadow-color);
     }
     
     /* Mobile menu button transitions */
@@ -791,7 +798,7 @@ body.light-mode {
     
     #menu-button:hover {
         transform: scale(1.1);
-        background-color: rgba(139, 92, 246, 0.1);
+        background-color: rgba(252, 163, 17, 0.1);
     }
     
     /* Mobile mode button transitions */
@@ -816,14 +823,14 @@ body.light-mode {
     
     #message-input:focus {
         transform: scale(1.02);
-        box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        box-shadow: 0 0 0 2px rgba(252, 163, 17, 0.3);
     }
 
     /* Light mode adaptation */
     body.light-mode #chat-view > div:last-child {
         background: rgba(255, 255, 255, 0.8); /* Subtle glass white */
-        border-top: 1px solid rgba(0, 0, 0, 0.1);
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        border-top: 1px solid var(--border-main);
+        box-shadow: 0 -2px 10px var(--shadow-color);
     }
 
     #chat-form {
@@ -859,25 +866,25 @@ body.light-mode {
 
     /* Send button */
     #chat-form button {
-        background-color: #b259dc; /* Seance 500 */
-        color: #ffffff;
+        background-color: var(--bg-interactive);
+        color: var(--primary-text);
         border-radius: 0.5rem;
         padding: 10px;
         transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
     }
 
     #chat-form button:hover {
-        background-color: #973abf; /* Seance 600 */
+        background-color: var(--bg-interactive-hover);
         transform: scale(1.02);
     }
 
     body.light-mode #chat-form button {
-        background-color: #ca87eb; /* Seance 400 */
-        color: #ffffff;
+        background-color: var(--bg-interactive);
+        color: var(--primary-text);
     }
 
     body.light-mode #chat-form button:hover {
-        background-color: #b259dc; /* Seance 500 */
+        background-color: var(--bg-interactive-hover);
     }
 
     body {
@@ -886,12 +893,12 @@ body.light-mode {
 }
 
 
-.light-mode #chat-history-list li, .light-mode #flashcard-history-list li, .light-mode #quiz-history-list li {
-    background-color: rgba(226, 232, 240, 0.6);
+.light-mode #chat-history-list li, .light-mode #flashcards-history-list li, .light-mode #quiz-history-list li {
+    background-color: rgba(20, 33, 61, 0.05);
 }
 
 .light-mode .toast {
-    color: #0f172a; /* Slate 900 */
+    color: var(--primary-text);
 }
 
 #file-management-section {
@@ -903,13 +910,13 @@ body.light-mode {
 }
 
 #login-signup-button {
-    background-color: #b259dc; /* Seance 500 */
+    background-color: var(--bg-interactive);
     font-weight: bold;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 #login-signup-button:hover {
-    background-color: #973abf; /* Seance 600 */
+    background-color: var(--bg-interactive-hover);
     transform: scale(1.02);
 }
 
