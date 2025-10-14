@@ -999,6 +999,24 @@ document.addEventListener('DOMContentLoaded', () => {
         applyTheme(newTheme);
     });
 
+    // Detect system preference at first load (only if no user preference)
+    const storedTheme = localStorage.getItem('theme');
+    if (!storedTheme) {
+        const prefersLightMode = window.matchMedia('(prefers-color-scheme: light)').matches;
+        applyTheme(prefersLightMode ? 'light' : 'dark');
+    } else {
+        applyTheme(storedTheme);
+    }
+
+    // Listen for real-time system theme changes
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', (event) => {
+        // Only auto-switch if user hasn't set a manual preference
+        if (!localStorage.getItem('theme')) {
+            const newTheme = event.matches ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+    });
+
     initializeApp();
 });
 
