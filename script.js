@@ -755,14 +755,39 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackModal.classList.add('hidden');
     });
 
-    feedbackRating.addEventListener('click', (e) => {
-        if (e.target.classList.contains('star')) {
-            const newRating = e.target.dataset.rating;
-            Array.from(feedbackRating.children).forEach(star => {
-                star.classList.toggle('text-accent', star.dataset.rating <= newRating);
-            }); // Use accent color for stars
+    // Select all star buttons
+    const stars = document.querySelectorAll('.star');
+
+    stars.forEach((star, index) => {
+    star.addEventListener('click', () => {
+        // Remove 'active' class from all stars
+        stars.forEach((s) => s.classList.remove('active'));
+
+        // Add 'active' class up to the clicked star
+        for (let i = 0; i <= index; i++) {
+        stars[i].classList.add('active');
         }
+
+        // Optional: store selected rating value
+        const rating = star.getAttribute('data-rating');
+        console.log('Selected Rating:', rating);
     });
+
+    // Optional hover preview effect (temporary highlight)
+    star.addEventListener('mouseover', () => {
+        stars.forEach((s, i) => {
+        s.style.color = i <= index ? '#FCA311' : '#9CA3AF';
+        });
+    });
+
+    star.addEventListener('mouseout', () => {
+        // Revert to active stars only
+        stars.forEach((s) => {
+        s.style.color = s.classList.contains('active') ? '#FCA311' : '#9CA3AF';
+        });
+    });
+    });
+
 
     async function submitFeedback() {
         const ratingElement = feedbackRating.querySelector('.text-yellow-400');
@@ -976,3 +1001,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeApp();
 });
+

@@ -669,20 +669,26 @@ body.light-mode {
     box-shadow: 0 4px 12px var(--shadow-color);
 }
 
-/* Star Rating Buttons */
 .star {
+    color: #9CA3AF; /* grayish */
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
 }
 
 .star:hover {
     transform: scale(1.2);
+    color: #FCA311; /* your accent color */
     filter: drop-shadow(0 2px 4px rgba(252, 163, 17, 0.4));
+}
+
+.star.active {
+    color: #FCA311;
 }
 
 .star:active {
     transform: scale(1.1);
 }
+
 
 /* Theme Switcher Button */
 #theme-switcher {
