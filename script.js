@@ -790,8 +790,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function submitFeedback() {
-        const ratingElement = feedbackRating.querySelector('.text-yellow-400');
-        const rating = ratingElement ? parseInt(ratingElement.dataset.rating) : 0;
+        const rating = feedbackRating.querySelectorAll('.active').length;
         const comments = feedbackComments.value.trim();
 
         if (rating === 0) {
@@ -821,8 +820,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         feedbackComments.value = '';
         Array.from(feedbackRating.children).forEach(star => {
-            star.classList.remove('text-accent');
-            // The default color will be inherited from the parent
+            star.classList.remove('active');
         });
     }
 
@@ -983,17 +981,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Theme Management ---
     function applyTheme(theme) {
-        if (theme === 'light') {
-            document.body.classList.add('light-mode');
-            themeSwitcherIndicator.classList.add('translate-x-5');
-        } else {
-            document.body.classList.remove('light-mode');
-            themeSwitcherIndicator.classList.remove('translate-x-5');
-        }
+        document.body.classList.toggle('light-mode', theme === 'light');
+        themeSwitcherIndicator.classList.toggle('translate-x-5', theme === 'light');
     }
 
     themeSwitcher.addEventListener('click', () => {
-        const currentTheme = localStorage.getItem('theme') || 'dark';
+        const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         localStorage.setItem('theme', newTheme);
         applyTheme(newTheme);
