@@ -973,9 +973,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- App Initialization ---
+    function createBouncingCircles() {
+        const container = document.getElementById('background-animation');
+        if (!container) return;
+
+        const circleCount = 10;
+
+        for (let i = 0; i < circleCount; i++) {
+            const circle = document.createElement('div');
+            circle.classList.add('bouncing-circle');
+
+            const size = Math.random() * 150 + 50; // 50px to 200px
+            const initialX = Math.random() * 100;
+            const initialY = Math.random() * 100;
+            const animationDuration = Math.random() * 20 + 15; // 15s to 35s
+            const colorAnimationDuration = Math.random() * 10 + 5; // 5s to 15s
+            const animationDelay = Math.random() * 10;
+
+            circle.style.width = `${size}px`;
+            circle.style.height = `${size}px`;
+            circle.style.left = `${initialX}%`;
+            circle.style.top = `${initialY}%`;
+            circle.style.animationDuration = `${animationDuration}s, ${colorAnimationDuration}s`;
+            circle.style.animationDelay = `${animationDelay}s`;
+
+            container.appendChild(circle);
+        }
+    }
+
     async function initializeApp() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
+
+        createBouncingCircles(); 
 
         await loadChatHistory();
         if (state.isLoggedIn) {

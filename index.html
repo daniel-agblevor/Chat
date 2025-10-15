@@ -50,11 +50,9 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2"></div>
 
-    <!-- Background -->
-    <div class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
-        <div class="absolute -top-40 -left-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-20 filter blur-3xl animate-blob"></div>
-        <div class="absolute top-0 -right-40 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-10 filter blur-3xl animate-blob animation-delay-2000"></div>
-        <div class="absolute -bottom-40 left-1/4 w-96 h-96 md:w-[32rem] md:h-[32rem] bg-accent rounded-full opacity-15 filter blur-3xl animate-blob animation-delay-4000"></div>
+    <!-- Background Animation -->
+    <div id="background-animation" class="absolute top-0 left-0 w-full h-full -z-10 overflow-hidden">
+        <!-- Animated blobs will be injected here by JavaScript -->
     </div>
     
     <div class="relative flex flex-col md:flex-row h-screen overflow-hidden">
@@ -387,7 +385,7 @@
                     <textarea id="special-instructions" rows="4" class="w-full bg-slate-800/60 border-slate-700/50 rounded-lg p-3 text-slate-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent/50 transition-shadow text-sm" placeholder="e.g., Explain concepts like I'm 10 years old."></textarea>
                 </div>
                 <!-- Storage Usage -->
-                <div>
+                <div style="pointer-events: none;">
                     <label class="text-sm font-semibold text-slate-300 mb-2 block">Storage Usage</label>
                     <div class="w-full bg-slate-700/50 rounded-full h-2.5">
                         <div class="bg-accent h-2.5 rounded-full" style="width: 15%"></div>
