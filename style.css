@@ -2,7 +2,7 @@
 :root {
     --primary-bg: #FFFFFF;
     --secondary-bg: #E5E5E5;
-    --accent: #FCA311;
+    --accent: #2196F3; /* Blue */
     --primary-text: #14213D;
     --emphasis: #000000;
 
@@ -10,12 +10,19 @@
     --bg-main: var(--primary-text);
     --bg-surface: rgba(0, 0, 0, 0.2);
     --bg-interactive: var(--accent);
-    --bg-interactive-hover: #E89202;
+    --bg-interactive-hover: #1976D2; /* Darker Blue */
     --text-main: var(--primary-bg);
     --text-secondary: var(--secondary-bg);
-    --border-main: rgba(255, 255, 255, 0.1);
+    --border-main: #4F4F4F; /* Grey tone for dark mode borders */
     --shadow-color: rgba(0, 0, 0, 0.4);
     --icon-color: var(--accent);
+
+    /* Dark Theme Adjustments */
+    --button-bg-dark: #333333; /* dark grey */
+    --button-text-dark: #FFFFFF; /* light text */
+    --correct-answer-bg-dark: #2E8B57; /* SeaGreen, a greenish tone */
+    --incorrect-answer-bg-dark: #8B0000; /* DarkRed, a reddish tone */
+    --register-text-dark: #FFFFFF; /* white */
 }
 
 body {
@@ -134,7 +141,7 @@ button:active {
 
 #chat-history-list li:hover, #flashcards-history-list li:hover, #quiz-history-list li:hover {
     transform: translateX(4px);
-    background-color: rgba(252, 163, 17, 0.1);
+    background-color: rgba(33, 150, 243, 0.1);
 }
 
 /* Right Sidebar Loading States */
@@ -213,72 +220,11 @@ button:active {
     }
 }
 
-/* --- Professional Button System --- */
-
-/* Primary Action Buttons (Seance) */
-.bg-violet-600 {
-    background-color: var(--seance-500);
-    color: #ffffff;
-    border: 1px solid transparent;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-.bg-violet-600:hover {
-    background-color: var(--seance-600);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(178, 89, 220, 0.3);
-}
-
-.bg-violet-600:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 6px rgba(178, 89, 220, 0.2);
-}
-
-.light-mode .bg-violet-600 {
-    background-color: var(--seance-400);
-    color: #ffffff;
-    box-shadow: 0 2px 4px rgba(202, 135, 235, 0.2);
-}
-
-.light-mode .bg-violet-600:hover {
-    background-color: var(--seance-500);
-    box-shadow: 0 4px 12px rgba(202, 135, 235, 0.3);
-}
-
-/* Secondary Action Buttons */
-.bg-slate-800\/60 {
-    background-color: rgba(30, 41, 59, 0.6);
-    color: #e2e8f0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bg-slate-800\/60:hover {
-    background-color: rgba(30, 41, 59, 0.8);
-    border-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.light-mode .bg-slate-800\/60 {
-    background-color: rgba(226, 232, 240, 0.6);
-    color: #0f172a;
-    border-color: rgba(0, 0, 0, 0.1);
-}
-
-.light-mode .bg-slate-800\/60:hover {
-    background-color: rgba(226, 232, 240, 0.8);
-    border-color: rgba(0, 0, 0, 0.2);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
 .glass-effect {
     background: rgba(30, 41, 59, 0.6); /* Enhanced opacity for better contrast */
     backdrop-filter: blur(20px) saturate(150%);
     -webkit-backdrop-filter: blur(20px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--border-main);
     border-radius: 1rem;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), 
                 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -293,11 +239,11 @@ button:active {
 }
 
 @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); filter: hue-rotate(0deg); }
+    0% { transform: translate(0px, 0px) scale(1); }
     25% { transform: translate(100px, -50px) scale(1.2); }
-    50% { transform: translate(-80px, 60px) scale(0.8); filter: hue-rotate(180deg); }
+    50% { transform: translate(-80px, 60px) scale(0.8); }
     75% { transform: translate(50px, -100px) scale(1.1); }
-    100% { transform: translate(0px, 0px) scale(1); filter: hue-rotate(0deg); }
+    100% { transform: translate(0px, 0px) scale(1); }
 }
 
 .animate-blob { 
@@ -309,14 +255,14 @@ button:active {
 #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
 #chat-window::-webkit-scrollbar-track, .sidebar-scroll::-webkit-scrollbar-track, .modal-scroll::-webkit-scrollbar-track { background: transparent; }
 #chat-window::-webkit-scrollbar-thumb, .sidebar-scroll::-webkit-scrollbar-thumb, .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(178, 89, 220, 0.6); /* Seance 500 with opacity */
+    background-color: rgba(33, 150, 243, 0.6);
     border-radius: 20px;
     border: 3px solid transparent;
     transition: background-color 0.2s ease-in-out;
 }
 
 #chat-window::-webkit-scrollbar-thumb:hover, .sidebar-scroll::-webkit-scrollbar-thumb:hover, .modal-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(178, 89, 220, 0.8); /* Seance 500 with higher opacity */
+    background-color: rgba(33, 150, 243, 0.8);
 }
 
 @keyframes bounce {
@@ -360,9 +306,9 @@ button:active {
     background-color: rgba(30, 41, 59, 0.9);
     color: #f8fafc;
     font-weight: 600;
-    border: 1px solid var(--seance-500);
-    box-shadow: 0 0 0 1px rgba(178, 89, 220, 0.3), 
-                0 4px 12px rgba(178, 89, 220, 0.2);
+    border: 1px solid var(--accent);
+    box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 
+                0 4px 12px rgba(33, 150, 243, 0.2);
     transform: translateY(-1px);
 }
 
@@ -382,9 +328,9 @@ button:active {
 .light-mode .mode-button.active {
     background-color: rgba(255, 255, 255, 0.9);
     color: #0f172a;
-    border-color: var(--seance-400);
-    box-shadow: 0 0 0 1px rgba(202, 135, 235, 0.3), 
-                0 4px 12px rgba(202, 135, 235, 0.2);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px rgba(33, 150, 243, 0.3), 
+                0 4px 12px rgba(33, 150, 243, 0.2);
 }
 
 /* --- View Transitions --- */
@@ -453,7 +399,7 @@ button:active {
     width: 24px;
     height: 24px;
     border: 3px solid rgba(255, 255, 255, 0.2);
-    border-top-color: #b259dc; /* Seance 500 */
+    border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto; /* Center the spinner */
@@ -461,7 +407,7 @@ button:active {
 
 .light-mode .spinner {
     border: 3px solid rgba(0, 0, 0, 0.1);
-    border-top-color: #ca87eb; /* Seance 400 for light mode */
+    border-top-color: var(--accent);
 }
 
 @keyframes spin {
@@ -589,9 +535,16 @@ body.light-mode {
     --bg-surface: var(--secondary-bg);
     --text-main: var(--primary-text);
     --text-secondary: #4F5A70; /* Derived for less emphasis */
-    --border-main: rgba(20, 33, 61, 0.15);
+    --border-main: #14213D; /* Dark tone for light mode borders */
     --shadow-color: rgba(20, 33, 61, 0.15);
     --icon-color: var(--primary-text);
+
+    /* Light Theme Adjustments */
+    --button-bg-light: #D3D3D3; /* light grey */
+    --button-text-light: #000000; /* dark text */
+    --correct-answer-bg-light: #90EE90; /* light green */
+    --incorrect-answer-bg-light: #F08080; /* light coral */
+    --register-text-light: #000000; /* black */
 }
 
 body.light-mode {
@@ -677,12 +630,12 @@ body.light-mode {
 
 .star:hover {
     transform: scale(1.2);
-    color: #FCA311; /* your accent color */
-    filter: drop-shadow(0 2px 4px rgba(252, 163, 17, 0.4));
+    color: var(--accent);
+    filter: drop-shadow(0 2px 4px rgba(33, 150, 243, 0.4));
 }
 
 .star.active {
-    color: #FCA311;
+    color: var(--accent);
 }
 
 .star:active {
@@ -704,7 +657,7 @@ body.light-mode {
 }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, .light-mode .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(252, 163, 17, 0.6);
+    background-color: rgba(33, 150, 243, 0.6);
 }
 
 .light-mode .bg-slate-700\/50 {
@@ -720,7 +673,7 @@ body.light-mode {
 }
 
 .light-mode .bg-violet-500\/20 {
-    background-color: rgba(252, 163, 17, 0.15);
+    background-color: rgba(33, 150, 243, 0.15);
 }
 
 .light-mode .flashcard-front {
@@ -732,11 +685,11 @@ body.light-mode {
 }
 
 #open-settings-button img {
-    background-color: #333; /* Dark Grey */
+    background-color: var(--button-bg-dark);
 }
 
 .light-mode #open-settings-button img {
-    background-color: #ccc; /* Light Grey */
+    background-color: var(--button-bg-light);
 }
 
 .light-mode #quiz-options button {
@@ -747,31 +700,35 @@ body.light-mode {
     background-color: rgba(203, 213, 225, 0.8);
 }
 
-/* Ensure highlight colors are visible in light mode */
-.light-mode #quiz-options button.correct-answer { background-color: var(--accent) !important; color: var(--primary-text); }
-.light-mode #quiz-options button.incorrect-answer { background-color: var(--emphasis) !important; color: var(--primary-bg); }
-
-/* --- Theme-Specific Overrides --- */
-.light-mode {
-    --light-blob-1: #A78BFA; /* Light Purple */
-    --light-blob-2: #7DD3FC; /* Light Blue */
-    --light-blob-3: #FBBF24; /* Amber */
+/* Answer Highlights */
+#quiz-options .correct-answer {
+    background-color: var(--correct-answer-bg-dark) !important;
 }
 
-.light-mode .bg-violet-600 { background-color: var(--light-blob-1); }
-.light-mode .bg-indigo-600 { background-color: var(--light-blob-2); }
-.light-mode .bg-sky-600 { background-color: var(--light-blob-3); }
+.light-mode #quiz-options .correct-answer {
+    background-color: var(--correct-answer-bg-light) !important;
+}
+
+#quiz-options .incorrect-answer {
+    background-color: var(--incorrect-answer-bg-dark) !important;
+}
+
+.light-mode #quiz-options .incorrect-answer {
+    background-color: var(--incorrect-answer-bg-light) !important;
+}
+
+/* --- Theme-Specific Overrides --- */
 
 .light-mode #chat-window::-webkit-scrollbar-thumb, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb, 
 .light-mode .modal-scroll::-webkit-scrollbar-thumb {
-    background-color: rgba(252, 163, 17, 0.6);
+    background-color: rgba(33, 150, 243, 0.6);
 }
 
 .light-mode #chat-window::-webkit-scrollbar-thumb:hover, 
 .light-mode .sidebar-scroll::-webkit-scrollbar-thumb:hover, 
 .light-mode .modal-scroll::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(252, 163, 17, 0.8);
+    background-color: rgba(33, 150, 243, 0.8);
 }
 
 
@@ -818,7 +775,7 @@ body.light-mode {
     
     #menu-button:hover {
         transform: scale(1.1);
-        background-color: rgba(252, 163, 17, 0.1);
+        background-color: rgba(33, 150, 243, 0.1);
     }
     
     /* Mobile mode button transitions */
@@ -843,7 +800,7 @@ body.light-mode {
     
     #message-input:focus {
         transform: scale(1.02);
-        box-shadow: 0 0 0 2px rgba(252, 163, 17, 0.3);
+        box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.3);
     }
 
     /* Light mode adaptation */
@@ -964,4 +921,61 @@ body.light-mode {
 #open-left-sidebar-handle { line-height: 1; }
 @media (max-width: 767px) {
     #open-left-sidebar-handle { display: none !important; }
+}
+/* --- Theme Adjustments --- */
+
+/* Buttons */
+#submit-feedback-button, #login-button, #login-signup-button, #next-question-button, #generate-flashcards-button, #generate-quiz-button, #chat-form button {
+    background-color: var(--button-bg-dark);
+    color: var(--button-text-dark);
+}
+
+.light-mode #submit-feedback-button, .light-mode #login-button, .light-mode #login-signup-button, .light-mode #next-question-button, .light-mode #generate-flashcards-button, .light-mode #generate-quiz-button, .light-mode #chat-form button {
+    background-color: var(--button-bg-light);
+    color: var(--button-text-light);
+}
+
+/* Profile Icon */
+#open-settings-button img {
+    background-color: var(--button-bg-dark);
+}
+
+.light-mode #open-settings-button img {
+    background-color: var(--button-bg-light);
+}
+
+/* Storage Usage Bar */
+.w-full.bg-slate-700\/50 > .bg-accent {
+    background-color: var(--button-bg-dark);
+}
+
+.light-mode .w-full.bg-slate-700\/50 > .bg-accent {
+    background-color: var(--button-bg-light);
+}
+
+/* Answer Highlights */
+#quiz-options .correct-answer {
+    background-color: var(--correct-answer-bg-dark) !important;
+}
+
+.light-mode #quiz-options .correct-answer {
+    background-color: var(--correct-answer-bg-light) !important;
+}
+
+#quiz-options .incorrect-answer {
+    background-color: var(--incorrect-answer-bg-dark) !important;
+}
+
+.light-mode #quiz-options .incorrect-answer {
+    background-color: var(--incorrect-answer-bg-light) !important;
+}
+
+/* Register Text */
+#open-register-modal {
+    color: var(--register-text-dark);
+    font-weight: bold;
+}
+
+.light-mode #open-register-modal {
+    color: var(--register-text-light);
 }
