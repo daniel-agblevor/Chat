@@ -2,7 +2,7 @@
 :root {
     --primary-bg: #FFFFFF;
     --secondary-bg: #E5E5E5;
-    --accent: #2196F3; /* Blue */
+    --accent: #bdcadb; /* Blue */
     --primary-text: #14213D;
     --emphasis: #000000;
 
@@ -10,7 +10,7 @@
     --bg-main: var(--primary-text);
     --bg-surface: rgba(0, 0, 0, 0.2);
     --bg-interactive: var(--accent);
-    --bg-interactive-hover: #1976D2; /* Darker Blue */
+    --bg-interactive-hover: #336494; /* Darker Blue */
     --text-main: var(--primary-bg);
     --text-secondary: var(--secondary-bg);
     --border-main: #4F4F4F; /* Grey tone for dark mode borders */
@@ -18,7 +18,7 @@
     --icon-color: var(--accent);
 
     /* Dark Theme Adjustments */
-    --button-bg-dark: #333333; /* dark grey */
+    --button-bg-dark: #1d3557; /* dark grey */
     --button-text-dark: #FFFFFF; /* light text */
     --correct-answer-bg-dark: #2E8B57; /* SeaGreen, a greenish tone */
     --incorrect-answer-bg-dark: #8B0000; /* DarkRed, a reddish tone */
