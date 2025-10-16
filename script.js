@@ -93,7 +93,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isLoggedIn: false, // Assume logged out by default
         activeMode: 'chat', // Track the active mode: 'chat', 'flashcards', or 'quiz'
         isRightSidebarVisible: window.innerWidth >= 768, // Manages the visibility of the right sidebar
-        chatHistory: [],
         flashcardSets: [],
         quizSets: [],
         currentFlashcards: [],
@@ -419,40 +418,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Chat Logic ---
     async function loadChatHistory() {
+        if (!state.isLoggedIn) return;
+
         chatHistoryLoading.classList.remove('hidden');
         chatHistoryEmpty.classList.add('hidden');
         chatHistoryList.innerHTML = '';
         chatWindow.innerHTML = '';
+
         try {
-            const data = await apiRequest(`/chat`);
+            const groupedMessages = await apiRequest(`/chat/`);
             
-            state.chatHistory = data.history || [];
-            renderChatHistory();
-            state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
+            renderChatHistory(groupedMessages);
+            renderChatWindow(groupedMessages);
+
         } catch (error) {
             console.error(`Failed to load chat history:`, error);
             chatHistoryEmpty.classList.remove('hidden');
-            addMessage("Could not load chat history. Please try again later.", 'bot', false);
+            addMessage("Could not load chat history. Please try again later.", 'bot');
         } finally {
             chatHistoryLoading.classList.add('hidden');
         }
     }
 
-    function renderChatHistory(searchTerm = '') {
-        chatHistoryList.innerHTML = '';
-        const history = state.chatHistory.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
+    function renderChatWindow(groupedMessages) {
+        chatWindow.innerHTML = '';
+        if (!groupedMessages || Object.keys(groupedMessages).length === 0) {
+            addMessage("Hello! I'm the Starlight RAG assistant. How can I help you today?", 'bot');
+            return;
+        }
 
-        if (history.length === 0) {
+        for (const date in groupedMessages) {
+            const dateSeparator = document.createElement('div');
+            dateSeparator.className = 'text-center text-sm text-slate-400 my-4';
+            dateSeparator.textContent = date;
+            chatWindow.appendChild(dateSeparator);
+
+            groupedMessages[date].forEach(msg => {
+                addMessage(msg.message, msg.sender);
+            });
+        }
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function renderChatHistory(groupedMessages, searchTerm = '') {
+        chatHistoryList.innerHTML = '';
+        
+        if (!groupedMessages || Object.keys(groupedMessages).length === 0) {
             chatHistoryEmpty.classList.remove('hidden');
             return;
         }
+
         chatHistoryEmpty.classList.add('hidden');
-        history.forEach(item => {
-            const li = document.createElement('li');
-            li.className = `text-sm p-2 rounded-md bg-bg-surface`;
-            li.textContent = item.message;
-            chatHistoryList.appendChild(li);
-        });
+
+        for (const date in groupedMessages) {
+            const dateHeader = document.createElement('h4');
+            dateHeader.className = 'text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2 mt-4';
+            dateHeader.textContent = date;
+            chatHistoryList.appendChild(dateHeader);
+
+            const messages = groupedMessages[date].filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
+
+            messages.forEach(item => {
+                const li = document.createElement('li');
+                li.className = `text-sm p-2 rounded-md bg-bg-surface`;
+                li.textContent = item.message;
+                chatHistoryList.appendChild(li);
+            });
+        }
     }
 
     chatForm.addEventListener('submit', async (e) => {
@@ -469,19 +501,19 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
-            const data = await apiRequest(`/chat`, {
+            await apiRequest(`/chat/`, {
                 method: 'POST',
                 body: { message: userMessage }
             });
-            addMessage(data.response.message, 'bot');
+            await loadChatHistory(); // Reload history to show new messages
         } catch (error) {
-            addMessage("Sorry, I encountered an error trying to respond. Please check your connection and try again.", 'bot', false);
+            addMessage("Sorry, I encountered an error trying to respond. Please check your connection and try again.", 'bot');
         } finally {
             typingIndicator.classList.add('hidden');
         }
     });
 
-    function addMessage(message, sender = 'bot', addToState = true) {
+    function addMessage(message, sender = 'bot') {
         const messageElement = document.createElement('div');
         messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in`;
         if (sender === 'user') {
@@ -492,11 +524,6 @@ document.addEventListener('DOMContentLoaded', () => {
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
         safeCreateIcons();
-
-        if (addToState) {
-            state.chatHistory.push({ sender, message });
-            renderChatHistory();
-        }
     }
 
     // --- Flashcard Logic ---
