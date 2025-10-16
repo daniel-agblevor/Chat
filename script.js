@@ -977,28 +977,90 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.getElementById('background-animation');
         if (!container) return;
 
+        const circles = [];
         const circleCount = 10;
 
         for (let i = 0; i < circleCount; i++) {
-            const circle = document.createElement('div');
-            circle.classList.add('bouncing-circle');
+            const size = Math.random() * 100 + 20; // 20px to 120px
+            const circle = {
+                element: document.createElement('div'),
+                radius: size / 2,
+                x: Math.random() * (container.offsetWidth - size) + size / 2,
+                y: Math.random() * (container.offsetHeight - size) + size / 2,
+                vx: (Math.random() - 0.5) * 2, // -1 to 1
+                vy: (Math.random() - 0.5) * 2, // -1 to 1
+            };
 
-            const size = Math.random() * 150 + 50; // 50px to 200px
-            const initialX = Math.random() * 100;
-            const initialY = Math.random() * 100;
-            const animationDuration = Math.random() * 20 + 15; // 15s to 35s
+            circle.element.classList.add('bouncing-circle');
+            circle.element.style.width = `${size}px`;
+            circle.element.style.height = `${size}px`;
             const colorAnimationDuration = Math.random() * 10 + 5; // 5s to 15s
-            const animationDelay = Math.random() * 10;
+            circle.element.style.animationDuration = `${colorAnimationDuration}s`;
 
-            circle.style.width = `${size}px`;
-            circle.style.height = `${size}px`;
-            circle.style.left = `${initialX}%`;
-            circle.style.top = `${initialY}%`;
-            circle.style.animationDuration = `${animationDuration}s, ${colorAnimationDuration}s`;
-            circle.style.animationDelay = `${animationDelay}s`;
-
-            container.appendChild(circle);
+            container.appendChild(circle.element);
+            circles.push(circle);
         }
+
+        function update() {
+            for (let i = 0; i < circles.length; i++) {
+                const circle = circles[i];
+
+                circle.x += circle.vx;
+                circle.y += circle.vy;
+
+                // Wall collision
+                if (circle.x - circle.radius < 0 || circle.x + circle.radius > container.offsetWidth) {
+                    circle.vx *= -1;
+                }
+                if (circle.y - circle.radius < 0 || circle.y + circle.radius > container.offsetHeight) {
+                    circle.vy *= -1;
+                }
+
+                // Circle collision
+                for (let j = i + 1; j < circles.length; j++) {
+                    const otherCircle = circles[j];
+                    const dx = otherCircle.x - circle.x;
+                    const dy = otherCircle.y - circle.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < circle.radius + otherCircle.radius) {
+                        // Simple collision response
+                        const angle = Math.atan2(dy, dx);
+                        const sin = Math.sin(angle);
+                        const cos = Math.cos(angle);
+
+                        // Rotate velocities
+                        const vx1 = circle.vx * cos + circle.vy * sin;
+                        const vy1 = circle.vy * cos - circle.vx * sin;
+                        const vx2 = otherCircle.vx * cos + otherCircle.vy * sin;
+                        const vy2 = otherCircle.vy * cos - otherCircle.vx * sin;
+
+                        // Swap velocities
+                        const vx1Final = vx2;
+                        const vx2Final = vx1;
+
+                        // Rotate back
+                        circle.vx = vx1Final * cos - vy1 * sin;
+                        circle.vy = vy1 * cos + vx1Final * sin;
+                        otherCircle.vx = vx2Final * cos - vy2 * sin;
+                        otherCircle.vy = vy2 * cos + vx2Final * sin;
+
+                        // Separate circles to prevent sticking
+                        const overlap = circle.radius + otherCircle.radius - distance;
+                        circle.x -= overlap * (dx / distance) / 2;
+                        circle.y -= overlap * (dy / distance) / 2;
+                        otherCircle.x += overlap * (dx / distance) / 2;
+                        otherCircle.y += overlap * (dy / distance) / 2;
+                    }
+                }
+
+                circle.element.style.transform = `translate(${circle.x - circle.radius}px, ${circle.y - circle.radius}px)`;
+            }
+
+            requestAnimationFrame(update);
+        }
+
+        update();
     }
 
     async function initializeApp() {

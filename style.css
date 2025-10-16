@@ -13,7 +13,7 @@
     --bg-interactive-hover: #336494; /* Darker Blue */
     --text-main: var(--primary-bg);
     --text-secondary: var(--secondary-bg);
-    --border-main: #4F4F4F; /* Grey tone for dark mode borders */
+    --border-main: #e3e3e3; /* Grey tone for dark mode borders */
     --shadow-color: rgba(0, 0, 0, 0.4);
     --icon-color: var(--accent);
 
@@ -267,11 +267,10 @@ button:active {
 .bouncing-circle {
     position: absolute;
     border-radius: 50%;
-    filter: blur(20px);
-    animation-name: bounce-circle, circle-color-change;
-    animation-timing-function: ease-in-out, linear;
-    animation-iteration-count: infinite, infinite;
-    animation-direction: normal, alternate;
+    animation-name: circle-color-change;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
