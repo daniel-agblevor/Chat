@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const API_BASE_URL = AUTH_API_BASE_URL;
     
-    let apiToken = localStorage.getItem('accessToken'); // Stores the user's authentication token.
+    let apiToken = localStorage.getItem('accessToken');
 
     // --- DOM Element Selection ---
     const chatWindow = document.getElementById('chat-window');
