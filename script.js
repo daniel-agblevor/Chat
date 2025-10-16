@@ -973,101 +973,163 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- App Initialization ---
-    function createBouncingCircles() {
-        const container = document.getElementById('background-animation');
-        if (!container) return;
+    function setupBackgroundAnimation() {
+        const canvas = document.getElementById('background-animation');
+        if (!canvas) return;
 
-        const circles = [];
-        const circleCount = 10;
+        const ctx = canvas.getContext('2d');
+        let circles = [];
+        let animationFrameId;
 
-        for (let i = 0; i < circleCount; i++) {
-            const size = Math.random() * 100 + 20; // 20px to 120px
-            const circle = {
-                element: document.createElement('div'),
-                radius: size / 2,
-                x: Math.random() * (container.offsetWidth - size) + size / 2,
-                y: Math.random() * (container.offsetHeight - size) + size / 2,
-                vx: (Math.random() - 0.5) * 2, // -1 to 1
-                vy: (Math.random() - 0.5) * 2, // -1 to 1
-            };
-
-            circle.element.classList.add('bouncing-circle');
-            circle.element.style.width = `${size}px`;
-            circle.element.style.height = `${size}px`;
-            const colorAnimationDuration = Math.random() * 10 + 5; // 5s to 15s
-            circle.element.style.animationDuration = `${colorAnimationDuration}s`;
-
-            container.appendChild(circle.element);
-            circles.push(circle);
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         }
 
-        function update() {
-            for (let i = 0; i < circles.length; i++) {
-                const circle = circles[i];
+        function getThemeColors() {
+            const style = getComputedStyle(document.body);
+            return [
+                style.getPropertyValue('--blob-color-1').trim(),
+                style.getPropertyValue('--blob-color-2').trim(),
+                style.getPropertyValue('--blob-color-3').trim(),
+                style.getPropertyValue('--blob-color-4').trim(),
+                style.getPropertyValue('--blob-color-5').trim(),
+            ];
+        }
 
-                circle.x += circle.vx;
-                circle.y += circle.vy;
-
-                // Wall collision
-                if (circle.x - circle.radius < 0 || circle.x + circle.radius > container.offsetWidth) {
-                    circle.vx *= -1;
-                }
-                if (circle.y - circle.radius < 0 || circle.y + circle.radius > container.offsetHeight) {
-                    circle.vy *= -1;
-                }
-
-                // Circle collision
-                for (let j = i + 1; j < circles.length; j++) {
-                    const otherCircle = circles[j];
-                    const dx = otherCircle.x - circle.x;
-                    const dy = otherCircle.y - circle.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < circle.radius + otherCircle.radius) {
-                        // Simple collision response
-                        const angle = Math.atan2(dy, dx);
-                        const sin = Math.sin(angle);
-                        const cos = Math.cos(angle);
-
-                        // Rotate velocities
-                        const vx1 = circle.vx * cos + circle.vy * sin;
-                        const vy1 = circle.vy * cos - circle.vx * sin;
-                        const vx2 = otherCircle.vx * cos + otherCircle.vy * sin;
-                        const vy2 = otherCircle.vy * cos - otherCircle.vx * sin;
-
-                        // Swap velocities
-                        const vx1Final = vx2;
-                        const vx2Final = vx1;
-
-                        // Rotate back
-                        circle.vx = vx1Final * cos - vy1 * sin;
-                        circle.vy = vy1 * cos + vx1Final * sin;
-                        otherCircle.vx = vx2Final * cos - vy2 * sin;
-                        otherCircle.vy = vy2 * cos + vx2Final * sin;
-
-                        // Separate circles to prevent sticking
-                        const overlap = circle.radius + otherCircle.radius - distance;
-                        circle.x -= overlap * (dx / distance) / 2;
-                        circle.y -= overlap * (dy / distance) / 2;
-                        otherCircle.x += overlap * (dx / distance) / 2;
-                        otherCircle.y += overlap * (dy / distance) / 2;
-                    }
-                }
-
-                circle.element.style.transform = `translate(${circle.x - circle.radius}px, ${circle.y - circle.radius}px)`;
+        class Circle {
+            constructor(x, y, radius, dx, dy, color) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.dx = dx;
+                this.dy = dy;
+                this.color = color;
+                this.mass = this.radius * 0.5;
             }
 
-            requestAnimationFrame(update);
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            update(circles) {
+                this.draw();
+
+                // Wall collision
+                if (this.x + this.radius > canvas.width || this.x - this.radius < 0) {
+                    this.dx = -this.dx;
+                }
+                if (this.y + this.radius > canvas.height || this.y - this.radius < 0) {
+                    this.dy = -this.dy;
+                }
+
+                this.x += this.dx;
+                this.y += this.dy;
+
+                // Inter-circle collision
+                for (let i = 0; i < circles.length; i++) {
+                    if (this === circles[i]) continue;
+                    const dist = Math.hypot(this.x - circles[i].x, this.y - circles[i].y);
+
+                    if (dist - this.radius - circles[i].radius < 1) {
+                        resolveCollision(this, circles[i]);
+                    }
+                }
+            }
         }
 
-        update();
+        function init() {
+            circles = [];
+            const colors = getThemeColors();
+            const circleCount = 15;
+            for (let i = 0; i < circleCount; i++) {
+                const radius = Math.random() * 10 + 5; // 5 to 15
+                const x = Math.random() * (canvas.width - radius * 2) + radius;
+                const y = Math.random() * (canvas.height - radius * 2) + radius;
+                const dx = (Math.random() - 0.5) * 1.5;
+                const dy = (Math.random() - 0.5) * 1.5;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                circles.push(new Circle(x, y, radius, dx, dy, color));
+            }
+        }
+
+        function animate() {
+            animationFrameId = requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            circles.forEach(circle => {
+                circle.update(circles);
+            });
+        }
+
+        function resolveCollision(p1, p2) {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            const dist = Math.hypot(dx, dy);
+
+            // Prevent overlap
+            const overlap = 0.5 * (dist - p1.radius - p2.radius);
+            p1.x -= overlap * (dx / dist);
+            p1.y -= overlap * (dy / dist);
+            p2.x += overlap * (dx / dist);
+            p2.y += overlap * (dy / dist);
+
+            // Elastic collision
+            const angle = Math.atan2(dy, dx);
+            const sin = Math.sin(angle);
+            const cos = Math.cos(angle);
+
+            // Rotate particle velocities
+            const v1 = { x: p1.dx * cos + p1.dy * sin, y: p1.dy * cos - p1.dx * sin };
+            const v2 = { x: p2.dx * cos + p2.dy * sin, y: p2.dy * cos - p2.dx * sin };
+
+            // Swap velocities
+            const vFinal = { x: v2.x, y: v1.y };
+            v2.x = v1.x;
+            v1.x = vFinal.x;
+
+            // Rotate back
+            p1.dx = v1.x * cos - v1.y * sin;
+            p1.dy = v1.y * cos + v1.x * sin;
+            p2.dx = v2.x * cos - v2.y * sin;
+            p2.dy = v2.y * cos + v2.x * sin;
+        }
+
+        // --- Event Listeners ---
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            init(); // Re-initialize circles on resize
+        });
+
+        // Re-initialize on theme change
+        const themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach(mutation => {
+                if (mutation.attributeName === 'class') {
+                    // Cancel existing animation frame to prevent race conditions
+                    cancelAnimationFrame(animationFrameId);
+                    // Re-initialize and start animation with new theme colors
+                    init();
+                    animate();
+                }
+            });
+        });
+
+        themeObserver.observe(document.body, { attributes: true });
+
+        // --- Initial Setup ---
+        resizeCanvas();
+        init();
+        animate();
     }
 
     async function initializeApp() {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
 
-        createBouncingCircles(); 
+        setupBackgroundAnimation(); 
 
         await loadChatHistory();
         if (state.isLoggedIn) {

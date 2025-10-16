@@ -25,9 +25,11 @@
     --register-text-dark: #FFFFFF; /* white */
 
     /* Blob Animation Colors */
-    --blob-color-1: var(--accent);
-    --blob-color-2: #336494; /* Darker Blue */
-    --blob-color-3: #1d3557; /* dark grey */
+    --blob-color-1: #4a7e96; 
+    --blob-color-2: #3a657a; 
+    --blob-color-3: #2e5062; 
+    --blob-color-4: #223b49; 
+    --blob-color-5: #1a2c37; 
 }
 
 body {
@@ -241,37 +243,6 @@ button:active {
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), 
                 0 0 0 1px rgba(255, 255, 255, 0.1);
-}
-
-@keyframes bounce-circle {
-    0%, 100% {
-        transform: translateY(0) scale(1);
-    }
-    50% {
-        transform: translateY(-20px) scale(1.05);
-    }
-}
-
-@keyframes circle-color-change {
-    0%, 100% {
-        background-color: var(--blob-color-1);
-    }
-    33% {
-        background-color: var(--blob-color-2);
-    }
-    66% {
-        background-color: var(--blob-color-3);
-    }
-}
-
-.bouncing-circle {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(20px);
-    animation-name: bounce-circle, circle-color-change;
-    animation-timing-function: ease-in-out, linear;
-    animation-iteration-count: infinite, infinite;
-    animation-direction: normal, alternate;
 }
 
 #chat-window::-webkit-scrollbar, .sidebar-scroll::-webkit-scrollbar, .modal-scroll::-webkit-scrollbar { width: 6px; }
@@ -569,9 +540,11 @@ body.light-mode {
     --register-text-light: #000000; /* black */
 
     /* Blob Animation Colors */
-    --blob-color-1: #A8DADC; /* A light teal */
-    --blob-color-2: #F1FAEE; /* A very light green/white */
-    --blob-color-3: #457B9D; /* A muted blue */
+    --blob-color-1: #a3b2c2; 
+    --blob-color-2: #b3c1d1; 
+    --blob-color-3: #c2d0e0; 
+    --blob-color-4: #d2e0ef; 
+    --blob-color-5: #e1efff; 
 }
 
 body.light-mode {
