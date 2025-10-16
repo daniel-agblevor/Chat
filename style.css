@@ -484,7 +484,7 @@ button:active {
 
 /* --- Toast Notifications --- */
 .toast {
-    background-color: rgba(30, 41, 59, 0.8);
+    background-color: rgba(207, 209, 211, 0.8);
     color: #e2e8f0;
     padding: 12px 16px;
     border-radius: 8px;
@@ -528,7 +528,7 @@ body.light-mode {
     --bg-surface: var(--secondary-bg);
     --text-main: var(--primary-text);
     --text-secondary: #4F5A70; /* Derived for less emphasis */
-    --border-main: #14213D; /* Dark tone for light mode borders */
+    --border-main: #fcfdff; /* Dark tone for light mode borders */
     --shadow-color: rgba(20, 33, 61, 0.15);
     --icon-color: var(--primary-text);
 
