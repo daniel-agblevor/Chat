@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_BASE_URL_DEV = 'http://127.0.0.1:8000/api/v1';
     const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/api';
 
-    const API_BASE_URL = API_BASE_URL_DEV;
+    const API_BASE_URL = AUTH_API_BASE_URL;
     
     let apiToken = localStorage.getItem('accessToken'); // Stores the user's authentication token.
 
@@ -1021,10 +1021,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errorMessage || 'Registration failed.');
             }
 
-            // Automatically log in the user after successful registration
-            await handleLogin(e);
-            registerModal.classList.add('hidden');
+            // After successful registration, the backend should return tokens
+            // just like the login endpoint does.
+            localStorage.setItem('accessToken', data.access);
+            localStorage.setItem('refreshToken', data.refresh);
+            localStorage.setItem('username', data.username);
+            apiToken = data.access;
+            state.isLoggedIn = true;
 
+            registerModal.classList.add('hidden');
+            showToast(`Welcome, ${data.username}! Your account has been created.`, 'success');
+            
+            // Re-initialize the app in a logged-in state
+            initializeApp();
         } catch (error) {
             errorDiv.textContent = error.message;
         } finally {
