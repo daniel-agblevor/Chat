@@ -23,6 +23,11 @@
     --correct-answer-bg-dark: #2E8B57; /* SeaGreen, a greenish tone */
     --incorrect-answer-bg-dark: #8B0000; /* DarkRed, a reddish tone */
     --register-text-dark: #FFFFFF; /* white */
+
+    /* Blob Animation Colors */
+    --blob-color-1: var(--accent);
+    --blob-color-2: #336494; /* Darker Blue */
+    --blob-color-3: #1d3557; /* dark grey */
 }
 
 body {
@@ -249,13 +254,13 @@ button:active {
 
 @keyframes circle-color-change {
     0%, 100% {
-        background-color: var(--accent);
+        background-color: var(--blob-color-1);
     }
     33% {
-        background-color: var(--primary-bg);
+        background-color: var(--blob-color-2);
     }
     66% {
-        background-color: var(--secondary-bg);
+        background-color: var(--blob-color-3);
     }
 }
 
@@ -562,6 +567,11 @@ body.light-mode {
     --correct-answer-bg-light: #90EE90; /* light green */
     --incorrect-answer-bg-light: #F08080; /* light coral */
     --register-text-light: #000000; /* black */
+
+    /* Blob Animation Colors */
+    --blob-color-1: #A8DADC; /* A light teal */
+    --blob-color-2: #F1FAEE; /* A very light green/white */
+    --blob-color-3: #457B9D; /* A muted blue */
 }
 
 body.light-mode {

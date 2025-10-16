@@ -1050,4 +1050,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initializeApp();
 });
-
