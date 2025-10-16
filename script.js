@@ -1122,17 +1122,27 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // function getRandomColor() {
+        //     const letters = '0123456789ABCDEF';
+        //     let color = '#';
+        //     for (let i = 0; i < 6; i++) {
+        //         color += letters[Math.floor(Math.random() * 16)];
+        //     }
+        //     return color;
+        // }
+
         function init() {
             circles = [];
             const colors = getThemeColors();
-            const circleCount = 15;
+            const circleCount = 6;
             for (let i = 0; i < circleCount; i++) {
-                const radius = Math.random() * 10 + 5; // 5 to 15
+                const radius = Math.random() * 100 + 40; // 5 to 15
                 const x = Math.random() * (canvas.width - radius * 2) + radius;
                 const y = Math.random() * (canvas.height - radius * 2) + radius;
-                const dx = (Math.random() - 0.5) * 1.5;
-                const dy = (Math.random() - 0.5) * 1.5;
+                const dx = (Math.random() - 1.5) * .5;
+                const dy = (Math.random() - 1.5) * .5;
                 const color = colors[Math.floor(Math.random() * colors.length)];
+                //const color = getRandomColor();
                 circles.push(new Circle(x, y, radius, dx, dy, color));
             }
         }
