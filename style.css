@@ -979,3 +979,12 @@ body.light-mode {
 .light-mode #open-register-modal {
     color: var(--register-text-light);
 }
+
+.form-error {
+    color: #f87171;
+}
+
+button.loading {
+    cursor: wait;
+    opacity: 0.7;
+}
