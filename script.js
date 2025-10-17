@@ -397,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function uploadFiles(files) {
         const formData = new FormData();
-        files.forEach(f => formData.append('files', f));
+        files.forEach(f => formData.append('file', f));
 
         try {
             await apiRequest('/api/chat/v1/files', { method: 'POST', body: formData });
