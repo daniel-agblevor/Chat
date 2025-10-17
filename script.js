@@ -1,10 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_BASE_URL_DEV = 'http://127.0.0.1:8000/api/v1';
-    const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/api';
+    const API_BASE_URL = 'http://127.0.0.1:8000';
+    const AUTH_API_BASE_URL = `${API_BASE_URL}/api`; // For login/register
+    const CHAT_API_BASE_URL = `${API_BASE_URL}/api/chat/v1`; // For chat
 
-    const API_BASE_URL = AUTH_API_BASE_URL;
-    
     let apiToken = localStorage.getItem('accessToken'); // Stores the user's authentication token.
 
     // --- DOM Element Selection ---
@@ -192,10 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 activeSidebar.setAttribute('aria-hidden', 'true');
             }
-        } else {
-            openRightSidebarIcon.classList.remove('hidden');
-            closeRightSidebarIcon.classList.add('hidden');
+        } else if (openRightSidebarHandle) { // Added a check for openRightSidebarHandle
+            const openRightSidebarIcon = openRightSidebarHandle.querySelector('.open-icon'); // Assuming you have icons with these classes
+            const closeRightSidebarIcon = openRightSidebarHandle.querySelector('.close-icon');
+            if (openRightSidebarIcon) openRightSidebarIcon.classList.remove('hidden');
+            if (closeRightSidebarIcon) closeRightSidebarIcon.classList.add('hidden');
         }
+
 
         // Desktop handle visibility and label (sole toggle for right sidebars)
         if (openRightSidebarHandle) {
@@ -236,8 +238,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- API Helper ---
     async function apiRequest(endpoint, options = {}) {
-        const { method = 'GET', body = null } = options;
+        const { method = 'GET', body = null, timeout = 30000 } = options; // 30-second timeout
         
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeout);
+
         const headers = {};
         if (apiToken) {
             headers['Authorization'] = `Bearer ${apiToken}`;
@@ -251,8 +256,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method,
                 headers,
-                body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null
+                body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null,
+                signal: controller.signal
             });
+
+            clearTimeout(id);
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: { message: 'An unknown API error occurred.' } }));
@@ -261,8 +269,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.status === 204) return null;
             const result = await response.json();
-            return result.data;
+            // Handle responses that may or may not be wrapped in a 'data' object.
+            return result.data !== undefined ? result.data : result;
         } catch (error) {
+            if (error.name === 'AbortError') {
+                error.message = 'Request timed out. Please try again.';
+            }
             showToast(error.message, 'error');
             console.error(`API Error on ${method} ${endpoint}:`, error);
             throw error;
@@ -283,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- File Management ---
     async function loadFiles() {
         try {
-            const data = await apiRequest('/files');
+            const data = await apiRequest('/api/v1/files');
             
             state.files = data.files || [];
             if (!state.activeFileId && state.files.length > 0) {
@@ -329,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await apiRequest(`/files/${fileId}`, { method: 'DELETE' });
+            await apiRequest(`/api/v1/files/${fileId}`, { method: 'DELETE' });
 
             const fileName = state.files.find(f => f.id === fileId)?.name || 'Unknown file';
             state.files = state.files.filter(f => f.id !== fileId);
@@ -383,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         files.forEach(f => formData.append('files', f));
 
         try {
-            await apiRequest('/files', { method: 'POST', body: formData });
+            await apiRequest('/api/v1/files', { method: 'POST', body: formData });
             showToast('Files uploaded successfully and are being processed.', 'success');
             await loadFiles();
         } catch (err) {
@@ -400,40 +412,94 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Chat Logic ---
     async function loadChatHistory() {
+        if (!state.isLoggedIn) {
+            chatHistoryEmpty.classList.remove('hidden');
+            chatHistoryLoading.classList.add('hidden');
+            // Add default welcome message if not already there
+            if (!chatWindow.querySelector('.welcome-message')) {
+                 addMessage("Hello! I'm the Starlight RAG assistant. How can I help you today?", 'bot', false, 'welcome-message');
+            }
+            return;
+        }
+
         chatHistoryLoading.classList.remove('hidden');
         chatHistoryEmpty.classList.add('hidden');
         chatHistoryList.innerHTML = '';
-        chatWindow.innerHTML = '';
+        
         try {
-            const data = await apiRequest(`/chat`);
+            const data = await apiRequest(`/api/chat/v1/chat/`);
             
             state.chatHistory = data.history || [];
             renderChatHistory();
+            
+            // Clear window and render messages from history
+            chatWindow.innerHTML = '';
             state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
+
         } catch (error) {
             console.error(`Failed to load chat history:`, error);
             chatHistoryEmpty.classList.remove('hidden');
-            addMessage("Could not load chat history. Please try again later.", 'bot', false);
+            if (chatWindow.innerHTML === '') {
+                addMessage("Could not load chat history. Please try again later.", 'bot', false);
+            }
         } finally {
             chatHistoryLoading.classList.add('hidden');
         }
     }
 
-    function renderChatHistory(searchTerm = '') {
-        chatHistoryList.innerHTML = '';
-        const history = state.chatHistory.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
+    function getRelativeDate(date) {
+        const now = new Date();
+        const messageDate = new Date(date);
+        // Reset time part for accurate day difference
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const startOfMessageDate = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
+        
+        const diffTime = startOfToday - startOfMessageDate;
+        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-        if (history.length === 0) {
+        if (diffDays === 0) return 'Today';
+        if (diffDays === 1) return 'Yesterday';
+        // Fallback for older dates
+        return messageDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+
+    function renderChatHistory() {
+        chatHistoryList.innerHTML = '';
+        if (state.chatHistory.length === 0) {
             chatHistoryEmpty.classList.remove('hidden');
             return;
         }
         chatHistoryEmpty.classList.add('hidden');
-        history.forEach(item => {
-            const li = document.createElement('li');
-            li.className = `text-sm p-2 rounded-md bg-bg-surface`;
-            li.textContent = item.message;
-            chatHistoryList.appendChild(li);
-        });
+
+        // Group messages by date
+        const groupedByDate = state.chatHistory.reduce((acc, msg) => {
+            const dateKey = getRelativeDate(msg.timestamp);
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+            acc[dateKey].push(msg);
+            return acc;
+        }, {});
+
+        // Render grouped history
+        for (const dateGroup in groupedByDate) {
+            const groupContainer = document.createElement('div');
+            groupContainer.innerHTML = `<h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider my-2">${dateGroup}</h4>`;
+            
+            const list = document.createElement('ul');
+            list.className = 'space-y-1';
+            
+            groupedByDate[dateGroup].forEach(item => {
+                const li = document.createElement('li');
+                li.className = 'text-sm p-2 rounded-md bg-bg-surface truncate cursor-pointer hover:bg-accent/20';
+                li.textContent = item.message;
+                li.title = item.message;
+                list.appendChild(li);
+            });
+
+            groupContainer.appendChild(list);
+            chatHistoryList.appendChild(groupContainer);
+        }
     }
 
     chatForm.addEventListener('submit', async (e) => {
@@ -443,41 +509,84 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Please type a message.', 'info');
             return;
         }
-
-        addMessage(userMessage, 'user');
-        messageInput.value = '';
-        typingIndicator.classList.remove('hidden');
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-
-        try {
-            const data = await apiRequest(`/chat`, {
-                method: 'POST',
-                body: { message: userMessage }
-            });
-            addMessage(data.response.message, 'bot');
-        } catch (error) {
-            addMessage("Sorry, I encountered an error trying to respond. Please check your connection and try again.", 'bot', false);
-        } finally {
-            typingIndicator.classList.add('hidden');
-        }
+        
+        // Default to streaming response
+        await streamChatResponse(userMessage);
     });
 
-    function addMessage(message, sender = 'bot', addToState = true) {
-        const messageElement = document.createElement('div');
-        messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in`;
-        if (sender === 'user') {
-            messageElement.innerHTML = `<div class="bg-accent rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-primary-text break-words">${message}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-text-secondary"></i></div>`;
-        } else {
-            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-text-main break-words">${message}</p></div>`;
+    async function streamChatResponse(userMessage) {
+        addMessage(userMessage, 'user');
+        messageInput.value = '';
+        typingIndicator.classList.add('hidden'); // Hide typing indicator as stream starts immediately
+
+        // Create a new bot message element to append chunks to
+        const botMessageContainer = addMessage('', 'bot', false);
+        const messageParagraph = botMessageContainer.querySelector('p');
+
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (apiToken) {
+                headers['Authorization'] = `Bearer ${apiToken}`;
+            }
+
+            const response = await fetch(`${CHAT_API_BASE_URL}/chat/stream/`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ message: userMessage })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ detail: 'An unknown streaming error occurred.' }));
+                throw new Error(errorData.detail || `API request failed with status ${response.status}`);
+            }
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let fullResponse = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                
+                const chunk = decoder.decode(value, { stream: true });
+                fullResponse += chunk;
+                messageParagraph.textContent = fullResponse; // Render incrementally
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }
+            
+            // Add final message to state
+            state.chatHistory.push({ sender: 'bot', message: fullResponse, timestamp: new Date().toISOString() });
+            renderChatHistory();
+
+        } catch (error) {
+            messageParagraph.textContent = "Sorry, I encountered an error trying to respond. Please check your connection and try again.";
+            messageParagraph.classList.add('text-red-400');
         }
+    }
+
+    function addMessage(message, sender = 'bot', addToState = true, customClass = '') {
+        const messageElement = document.createElement('div');
+        messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in ${customClass}`;
+        
+        const sanitizedMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        if (sender === 'user') {
+            messageElement.innerHTML = `<div class="bg-accent rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-primary-text break-words">${sanitizedMessage}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-text-secondary"></i></div>`;
+        } else {
+            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-text-main break-words">${sanitizedMessage}</p></div>`;
+        }
+        
         chatWindow.appendChild(messageElement);
         chatWindow.scrollTop = chatWindow.scrollHeight;
         safeCreateIcons();
 
         if (addToState) {
-            state.chatHistory.push({ sender, message });
+            state.chatHistory.push({ sender, message, timestamp: new Date().toISOString() });
             renderChatHistory();
         }
+        
+        // Return the message container for stream handling
+        return messageElement.querySelector('.bg-bg-surface, .bg-accent');
     }
 
     // --- Flashcard Logic ---
@@ -491,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateFlashcardsButton.disabled = true;
 
         try {
-            const data = await apiRequest(`/files/${state.activeFileId}/flashcards`, {
+            const data = await apiRequest(`/api/v1/files/${state.activeFileId}/flashcards`, {
                 method: 'POST',
                 body: { count }
             });
@@ -512,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFlashcardHistory(fileId) {
         try {
-            const data = await apiRequest(`/files/${fileId}/flashcards`);
+            const data = await apiRequest(`/api/v1/files/${fileId}/flashcards`);
             
             state.flashcardSets = data.flashcardSets || [];
             renderFlashcardHistory();
@@ -587,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateQuizButton.disabled = true;
 
         try {
-            const data = await apiRequest(`/files/${state.activeFileId}/quizzes`, {
+            const data = await apiRequest(`/api/v1/files/${state.activeFileId}/quizzes`, {
                 method: 'POST',
                 body: { questionCount: count }
             });
@@ -609,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadQuizHistory(fileId) {
         try {
-            const data = await apiRequest(`/files/${fileId}/quizzes`);
+            const data = await apiRequest(`/api/v1/files/${fileId}/quizzes`);
             
             state.quizSets = data.quizzes || [];
             renderQuizHistory();
@@ -771,7 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedbackValidation.classList.add('hidden');
         
         try {
-            await apiRequest('/feedback', { 
+            await apiRequest('/api/feedback', { 
                 method: 'POST', 
                 body: { 
                     rating, 
@@ -1093,15 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // function getRandomColor() {
-        //     const letters = '0123456789ABCDEF';
-        //     let color = '#';
-        //     for (let i = 0; i < 6; i++) {
-        //         color += letters[Math.floor(Math.random() * 16)];
-        //     }
-        //     return color;
-        // }
-
         function init() {
             circles = [];
             const colors = getThemeColors();
@@ -1113,7 +1213,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dx = (Math.random() - 1.5) * .5;
                 const dy = (Math.random() - 1.5) * .5;
                 const color = colors[Math.floor(Math.random() * colors.length)];
-                //const color = getRandomColor();
                 circles.push(new Circle(x, y, radius, dx, dy, color));
             }
         }
