@@ -1,93 +1,84 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_CONFIG = {
-        BASE_URL: 'http://127.0.0.1:8000/api/v1', // For endpoints like /files, /chat, etc.
-        AUTH_URL: 'http://127.0.0.1:8000/api'     // For /login, /register
-    };
+    const API_BASE_URL_DEV = 'http://127.0.0.1:8000/api/v1';
+    const AUTH_API_BASE_URL = 'http://127.0.0.1:8000/api';
+
+    const API_BASE_URL = AUTH_API_BASE_URL;
     
     let apiToken = localStorage.getItem('accessToken'); // Stores the user's authentication token.
 
     // --- DOM Element Selection ---
-    const $ = (id) => document.getElementById(id);
-    const elements = {
-        chatWindow: $('chat-window'),
-        chatForm: $('chat-form'),
-        messageInput: $('message-input'),
-        typingIndicator: $('typing-indicator'),
-        sidebar: $('sidebar'),
-        menuButton: $('menu-button'),
-        sidebarOverlay: $('sidebar-overlay'),
-        closeMainSidebarButton: $('close-main-sidebar'),
-        uploadFileButton: $('upload-file-button'),
-        fileInput: $('file-input'),
-        rightSidebarToggleButton: $('right-sidebar-toggle-button'),
-        openRightSidebarIcon: $('open-right-sidebar-icon'),
-        closeRightSidebarIcon: $('close-right-sidebar-icon'),
-        chatButton: $('chat-button'),
-        flashcardsButton: $('flashcards-button'),
-        quizButton: $('quiz-button'),
-        openSettingsButton: $('open-settings-button'),
-        settingsModal: $('settings-modal'),
-        closeSettingsModal: $('close-settings-modal'),
-        chatView: $('chat-view'),
-        flashcardsView: $('flashcards-view'),
-        quizView: $('quiz-view'),
-        rightSidebar: $('right-sidebar'),
-        openRightSidebarHandle: $('open-right-sidebar-handle'),
-        chatHistoryList: $('chat-history-list'),
-        chatHistoryLoading: $('chat-history-loading'),
-        chatHistoryEmpty: $('chat-history-empty'),
-        chatHistorySearch: $('chat-history-search'),
-        flashcardsRightSidebar: $('flashcards-right-sidebar'),
-        flashcardCount: $('flashcard-count'),
-        generateFlashcardsButton: $('generate-flashcards-button'),
-        flashcardGenerationLoading: $('flashcard-generation-loading'),
-        flashcardHistoryList: $('flashcard-history-list'),
-        flashcardHistorySearch: $('flashcard-history-search'),
-        quizRightSidebar: $('quiz-right-sidebar'),
-        quizQuestionCount: $('quiz-question-count'),
-        generateQuizButton: $('generate-quiz-button'),
-        quizGenerationLoading: $('quiz-generation-loading'),
-        quizHistoryList: $('quiz-history-list'),
-        quizHistorySearch: $('quiz-history-search'),
-        feedbackModal: $('feedback-modal'),
-        closeFeedbackModal: $('close-feedback-modal'),
-        feedbackRating: $('feedback-rating'),
-        feedbackComments: $('feedback-comments'),
-        submitFeedbackButton: $('submit-feedback-button'),
-        feedbackValidation: $('feedback-validation'),
-        feedbackButton: $('feedback-button'),
-        sidebarFileList: $('sidebar-file-list'),
-        manageFilesList: $('manage-files-list'),
-        flashcard: $('flashcard'),
-        flashcardQuestion: $('flashcard-question'),
-        flashcardAnswer: $('flashcard-answer'),
-        prevCardButton: $('prev-card-button'),
-        nextCardButton: $('next-card-button'),
-        cardCounter: $('card-counter'),
-        quizQuestionEl: $('quiz-question'),
-        quizOptionsEl: $('quiz-options'),
-        quizFeedbackEl: $('quiz-feedback'),
-        nextQuestionButton: $('next-question-button'),
-        restartFlashcardsButton: $('restart-flashcards-button'),
-        restartQuizButton: $('restart-quiz-button'),
-        progressText: $('quiz-progress-text'),
-        progressBar: $('quiz-progress-bar'),
-        loginModal: $('login-modal'),
-        closeLoginModal: $('close-login-modal'),
-        loginForm: $('login-form'),
-        registerModal: $('register-modal'),
-        closeRegisterModal: $('close-register-modal'),
-        registerForm: $('register-form'),
-        openRegisterModal: $('open-register-modal'),
-        themeSwitcher: $('theme-switcher'),
-        themeSwitcherIndicator: $('theme-switcher-indicator'),
-        loginSignupButton: $('login-signup-button'),
-        fileManagementSection: $('file-management-section'),
-        openLeftSidebarHandle: $('open-left-sidebar-handle'),
-        logoutButton: $('logout-button'),
-        userUsername: $('user-username'),
-    };
+    const chatWindow = document.getElementById('chat-window');
+    const chatForm = document.getElementById('chat-form');
+    const messageInput = document.getElementById('message-input');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const sidebar = document.getElementById('sidebar');
+    const menuButton = document.getElementById('menu-button');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+    const uploadFileButton = document.getElementById('upload-file-button');
+    const fileInput = document.getElementById('file-input');
+    const chatButton = document.getElementById('chat-button');
+    const flashcardsButton = document.getElementById('flashcards-button');
+    const quizButton = document.getElementById('quiz-button');
+    const openSettingsButton = document.getElementById('open-settings-button');
+    const settingsModal = document.getElementById('settings-modal');
+    const closeSettingsModal = document.getElementById('close-settings-modal');
+    const chatView = document.getElementById('chat-view');
+    const flashcardsView = document.getElementById('flashcards-view');
+    const quizView = document.getElementById('quiz-view');
+    const rightSidebar = document.getElementById('right-sidebar');
+    const openRightSidebarHandle = document.getElementById('open-right-sidebar-handle');
+    const chatHistoryList = document.getElementById('chat-history-list');
+    const chatHistoryLoading = document.getElementById('chat-history-loading');
+    const chatHistoryEmpty = document.getElementById('chat-history-empty');
+    const flashcardsRightSidebar = document.getElementById('flashcards-right-sidebar');
+    const flashcardCount = document.getElementById('flashcard-count');
+    const generateFlashcardsButton = document.getElementById('generate-flashcards-button');
+    const flashcardGenerationLoading = document.getElementById('flashcard-generation-loading');
+    const flashcardHistoryList = document.getElementById('flashcard-history-list');
+    const quizRightSidebar = document.getElementById('quiz-right-sidebar');
+    const quizQuestionCount = document.getElementById('quiz-question-count');
+    const generateQuizButton = document.getElementById('generate-quiz-button');
+    const quizGenerationLoading = document.getElementById('quiz-generation-loading');
+    const quizHistoryList = document.getElementById('quiz-history-list');
+    const quizHistorySearch = document.getElementById('quiz-history-search');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const closeFeedbackModal = document.getElementById('close-feedback-modal');
+    const feedbackRating = document.getElementById('feedback-rating');
+    const feedbackComments = document.getElementById('feedback-comments');
+    const submitFeedbackButton = document.getElementById('submit-feedback-button');
+    const feedbackValidation = document.getElementById('feedback-validation');
+    const feedbackButton = document.getElementById('feedback-button');
+    const sidebarFileList = document.getElementById('sidebar-file-list');
+    const manageFilesList = document.getElementById('manage-files-list');
+    const flashcard = document.getElementById('flashcard');
+    const flashcardQuestion = document.getElementById('flashcard-question');
+    const flashcardAnswer = document.getElementById('flashcard-answer');
+    const prevCardButton = document.getElementById('prev-card-button');
+    const nextCardButton = document.getElementById('next-card-button');
+    const cardCounter = document.getElementById('card-counter');
+    const quizQuestionEl = document.getElementById('quiz-question');
+    const quizOptionsEl = document.getElementById('quiz-options');
+    const quizFeedbackEl = document.getElementById('quiz-feedback');
+    const nextQuestionButton = document.getElementById('next-question-button');
+    const restartFlashcardsButton = document.getElementById('restart-flashcards-button');
+    const restartQuizButton = document.getElementById('restart-quiz-button');
+    const progressText = document.getElementById('quiz-progress-text');
+    const progressBar = document.getElementById('quiz-progress-bar');
+    const loginModal = document.getElementById('login-modal');
+    const closeLoginModal = document.getElementById('close-login-modal');
+    const loginForm = document.getElementById('login-form');
+    const registerModal = document.getElementById('register-modal');
+    const closeRegisterModal = document.getElementById('close-register-modal');
+    const registerForm = document.getElementById('register-form');
+    const openRegisterModal = document.getElementById('open-register-modal');
+    const themeSwitcher = document.getElementById('theme-switcher');
+    const themeSwitcherIndicator = document.getElementById('theme-switcher-indicator');
+    const loginSignupButton = document.getElementById('login-signup-button');
+    const fileManagementSection = document.getElementById('file-management-section');
+    const openLeftSidebarHandle = document.getElementById('open-left-sidebar-handle');
+    const logoutButton = document.getElementById('logout-button');
+    const userUsername = document.getElementById('user-username');
 
     // --- App State ---
     let state = {
@@ -146,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Update UI based on the new state
         updateUI();
-        updateMainSidebarToggleIcon();
     }
     
     /**
@@ -154,18 +144,18 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function updateUI() {
         document.body.classList.toggle('logged-in', state.isLoggedIn);
-        elements.fileManagementSection.style.display = state.isLoggedIn ? 'block' : 'none';
+        fileManagementSection.style.display = state.isLoggedIn ? 'block' : 'none';
 
         if (state.isLoggedIn) {
-            elements.flashcardsButton.classList.remove('hidden');
-            elements.quizButton.classList.remove('hidden');
+            flashcardsButton.classList.remove('hidden');
+            quizButton.classList.remove('hidden');
             const username = localStorage.getItem('username');
             if (username) {
-                elements.userUsername.textContent = username;
+                userUsername.textContent = username;
             }
         } else {
-            elements.flashcardsButton.classList.add('hidden');
-            elements.quizButton.classList.add('hidden');
+            flashcardsButton.classList.add('hidden');
+            quizButton.classList.add('hidden');
             state.activeMode = 'chat';
         }
 
@@ -199,20 +189,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 activeSidebar.classList.add('md:flex');
                 activeSidebar.classList.add('is-open');
                 activeSidebar.setAttribute('aria-hidden', 'false');
-                elements.openRightSidebarIcon.classList.add('hidden');
-                elements.closeRightSidebarIcon.classList.remove('hidden');
             } else {
                 activeSidebar.setAttribute('aria-hidden', 'true');
-                elements.openRightSidebarIcon.classList.remove('hidden');
-                elements.closeRightSidebarIcon.classList.add('hidden');
             }
         } else {
-            elements.openRightSidebarIcon.classList.remove('hidden');
-            elements.closeRightSidebarIcon.classList.add('hidden');
+            openRightSidebarIcon.classList.remove('hidden');
+            closeRightSidebarIcon.classList.add('hidden');
         }
 
         // Desktop handle visibility and label (sole toggle for right sidebars)
-        if (elements.openRightSidebarHandle) {
+        if (openRightSidebarHandle) {
             const showHandle = state.isLoggedIn;
             openRightSidebarHandle.classList.toggle('hidden', !showHandle);
             const isOpen = !!state.isRightSidebarVisible;
@@ -228,20 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
         safeCreateIcons();
     }
 
-    // Keep the main sidebar control showing '>' when open and '<' when closed (mobile control)
-    function updateMainSidebarToggleIcon() {
-        if (!elements.closeMainSidebarButton) return;
-        const isOpen = !elements.sidebar.classList.contains('-translate-x-full');
-        elements.closeMainSidebarButton.textContent = isOpen ? '>' : '<';
-        elements.closeMainSidebarButton.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
-    }
-
     function updateLeftSidebarHandle() {
-        if (!elements.openLeftSidebarHandle) return;
-        const isOpen = !elements.sidebar.classList.contains('-translate-x-full');
-        elements.openLeftSidebarHandle.firstElementChild && (elements.openLeftSidebarHandle.firstElementChild.textContent = isOpen ? '<' : '>');
-        elements.openLeftSidebarHandle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-        elements.openLeftSidebarHandle.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
+        if (!openLeftSidebarHandle) return;
+        const isOpen = !sidebar.classList.contains('-translate-x-full');
+        openLeftSidebarHandle.firstElementChild && (openLeftSidebarHandle.firstElementChild.textContent = isOpen ? '<' : '>');
+        openLeftSidebarHandle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        openLeftSidebarHandle.setAttribute('aria-label', isOpen ? 'Hide main sidebar' : 'Open main sidebar');
     }
 
 
@@ -257,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- API Helper ---
-    async function apiRequest(endpoint, options = {}, useAuthUrl = false) {
+    async function apiRequest(endpoint, options = {}) {
         const { method = 'GET', body = null } = options;
         
         const headers = {};
@@ -270,8 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const baseUrl = useAuthUrl ? API_CONFIG.AUTH_URL : API_CONFIG.BASE_URL;
-            const response = await fetch(`${baseUrl}${endpoint}`, {
+            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
                 method,
                 headers,
                 body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null
@@ -320,8 +297,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderFiles() {
-        elements.sidebarFileList.innerHTML = '';
-        elements.manageFilesList.innerHTML = '';
+        sidebarFileList.innerHTML = '';
+        manageFilesList.innerHTML = '';
         const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'txt': 'file-text', 'md': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
         const fileColorMap = { 'default': 'text-accent' }; // Use a single accent color for all icons
 
@@ -334,14 +311,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const sidebarLi = document.createElement('li');
             sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-accent text-primary-text font-semibold' : 'hover:bg-accent/20 text-text-secondary'}">
                 <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
-            elements.sidebarFileList.appendChild(sidebarLi);
+            sidebarFileList.appendChild(sidebarLi);
 
             const manageLi = document.createElement('li');
             manageLi.className = 'flex items-center justify-between bg-bg-surface p-2.5 rounded-lg';
             manageLi.dataset.fileId = file.id;
             manageLi.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${icon}" class="h-5 w-5 ${color} flex-shrink-0"></i><span class="text-sm text-slate-200 truncate">${file.name}</span></div>
                 <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`;
-            elements.manageFilesList.appendChild(manageLi);
+            manageFilesList.appendChild(manageLi);
         });
         safeCreateIcons();
     }
@@ -359,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             if (state.activeFileId === fileId) {
                 state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
-                elements.chatWindow.innerHTML = '';
+                chatWindow.innerHTML = '';
                 renderChatHistory();
             }
             
@@ -371,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    elements.manageFilesList.addEventListener('click', (e) => {
+    manageFilesList.addEventListener('click', (e) => {
         const deleteButton = e.target.closest('.delete-file-button');
         if (deleteButton) {
             const fileId = deleteButton.closest('li').dataset.fileId;
@@ -379,7 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    elements.sidebarFileList.addEventListener('click', async (e) => {
+    sidebarFileList.addEventListener('click', async (e) => {
         const fileItem = e.target.closest('a');
         if (fileItem) {
             e.preventDefault();
@@ -390,14 +367,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Upload handling ---
-    if (elements.uploadFileButton && elements.fileInput) {
-        elements.uploadFileButton.addEventListener('click', () => elements.fileInput.click());
+    if (uploadFileButton && fileInput) {
+        uploadFileButton.addEventListener('click', () => fileInput.click());
 
-        elements.fileInput.addEventListener('change', async (e) => {
+        fileInput.addEventListener('change', async (e) => {
             const files = Array.from(e.target.files || []);
             if (files.length === 0) return;
             await uploadFiles(files);
-            elements.fileInput.value = '';
+            fileInput.value = '';
         });
     }
 
@@ -416,17 +393,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // --- Event Listeners for Mode Switching ---
-    elements.chatButton.addEventListener('click', () => switchMode('chat'));
-    elements.flashcardsButton.addEventListener('click', () => switchMode('flashcards'));
-    elements.quizButton.addEventListener('click', () => switchMode('quiz'));
+    chatButton.addEventListener('click', () => switchMode('chat'));
+    flashcardsButton.addEventListener('click', () => switchMode('flashcards'));
+    quizButton.addEventListener('click', () => switchMode('quiz'));
 
 
     // --- Chat Logic ---
     async function loadChatHistory() {
-        elements.chatHistoryLoading.classList.remove('hidden');
-        elements.chatHistoryEmpty.classList.add('hidden');
-        elements.chatHistoryList.innerHTML = '';
-        elements.chatWindow.innerHTML = '';
+        chatHistoryLoading.classList.remove('hidden');
+        chatHistoryEmpty.classList.add('hidden');
+        chatHistoryList.innerHTML = '';
+        chatWindow.innerHTML = '';
         try {
             const data = await apiRequest(`/chat`);
             
@@ -435,22 +412,22 @@ document.addEventListener('DOMContentLoaded', () => {
             state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
         } catch (error) {
             console.error(`Failed to load chat history:`, error);
-            elements.chatHistoryEmpty.classList.remove('hidden');
+            chatHistoryEmpty.classList.remove('hidden');
             addMessage("Could not load chat history. Please try again later.", 'bot', false);
         } finally {
-            elements.chatHistoryLoading.classList.add('hidden');
+            chatHistoryLoading.classList.add('hidden');
         }
     }
 
     function renderChatHistory(searchTerm = '') {
-        elements.chatHistoryList.innerHTML = '';
+        chatHistoryList.innerHTML = '';
         const history = state.chatHistory.filter(item => item.message.toLowerCase().includes(searchTerm.toLowerCase()));
 
         if (history.length === 0) {
-            elements.chatHistoryEmpty.classList.remove('hidden');
+            chatHistoryEmpty.classList.remove('hidden');
             return;
         }
-        elements.chatHistoryEmpty.classList.add('hidden');
+        chatHistoryEmpty.classList.add('hidden');
         history.forEach(item => {
             const li = document.createElement('li');
             li.className = `text-sm p-2 rounded-md bg-bg-surface`;
@@ -459,18 +436,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    elements.chatForm.addEventListener('submit', async (e) => {
+    chatForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const userMessage = elements.messageInput.value.trim();
+        const userMessage = messageInput.value.trim();
         if (!userMessage) {
             showToast('Please type a message.', 'info');
             return;
         }
 
         addMessage(userMessage, 'user');
-        elements.messageInput.value = '';
-        elements.typingIndicator.classList.remove('hidden');
-        elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        messageInput.value = '';
+        typingIndicator.classList.remove('hidden');
+        chatWindow.scrollTop = chatWindow.scrollHeight;
 
         try {
             const data = await apiRequest(`/chat`, {
@@ -481,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             addMessage("Sorry, I encountered an error trying to respond. Please check your connection and try again.", 'bot', false);
         } finally {
-            elements.typingIndicator.classList.add('hidden');
+            typingIndicator.classList.add('hidden');
         }
     });
 
@@ -493,8 +470,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-text-main break-words">${message}</p></div>`;
         }
-        elements.chatWindow.appendChild(messageElement);
-        elements.chatWindow.scrollTop = elements.chatWindow.scrollHeight;
+        chatWindow.appendChild(messageElement);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
         safeCreateIcons();
 
         if (addToState) {
@@ -509,9 +486,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Please select a file first to generate flashcards.', 'error');
             return;
         }
-        const count = parseInt(elements.flashcardCount.value);
-        elements.flashcardGenerationLoading.classList.remove('hidden');
-        elements.generateFlashcardsButton.disabled = true;
+        const count = parseInt(flashcardCount.value);
+        flashcardGenerationLoading.classList.remove('hidden');
+        generateFlashcardsButton.disabled = true;
 
         try {
             const data = await apiRequest(`/files/${state.activeFileId}/flashcards`, {
@@ -528,8 +505,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to generate flashcards:", error);
             showToast('Could not generate flashcards. The document may be too short or an error occurred.', 'error');
         } finally {
-            elements.flashcardGenerationLoading.classList.add('hidden');
-            elements.generateFlashcardsButton.disabled = false;
+            flashcardGenerationLoading.classList.add('hidden');
+            generateFlashcardsButton.disabled = false;
         }
     }
 
@@ -545,56 +522,43 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderFlashcardHistory(searchTerm = '') {
-        elements.flashcardHistoryList.innerHTML = '';
-        const sets = state.flashcardSets.filter(set => 
-            `Set of ${set.count}`.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-        if (sets.length === 0) return;
-
-        sets.forEach(set => {
-            const li = document.createElement('li');
-            li.className = 'text-sm p-2 rounded-md bg-bg-surface cursor-pointer hover:bg-accent/20';
-            li.textContent = `Set of ${set.count} cards (${new Date(set.createdAt).toLocaleDateString()})`;
-            // TODO: Add click listener to load this set
-            elements.flashcardHistoryList.appendChild(li);
-        });
+        flashcardHistoryList.innerHTML = '';
     }
 
     function loadFlashcard(index) {
-        elements.flashcard.classList.remove('is-flipped');
+        flashcard.classList.remove('is-flipped');
         if (state.currentFlashcards.length > 0) {
             const card = state.currentFlashcards[index];
-            elements.flashcardQuestion.textContent = card.q;
-            elements.flashcardAnswer.textContent = card.a;
-            elements.cardCounter.textContent = `${index + 1} / ${state.currentFlashcards.length}`;
+            flashcardQuestion.textContent = card.q;
+            flashcardAnswer.textContent = card.a;
+            cardCounter.textContent = `${index + 1} / ${state.currentFlashcards.length}`;
             // Update next button label and restart visibility
-            if (elements.nextCardButton) {
+            if (nextCardButton) {
                 const isLast = index >= state.currentFlashcards.length - 1;
-                elements.nextCardButton.textContent = isLast ? 'Finish' : 'Next';
+                nextCardButton.textContent = isLast ? 'Finish' : 'Next';
             }
-            if (elements.restartFlashcardsButton) {
-                elements.restartFlashcardsButton.classList.toggle('hidden', !(index >= state.currentFlashcards.length - 1));
+            if (restartFlashcardsButton) {
+                restartFlashcardsButton.classList.toggle('hidden', !(index >= state.currentFlashcards.length - 1));
             }
         } else {
-            elements.flashcardQuestion.textContent = 'No flashcards generated yet.';
-            elements.flashcardAnswer.textContent = 'Generate flashcards from a file to get started.';
-            elements.cardCounter.textContent = '0 / 0';
-            if (elements.nextCardButton) elements.nextCardButton.textContent = 'Next';
-            if (elements.restartFlashcardsButton) elements.restartFlashcardsButton.classList.add('hidden');
+            flashcardQuestion.textContent = 'No flashcards generated yet.';
+            flashcardAnswer.textContent = 'Generate flashcards from a file to get started.';
+            cardCounter.textContent = '0 / 0';
+            if (nextCardButton) nextCardButton.textContent = 'Next';
+            if (restartFlashcardsButton) restartFlashcardsButton.classList.add('hidden');
         }
     }
 
-    if (elements.flashcard) {
-        elements.flashcard.addEventListener('click', () => elements.flashcard.classList.toggle('is-flipped'));
+    if (flashcard) {
+        flashcard.addEventListener('click', () => flashcard.classList.toggle('is-flipped'));
     }
-    if (elements.prevCardButton) elements.prevCardButton.addEventListener('click', () => {
+    if (prevCardButton) prevCardButton.addEventListener('click', () => {
         if (state.currentFlashcardIndex > 0) {
             state.currentFlashcardIndex -= 1;
             loadFlashcard(state.currentFlashcardIndex);
         }
     });
-    if (elements.nextCardButton) elements.nextCardButton.addEventListener('click', () => {
+    if (nextCardButton) nextCardButton.addEventListener('click', () => {
         const lastIndex = state.currentFlashcards.length - 1;
         if (state.currentFlashcardIndex < lastIndex) {
             state.currentFlashcardIndex += 1;
@@ -602,14 +566,14 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             // Finished flashcards
             showToast('Flashcards complete!', 'success');
-            if (elements.restartFlashcardsButton) elements.restartFlashcardsButton.classList.remove('hidden');
+            if (restartFlashcardsButton) restartFlashcardsButton.classList.remove('hidden');
         }
     });
 
     if (restartFlashcardsButton) restartFlashcardsButton.addEventListener('click', () => {
         state.currentFlashcardIndex = 0;
         loadFlashcard(0);
-        elements.restartFlashcardsButton.classList.add('hidden');
+        restartFlashcardsButton.classList.add('hidden');
     });
 
     // --- Quiz Logic ---
@@ -618,9 +582,9 @@ document.addEventListener('DOMContentLoaded', () => {
             showToast('Please select a file first to generate a quiz.', 'error');
             return;
         }
-        const count = parseInt(elements.quizQuestionCount.value);
-        elements.quizGenerationLoading.classList.remove('hidden');
-        elements.generateQuizButton.disabled = true;
+        const count = parseInt(quizQuestionCount.value);
+        quizGenerationLoading.classList.remove('hidden');
+        generateQuizButton.disabled = true;
 
         try {
             const data = await apiRequest(`/files/${state.activeFileId}/quizzes`, {
@@ -638,8 +602,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Failed to generate quiz:", error);
             showToast('Could not generate a quiz. The document may not be suitable or an error occurred.', 'error');
         } finally {
-            elements.quizGenerationLoading.classList.add('hidden');
-            elements.generateQuizButton.disabled = false;
+            quizGenerationLoading.classList.add('hidden');
+            generateQuizButton.disabled = false;
         }
     }
 
@@ -655,60 +619,47 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderQuizHistory(searchTerm = '') {
-        elements.quizHistoryList.innerHTML = '';
-        const sets = state.quizSets.filter(set => 
-            `Quiz with ${set.questionCount} questions`.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-
-        if (sets.length === 0) return;
-
-        sets.forEach(set => {
-            const li = document.createElement('li');
-            li.className = 'text-sm p-2 rounded-md bg-bg-surface cursor-pointer hover:bg-accent/20';
-            li.textContent = `${set.questionCount}-question quiz (${new Date(set.createdAt).toLocaleDateString()})`;
-            // TODO: Add click listener to load this quiz
-            elements.quizHistoryList.appendChild(li);
-        });
+        quizHistoryList.innerHTML = '';
     }
 
     function loadQuizQuestion() {
-        elements.quizFeedbackEl.textContent = '';
-        elements.quizOptionsEl.innerHTML = '';
-        elements.nextQuestionButton.classList.add('hidden');
-        Array.from(elements.quizOptionsEl.children).forEach(btn => btn.disabled = false);
+        quizFeedbackEl.textContent = '';
+        quizOptionsEl.innerHTML = '';
+        nextQuestionButton.classList.add('hidden');
+        Array.from(quizOptionsEl.children).forEach(btn => btn.disabled = false);
 
         if (state.currentQuiz.length === 0) {
-            elements.quizQuestionEl.textContent = 'No quiz available. Generate one from a file!';
-            elements.progressText.textContent = 'Question 0 of 0';
-            elements.progressBar.style.width = '0%';
+            quizQuestionEl.textContent = 'No quiz available. Generate one from a file!';
+            progressText.textContent = 'Question 0 of 0';
+            progressBar.style.width = '0%';
             return;
         }
 
         if (state.currentQuizIndex >= state.currentQuiz.length) {
-            elements.quizQuestionEl.textContent = `Quiz Complete! You scored ${state.quizScore} out of ${state.currentQuiz.length}.`;
-            elements.progressText.textContent = 'Finished!';
-            elements.progressBar.style.width = '100%';
-            if (elements.restartQuizButton) elements.restartQuizButton.classList.remove('hidden');
+            quizQuestionEl.textContent = `Quiz Complete! You scored ${state.quizScore} out of ${state.currentQuiz.length}.`;
+            progressText.textContent = 'Finished!';
+            progressBar.style.width = '100%';
+            if (restartQuizButton) restartQuizButton.classList.remove('hidden');
             return;
         }
 
         const question = state.currentQuiz[state.currentQuizIndex];
-        elements.progressText.textContent = `Question ${state.currentQuizIndex + 1} of ${state.currentQuiz.length}`;
-        elements.progressBar.style.width = `${((state.currentQuizIndex + 1) / state.currentQuiz.length) * 100}%`;
-        elements.quizQuestionEl.textContent = question.q;
+        progressText.textContent = `Question ${state.currentQuizIndex + 1} of ${state.currentQuiz.length}`;
+        progressBar.style.width = `${((state.currentQuizIndex + 1) / state.currentQuiz.length) * 100}%`;
+        quizQuestionEl.textContent = question.q;
         
         question.options.forEach(option => {
             const button = document.createElement('button');
             button.textContent = option; // Classes are now handled in style.css for .mode-button
             button.className = 'text-left p-4 mode-button rounded-lg';
             button.onclick = () => selectQuizAnswer(button, option, question.answer);
-            elements.quizOptionsEl.appendChild(button);
+            quizOptionsEl.appendChild(button);
         });
     }
 
-    if (elements.openLeftSidebarHandle) {
-        elements.openLeftSidebarHandle.addEventListener('click', () => {
-            const isOpen = !elements.sidebar.classList.contains('-translate-x-full');
+    if (openLeftSidebarHandle) {
+        openLeftSidebarHandle.addEventListener('click', () => {
+            const isOpen = !sidebar.classList.contains('-translate-x-full');
             if (isOpen) {
                 sidebar.classList.add('-translate-x-full');
                 sidebarOverlay.classList.add('hidden');
@@ -722,7 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function selectQuizAnswer(button, selected, correct) {
-        Array.from(elements.quizOptionsEl.children).forEach(btn => {
+        Array.from(quizOptionsEl.children).forEach(btn => {
             btn.disabled = true;
             btn.classList.remove('active'); // Remove general active state
             if (btn.textContent === correct) {
@@ -732,42 +683,42 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (selected === correct) {
             state.quizScore++;
-            elements.quizFeedbackEl.textContent = 'Correct!';
-            elements.quizFeedbackEl.className = 'text-center mb-4 text-accent';
+            quizFeedbackEl.textContent = 'Correct!';
+            quizFeedbackEl.className = 'text-center mb-4 text-accent';
         } else {
             button.classList.add('incorrect-answer');
-            elements.quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}".`;
-            elements.quizFeedbackEl.className = 'text-center mb-4 text-emphasis'; // Use emphasis for incorrect
+            quizFeedbackEl.textContent = `Incorrect. The correct answer is "${correct}".`;
+            quizFeedbackEl.className = 'text-center mb-4 text-emphasis'; // Use emphasis for incorrect
         }
         state.currentQuizIndex++;
-        elements.nextQuestionButton.classList.remove('hidden');
+        nextQuestionButton.classList.remove('hidden');
         // If next action will complete the quiz, label as Finish
         if (state.currentQuizIndex >= state.currentQuiz.length) {
-            elements.nextQuestionButton.textContent = 'Finish';
+            nextQuestionButton.textContent = 'Finish';
         } else {
-            elements.nextQuestionButton.textContent = 'Next Question';
+            nextQuestionButton.textContent = 'Next Question';
         }
     }
 
-    if (elements.nextQuestionButton) elements.nextQuestionButton.addEventListener('click', () => {
+    if (nextQuestionButton) nextQuestionButton.addEventListener('click', () => {
         loadQuizQuestion();
         // Reset label after loading if not finished
         if (state.currentQuizIndex < state.currentQuiz.length) {
-            elements.nextQuestionButton.textContent = 'Next Question';
+            nextQuestionButton.textContent = 'Next Question';
         }
     });
 
-    if (elements.restartQuizButton) elements.restartQuizButton.addEventListener('click', () => {
+    if (restartQuizButton) restartQuizButton.addEventListener('click', () => {
         state.currentQuizIndex = 0;
         state.quizScore = 0;
-        elements.restartQuizButton.classList.add('hidden');
+        restartQuizButton.classList.add('hidden');
         loadQuizQuestion();
     });
 
     // --- Feedback ---
-    elements.feedbackButton.addEventListener('click', () => {
-        elements.settingsModal.classList.add('hidden');
-        elements.feedbackModal.classList.remove('hidden');
+    feedbackButton.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
+        feedbackModal.classList.remove('hidden');
     });
 
     closeFeedbackModal.addEventListener('click', () => {
@@ -809,15 +760,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     async function submitFeedback() {
-        const rating = elements.feedbackRating.querySelectorAll('.active').length;
-        const comments = elements.feedbackComments.value.trim();
+        const rating = feedbackRating.querySelectorAll('.active').length;
+        const comments = feedbackComments.value.trim();
 
         if (rating === 0) {
-            elements.feedbackValidation.textContent = 'Please select a star rating.';
-            elements.feedbackValidation.classList.remove('hidden');
+            feedbackValidation.textContent = 'Please select a star rating.';
+            feedbackValidation.classList.remove('hidden');
             return;
         }
-        elements.feedbackValidation.classList.add('hidden');
+        feedbackValidation.classList.add('hidden');
         
         try {
             await apiRequest('/feedback', { 
@@ -835,62 +786,43 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        elements.feedbackModal.classList.add('hidden');
+        feedbackModal.classList.add('hidden');
         
-        elements.feedbackComments.value = '';
-        Array.from(elements.feedbackRating.children).forEach(star => {
+        feedbackComments.value = '';
+        Array.from(feedbackRating.children).forEach(star => {
             star.classList.remove('active');
         });
     }
 
-    elements.submitFeedbackButton.addEventListener('click', submitFeedback);
+    submitFeedbackButton.addEventListener('click', submitFeedback);
 
-    if (elements.generateFlashcardsButton) elements.generateFlashcardsButton.addEventListener('click', generateFlashcards);
-    if (elements.generateQuizButton) elements.generateQuizButton.addEventListener('click', generateQuiz);
+    if (generateFlashcardsButton) generateFlashcardsButton.addEventListener('click', generateFlashcards);
+    if (generateQuizButton) generateQuizButton.addEventListener('click', generateQuiz);
 
-    if (elements.menuButton) {
-        elements.menuButton.addEventListener('click', () => {
-            elements.sidebar.classList.toggle('-translate-x-full');
-            elements.sidebarOverlay.classList.toggle('hidden');
+    if (menuButton) {
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+            sidebarOverlay.classList.toggle('hidden');
+            updateLeftSidebarHandle();
+        });
+    }
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
             updateMainSidebarToggleIcon();
         });
     }
-    if (elements.closeMainSidebarButton) {
-        elements.closeMainSidebarButton.addEventListener('click', () => {
-            // Close main sidebar (primarily for mobile)
-            elements.sidebar.classList.add('-translate-x-full');
-            elements.sidebarOverlay.classList.add('hidden');
-            updateMainSidebarToggleIcon();
-        });
-    }
-    if (elements.sidebarOverlay) {
-        elements.sidebarOverlay.addEventListener('click', () => {
-            elements.sidebar.classList.add('-translate-x-full');
-            elements.sidebarOverlay.classList.add('hidden');
-            updateMainSidebarToggleIcon();
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.add('-translate-x-full');
+            sidebarOverlay.classList.add('hidden');
+            updateLeftSidebarHandle();
         });
     }
 
-    function setupRightSidebarTogglePerViewport() {
-        if (!elements.rightSidebarToggleButton) return;
-        const isMobile = window.innerWidth < 768;
-        
-        if (isMobile) {
-            rightSidebarToggleButton.classList.remove('hidden');
-            rightSidebarToggleButton.onclick = () => {
-                state.isRightSidebarVisible = !state.isRightSidebarVisible;
-                updateUI();
-            };
-        } else {
-            rightSidebarToggleButton.classList.add('hidden');
-            rightSidebarToggleButton.onclick = null;
-        }
-    }
-    setupRightSidebarTogglePerViewport();
-    window.addEventListener('resize', setupRightSidebarTogglePerViewport);
-
-    if (elements.openRightSidebarHandle) {
-        elements.openRightSidebarHandle.addEventListener('click', () => {
+    if (openRightSidebarHandle) {
+        openRightSidebarHandle.addEventListener('click', () => {
             state.isRightSidebarVisible = !state.isRightSidebarVisible;
             updateUI();
         });
@@ -938,46 +870,46 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Modal and Auth Logic ---
-    elements.openSettingsButton.addEventListener('click', () => {
+    openSettingsButton.addEventListener('click', () => {
         if (state.isLoggedIn) {
-            elements.settingsModal.classList.remove('hidden');
+            settingsModal.classList.remove('hidden');
         } else {
-            elements.loginModal.classList.remove('hidden');
+            loginModal.classList.remove('hidden');
         }
     });
 
-    elements.loginSignupButton.addEventListener('click', () => {
-        elements.loginModal.classList.remove('hidden');
+    loginSignupButton.addEventListener('click', () => {
+        loginModal.classList.remove('hidden');
     });
 
-    elements.closeLoginModal.addEventListener('click', () => {
-        elements.loginModal.classList.add('hidden');
+    closeLoginModal.addEventListener('click', () => {
+        loginModal.classList.add('hidden');
     });
 
-    elements.loginForm.addEventListener('submit', handleLogin);
+    loginForm.addEventListener('submit', handleLogin);
 
-    elements.closeSettingsModal.addEventListener('click', () => {
-        elements.settingsModal.classList.add('hidden');
+    closeSettingsModal.addEventListener('click', () => {
+        settingsModal.classList.add('hidden');
     });
 
-    elements.openRegisterModal.addEventListener('click', () => {
-        elements.loginModal.classList.add('hidden');
-        elements.registerModal.classList.remove('hidden');
+    openRegisterModal.addEventListener('click', () => {
+        loginModal.classList.add('hidden');
+        registerModal.classList.remove('hidden');
     });
 
-    elements.closeRegisterModal.addEventListener('click', () => {
-        elements.registerModal.classList.add('hidden');
+    closeRegisterModal.addEventListener('click', () => {
+        registerModal.classList.add('hidden');
     });
 
-    elements.registerForm.addEventListener('submit', handleRegister);
+    registerForm.addEventListener('submit', handleRegister);
 
-    elements.logoutButton.addEventListener('click', handleLogout);
+    logoutButton.addEventListener('click', handleLogout);
 
     async function handleLogin(e) {
         e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('password').value;
-        const errorDiv = elements.loginForm.querySelector('.form-error');
+        const errorDiv = loginForm.querySelector('.form-error');
         const button = document.getElementById('login-button');
 
         button.classList.add('loading');
@@ -985,11 +917,15 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDiv.textContent = '';
 
         try {
-            const data = await apiRequest('/login/', {
+            const response = await fetch(`${AUTH_API_BASE_URL}/login/`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ username, password }),
-            }, true); // true to use AUTH_URL
+            });
 
+            const data = await response.json();
 
             if (!response.ok) {
                 throw new Error(data.error || 'Invalid credentials');
@@ -1001,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
             apiToken = data.access;
             state.isLoggedIn = true;
 
-            elements.loginModal.classList.add('hidden');
+            loginModal.classList.add('hidden');
             showToast('Login successful!', 'success');
             initializeApp();
         } catch (error) {
@@ -1018,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const email = document.getElementById('register-email').value;
         const password = document.getElementById('register-password').value;
         const password2 = document.getElementById('register-password-confirm').value;
-        const errorDiv = elements.registerForm.querySelector('.form-error');
+        const errorDiv = registerForm.querySelector('.form-error');
         const button = document.getElementById('register-button');
 
         if (password !== password2) {
@@ -1031,10 +967,16 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDiv.textContent = '';
 
         try {
-            const data = await apiRequest('/register/', {
+            const response = await fetch(`${AUTH_API_BASE_URL}/register/`, {
                 method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({ username, email, password, password2 }),
-            }, true); // true to use AUTH_URL
+            });
+
+            const data = await response.json();
+
             if (!response.ok) {
                 // Extract and display the first error message
                 const errorMessage = Object.values(data).flat().join(' ');
@@ -1049,7 +991,7 @@ document.addEventListener('DOMContentLoaded', () => {
             apiToken = data.access;
             state.isLoggedIn = true;
 
-            elements.registerModal.classList.add('hidden');
+            registerModal.classList.add('hidden');
             showToast(`Welcome, ${data.username}! Your account has been created.`, 'success');
             
             // Re-initialize the app in a logged-in state
@@ -1068,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('username');
         apiToken = null;
         state.isLoggedIn = false;
-        elements.settingsModal.classList.add('hidden');
+        settingsModal.classList.add('hidden');
         showToast('You have been logged out.', 'info');
         updateUI();
     }
@@ -1258,17 +1200,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         updateUI();
-        updateMainSidebarToggleIcon();
         updateLeftSidebarHandle();
     }
 
     // --- Theme Management ---
     function applyTheme(theme) {
         document.body.classList.toggle('light-mode', theme === 'light');
-        elements.themeSwitcherIndicator.classList.toggle('translate-x-5', theme === 'light');
+        themeSwitcherIndicator.classList.toggle('translate-x-5', theme === 'light');
     }
 
-    elements.themeSwitcher.addEventListener('click', () => {
+    themeSwitcher.addEventListener('click', () => {
         const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         localStorage.setItem('theme', newTheme);
