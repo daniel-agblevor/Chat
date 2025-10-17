@@ -510,14 +510,12 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Default to streaming response
         await streamChatResponse(userMessage);
     });
 
     async function streamChatResponse(userMessage) {
         addMessage(userMessage, 'user');
         messageInput.value = '';
-        typingIndicator.classList.add('hidden'); // Hide typing indicator as stream starts immediately
 
         // Create a new bot message element to append chunks to
         const botMessageContainer = addMessage('', 'bot', false);
@@ -529,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers['Authorization'] = `Bearer ${apiToken}`;
             }
 
-            const response = await fetch(`${CHAT_API_BASE_URL}/chat/stream/`, {
+            const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, {
                 method: 'POST',
                 headers,
                 body: JSON.stringify({ message: userMessage })
@@ -562,6 +560,11 @@ document.addEventListener('DOMContentLoaded', () => {
             messageParagraph.textContent = "Sorry, I encountered an error trying to respond. Please check your connection and try again.";
             messageParagraph.classList.add('text-red-400');
         }
+    }
+
+    async function sendChatMessage(userMessage) {
+        // This function now correctly calls the streaming function.
+        await streamChatResponse(userMessage);
     }
 
     function addMessage(message, sender = 'bot', addToState = true, customClass = '') {
