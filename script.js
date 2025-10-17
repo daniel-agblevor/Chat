@@ -86,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
         isLoggedIn: false, // Assume logged out by default
         activeMode: 'chat', // Track the active mode: 'chat', 'flashcards', or 'quiz'
         isRightSidebarVisible: window.innerWidth >= 768, // Manages the visibility of the right sidebar
-        chatHistory: [],
         flashcardSets: [],
         quizSets: [],
         currentFlashcards: [],
@@ -469,6 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatHistoryEmpty.classList.remove('hidden');
             return;
         }
+
         chatHistoryEmpty.classList.add('hidden');
 
         // Group messages by date
