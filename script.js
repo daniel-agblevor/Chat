@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
     const API_BASE_URL = 'http://127.0.0.1:8000';
-    const AUTH_API_BASE_URL = `${API_BASE_URL}/api`; // For login/register
+    const AUTH_API_BASE_URL = `${API_BASE_URL}/api/accounts`; // For login/register
     const CHAT_API_BASE_URL = `${API_BASE_URL}/api/chat/v1`; // For chat
 
     let apiToken = localStorage.getItem('accessToken'); // Stores the user's authentication token.
@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- File Management ---
     async function loadFiles() {
         try {
-            const data = await apiRequest('/api/v1/files');
+            const data = await apiRequest('/api/chat/v1/files');
             
             state.files = data.files || [];
             if (!state.activeFileId && state.files.length > 0) {
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await apiRequest(`/api/v1/files/${fileId}`, { method: 'DELETE' });
+            await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
 
             const fileName = state.files.find(f => f.id === fileId)?.name || 'Unknown file';
             state.files = state.files.filter(f => f.id !== fileId);
@@ -395,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
         files.forEach(f => formData.append('files', f));
 
         try {
-            await apiRequest('/api/v1/files', { method: 'POST', body: formData });
+            await apiRequest('/api/chat/v1/files', { method: 'POST', body: formData });
             showToast('Files uploaded successfully and are being processed.', 'success');
             await loadFiles();
         } catch (err) {
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateFlashcardsButton.disabled = true;
 
         try {
-            const data = await apiRequest(`/api/v1/files/${state.activeFileId}/flashcards`, {
+            const data = await apiRequest(`/api/chat/v1/files/${state.activeFileId}/flashcards`, {
                 method: 'POST',
                 body: { count }
             });
@@ -621,7 +621,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFlashcardHistory(fileId) {
         try {
-            const data = await apiRequest(`/api/v1/files/${fileId}/flashcards`);
+            const data = await apiRequest(`/api/chat/v1/files/${fileId}/flashcards`);
             
             state.flashcardSets = data.flashcardSets || [];
             renderFlashcardHistory();
@@ -696,7 +696,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateQuizButton.disabled = true;
 
         try {
-            const data = await apiRequest(`/api/v1/files/${state.activeFileId}/quizzes`, {
+            const data = await apiRequest(`/api/chat/v1/files/${state.activeFileId}/quizzes`, {
                 method: 'POST',
                 body: { questionCount: count }
             });
@@ -718,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadQuizHistory(fileId) {
         try {
-            const data = await apiRequest(`/api/v1/files/${fileId}/quizzes`);
+            const data = await apiRequest(`/api/chat/v1/files/${fileId}/quizzes`);
             
             state.quizSets = data.quizzes || [];
             renderQuizHistory();
