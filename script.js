@@ -138,6 +138,27 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     /**
+     * Toggles the visibility of the right sidebar.
+     */
+    function toggleRightSidebar() {
+        state.isRightSidebarVisible = !state.isRightSidebarVisible;
+        updateRightSidebarUI();
+    }
+
+    /**
+     * Updates only the right sidebar elements based on the current state.
+     */
+    function updateRightSidebarUI() {
+        const rightSidebars = { chat: rightSidebar, flashcards: flashcardsRightSidebar, quiz: quizRightSidebar };
+        
+        Object.values(rightSidebars).forEach(sb => sb.classList.add('hidden', 'md:hidden'));
+
+        const activeSidebar = rightSidebars[state.activeMode];
+        if (activeSidebar && state.isRightSidebarVisible) {
+            activeSidebar.classList.remove('hidden', 'md:hidden');
+        }
+    }
+    /**
      * Updates the entire UI based on the current application state (auth and active mode).
      */
     function updateUI() {
@@ -162,11 +183,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buttons = { chat: chatButton, flashcards: flashcardsButton, quiz: quizButton };
 
         Object.values(views).forEach(v => v.classList.add('hidden'));
-        Object.values(rightSidebars).forEach(sb => {
-            sb.classList.add('hidden');
-            sb.classList.remove('md:flex', 'is-open');
-        });
-
+        
         Object.values(buttons).forEach(b => b.classList.remove('active'));
 
         if (views[state.activeMode]) {
@@ -180,22 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 300); // Must match animation duration in CSS
         }
 
-        if (state.isLoggedIn && rightSidebars[state.activeMode]) {
-            const activeSidebar = rightSidebars[state.activeMode];
-            if (state.isRightSidebarVisible) {
-                activeSidebar.classList.remove('hidden');
-                activeSidebar.classList.add('md:flex');
-                activeSidebar.classList.add('is-open');
-                activeSidebar.setAttribute('aria-hidden', 'false');
-            } else {
-                activeSidebar.setAttribute('aria-hidden', 'true');
-            }
-        } else if (openRightSidebarHandle) { // Added a check for openRightSidebarHandle
-            const openRightSidebarIcon = openRightSidebarHandle.querySelector('.open-icon'); // Assuming you have icons with these classes
-            const closeRightSidebarIcon = openRightSidebarHandle.querySelector('.close-icon');
-            if (openRightSidebarIcon) openRightSidebarIcon.classList.remove('hidden');
-            if (closeRightSidebarIcon) closeRightSidebarIcon.classList.add('hidden');
-        }
+        // Manage right sidebar visibility
+        updateRightSidebarUI();
+
+        // The right sidebar handle should only be visible for logged-in users.
+        openRightSidebarHandle.classList.toggle('hidden', !state.isLoggedIn);
 
 
         // Desktop handle visibility and label (sole toggle for right sidebars)
@@ -560,11 +566,6 @@ document.addEventListener('DOMContentLoaded', () => {
             messageParagraph.textContent = "Sorry, I encountered an error trying to respond. Please check your connection and try again.";
             messageParagraph.classList.add('text-red-400');
         }
-    }
-
-    async function sendChatMessage(userMessage) {
-        // This function now correctly calls the streaming function.
-        await streamChatResponse(userMessage);
     }
 
     function addMessage(message, sender = 'bot', addToState = true, customClass = '') {
@@ -935,8 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (openRightSidebarHandle) {
         openRightSidebarHandle.addEventListener('click', () => {
-            state.isRightSidebarVisible = !state.isRightSidebarVisible;
-            updateUI();
+            toggleRightSidebar();
         });
     }
 
