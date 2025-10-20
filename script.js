@@ -432,14 +432,19 @@ document.addEventListener('DOMContentLoaded', () => {
         chatHistoryList.innerHTML = '';
         
         try {
-            const data = await apiRequest(`/api/chat/v1/chat/`);
+            const groupedHistory = await apiRequest(`/api/chat/v1/chat/`);
             
-            state.chatHistory = data.history || [];
-            renderChatHistory();
+            // Flatten the history for the main chat window and store the grouped version for the sidebar
+            const flatHistory = Object.values(groupedHistory).flat().sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            state.chatHistory = flatHistory;
+
+            renderChatHistory(groupedHistory);
             
             // Clear window and render messages from history
             chatWindow.innerHTML = '';
-            state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
+            if (state.chatHistory.length > 0) {
+                state.chatHistory.forEach(msg => addMessage(msg.message, msg.sender, false));
+            }
 
         } catch (error) {
             console.error(`Failed to load chat history:`, error);
@@ -452,50 +457,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function getRelativeDate(date) {
-        const now = new Date();
-        const messageDate = new Date(date);
-        // Reset time part for accurate day difference
-        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const startOfMessageDate = new Date(messageDate.getFullYear(), messageDate.getMonth(), messageDate.getDate());
-        
-        const diffTime = startOfToday - startOfMessageDate;
-        const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays === 0) return 'Today';
-        if (diffDays === 1) return 'Yesterday';
-        // Fallback for older dates
-        return messageDate.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-    }
-
-    function renderChatHistory() {
+    function renderChatHistory(groupedHistory) {
         chatHistoryList.innerHTML = '';
-        if (state.chatHistory.length === 0) {
+        // The API returns an object with date groups as keys.
+        // e.g., { "Today": [...], "Yesterday": [...] }
+        if (!groupedHistory || Object.keys(groupedHistory).length === 0) {
             chatHistoryEmpty.classList.remove('hidden');
             return;
         }
 
         chatHistoryEmpty.classList.add('hidden');
 
-        // Group messages by date
-        const groupedByDate = state.chatHistory.reduce((acc, msg) => {
-            const dateKey = getRelativeDate(msg.timestamp);
-            if (!acc[dateKey]) {
-                acc[dateKey] = [];
-            }
-            acc[dateKey].push(msg);
-            return acc;
-        }, {});
-
-        // Render grouped history
-        for (const dateGroup in groupedByDate) {
+        // The backend now provides the grouping, so we just render it.
+        for (const dateGroup in groupedHistory) {
             const groupContainer = document.createElement('div');
             groupContainer.innerHTML = `<h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider my-2">${dateGroup}</h4>`;
             
             const list = document.createElement('ul');
             list.className = 'space-y-1';
             
-            groupedByDate[dateGroup].forEach(item => {
+            // Sort messages within the group just in case
+            const sortedMessages = groupedHistory[dateGroup].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+
+            sortedMessages.forEach(item => {
                 const li = document.createElement('li');
                 li.className = 'text-sm p-2 rounded-md bg-bg-surface truncate cursor-pointer hover:bg-accent/20';
                 li.textContent = item.message;
@@ -533,16 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers['Authorization'] = `Bearer ${apiToken}`;
             }
 
-            const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({ message: userMessage })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ detail: 'An unknown streaming error occurred.' }));
-                throw new Error(errorData.detail || `API request failed with status ${response.status}`);
-            }
+            const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, { method: 'POST', headers, body: JSON.stringify({ message: userMessage }) });
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -559,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Add final message to state
-            state.chatHistory.push({ sender: 'bot', message: fullResponse, timestamp: new Date().toISOString() });
+            state.chatHistory.push({ sender: 'bot', message: fullResponse, created_at: new Date().toISOString() });
             renderChatHistory();
 
         } catch (error) {
@@ -585,7 +560,7 @@ document.addEventListener('DOMContentLoaded', () => {
         safeCreateIcons();
 
         if (addToState) {
-            state.chatHistory.push({ sender, message, timestamp: new Date().toISOString() });
+            state.chatHistory.push({ sender, message, created_at: new Date().toISOString() });
             renderChatHistory();
         }
         
