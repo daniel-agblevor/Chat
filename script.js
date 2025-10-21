@@ -153,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         Object.values(rightSidebars).forEach(sb => sb.classList.add('hidden', 'md:hidden'));
 
         const activeSidebar = rightSidebars[state.activeMode];
-        if (activeSidebar && state.isRightSidebarVisible) {
+        if (state.isLoggedIn && activeSidebar && state.isRightSidebarVisible) {
             activeSidebar.classList.remove('hidden', 'md:hidden');
         }
     }
