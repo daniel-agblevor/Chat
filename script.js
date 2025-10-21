@@ -47,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const feedbackComments = document.getElementById('feedback-comments');
     const submitFeedbackButton = document.getElementById('submit-feedback-button');
     const feedbackValidation = document.getElementById('feedback-validation');
-    const feedbackButton = document.getElementById('feedback-button');
     const sidebarFileList = document.getElementById('sidebar-file-list');
     const manageFilesList = document.getElementById('manage-files-list');
     const flashcard = document.getElementById('flashcard');
@@ -71,8 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeRegisterModal = document.getElementById('close-register-modal');
     const registerForm = document.getElementById('register-form');
     const openRegisterModal = document.getElementById('open-register-modal');
-    const themeSwitcher = document.getElementById('theme-switcher');
-    const themeSwitcherIndicator = document.getElementById('theme-switcher-indicator');
+    const themeToggleButton = document.getElementById('theme-toggle-button');
+    const mainFeedbackButton = document.getElementById('main-feedback-button');
     const loginSignupButton = document.getElementById('login-signup-button');
     const fileManagementSection = document.getElementById('file-management-section');
     const openLeftSidebarHandle = document.getElementById('open-left-sidebar-handle');
@@ -819,8 +818,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- Feedback ---
-    feedbackButton.addEventListener('click', () => {
-        settingsModal.classList.add('hidden');
+    mainFeedbackButton.addEventListener('click', () => {
         feedbackModal.classList.remove('hidden');
     });
 
@@ -1314,10 +1312,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Theme Management ---
     function applyTheme(theme) {
         document.body.classList.toggle('light-mode', theme === 'light');
-        themeSwitcherIndicator.classList.toggle('translate-x-5', theme === 'light');
+        const sunIcon = document.querySelector('.theme-icon-sun');
+        const moonIcon = document.querySelector('.theme-icon-moon');
+        if (sunIcon && moonIcon) {
+            sunIcon.classList.toggle('hidden', theme === 'light');
+            moonIcon.classList.toggle('hidden', theme === 'dark');
+        }
     }
 
-    themeSwitcher.addEventListener('click', () => {
+    themeToggleButton.addEventListener('click', () => {
         const currentTheme = document.body.classList.contains('light-mode') ? 'light' : 'dark';
         const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
         localStorage.setItem('theme', newTheme);

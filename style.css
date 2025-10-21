@@ -1033,3 +1033,19 @@ button.loading {
     background-color: rgba(0, 0, 0, 0.05);
     color: var(--primary-text);
 }
+
+.light-mode .theme-icon-sun {
+    display: none;
+}
+
+.light-mode .theme-icon-moon {
+    display: inline-block;
+}
+
+html:not(.light-mode) .theme-icon-moon {
+    display: none;
+}
+
+html:not(.light-mode) .theme-icon-sun {
+    display: inline-block;
+}

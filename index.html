@@ -130,6 +130,18 @@
                             <span class="hidden sm:inline">Quiz Me</span>
                             </button>
 
+                            <!-- Theme Mode Switch -->
+                            <button id="theme-toggle-button" type="button" aria-label="Toggle theme"
+                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-accent">
+                                <i data-lucide="sun" class="h-5 w-5 text-icon-color theme-icon-sun"></i>
+                                <i data-lucide="moon" class="h-5 w-5 text-icon-color hidden theme-icon-moon"></i>
+                            </button>
+
+                            <!-- Feedback Button -->
+                            <button id="main-feedback-button" type="button" aria-label="Give Feedback"
+                            class="mode-button flex items-center gap-2 py-2 px-3 rounded-lg transition-colors text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-accent">
+                                <i data-lucide="message-square-heart" class="h-5 w-5 text-icon-color"></i>
+                            </button>
                         </div>
                     </div>
                 </header>
@@ -354,24 +366,12 @@
             <div class="flex-shrink-0 flex items-center justify-between pb-4 border-b border-border-main">
                 <h2 class="text-xl sm:text-2xl font-bold text-slate-100">Settings</h2>
                 <div class="flex items-center gap-2">
-                    <button id="feedback-button" class="flex items-center gap-2 py-2 px-3 bg-slate-800/60 hover:bg-slate-700/80 text-slate-200 rounded-lg transition-colors text-sm font-semibold">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-message-square-heart h-4 w-4 text-accent"><path d="M12 21.35a1 1 0 0 1-1.45-.09L3 14.5a5 5 0 0 1 7-7 .5.5 0 0 1 .5.5v2a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2V8a.5.5 0 0 1 .5-.5 5 5 0 0 1 7 7l-7.55 6.76a1 1 0 0 1-1.45.09z"/><path d="M21 15V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11"/></svg>
-                        <span>Feedback</span>
-                    </button>
                     <button id="close-settings-modal" class="p-2 rounded-full bg-slate-800/60 hover:bg-slate-700/80 text-slate-300">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                     </button>
                 </div>
             </div>
             <div class="flex-grow pt-4 space-y-6 overflow-y-auto modal-scroll pr-2">
-                <!-- Theme Switcher -->
-                <div class="flex items-center justify-between">
-                    <label for="theme-switcher" class="text-sm font-semibold text-slate-300">Light Mode</label>
-                    <button id="theme-switcher" class="relative inline-flex items-center h-6 rounded-full w-11">
-                        <span class="absolute inline-flex w-full h-full bg-slate-700/50 rounded-full"></span>
-                        <span id="theme-switcher-indicator" class="inline-block w-4 h-4 transform translate-x-1 bg-white rounded-full transition-transform"></span>
-                    </button>
-                </div>
                 <!-- Special Instructions -->
                 <div>
                     <label for="special-instructions" class="text-sm font-semibold text-slate-300 mb-2 block">Special Instructions</label>
