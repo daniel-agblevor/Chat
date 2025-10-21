@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = await apiRequest('/api/chat/v1/files');
             
-            state.files = data.files || [];
+            state.files = data || [];
             if (!state.activeFileId && state.files.length > 0) {
                 state.activeFileId = state.files[0].id;
             }
@@ -316,17 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderFiles() {
         sidebarFileList.innerHTML = '';
         manageFilesList.innerHTML = '';
-        const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'txt': 'file-text', 'md': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
-        const fileColorMap = { 'default': 'text-accent' }; // Use a single accent color for all icons
 
         state.files.forEach(file => {
-            const extension = file.name.split('.').pop();
-            const icon = fileIconMap[extension] || fileIconMap['default'];
-            const color = fileColorMap[extension] || fileColorMap['default'];
-            const isActive = file.id === state.activeFileId;
+            // Use icon and color directly from the API response, with fallbacks.
+            const icon = file.icon || 'file'; 
+            const color = file.color || 'text-accent';
 
             const sidebarLi = document.createElement('li');
-            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-accent text-primary-text font-semibold' : 'hover:bg-accent/20 text-text-secondary'}">
+            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 hover:bg-accent/20 text-text-secondary">
                 <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
             sidebarFileList.appendChild(sidebarLi);
 
@@ -417,15 +414,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Chat Logic ---
     async function loadChatHistory() {
-        if (!state.isLoggedIn) {
-            chatHistoryEmpty.classList.remove('hidden');
-            chatHistoryLoading.classList.add('hidden');
-            // Add default welcome message if not already there
-            if (!chatWindow.querySelector('.welcome-message')) {
-                 addMessage("Hello! I'm the Starlight RAG assistant. How can I help you today?", 'bot', false, 'welcome-message');
-            }
-            return;
-        }
 
         chatHistoryLoading.classList.remove('hidden');
         chatHistoryEmpty.classList.add('hidden');
@@ -509,7 +497,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Create a new bot message element to append chunks to
         const botMessageContainer = addMessage('', 'bot', false);
-        const messageParagraph = botMessageContainer.querySelector('p');
 
         try {
             const headers = { 'Content-Type': 'application/json' };
@@ -518,6 +505,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, { method: 'POST', headers, body: JSON.stringify({ message: userMessage }) });
+
+            if (!response.ok) {
+                // If the error is 401 Unauthorized and we think we are logged in, the token is bad.
+                if (response.status === 401 && state.isLoggedIn) {
+                    handleLogout();
+                    // Add a specific message for this case and stop processing
+                    addMessage("Your session has expired. Please log in again to access your documents.", 'bot', false);
+                    return; 
+                }
+                // Handle other HTTP errors like 403, 500 etc.
+                const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' }));
+                const errorMessage = errorData.detail || `Server responded with status ${response.status}.`;
+                throw new Error(errorMessage);
+            }
 
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
@@ -529,7 +530,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const chunk = decoder.decode(value, { stream: true });
                 fullResponse += chunk;
-                messageParagraph.textContent = fullResponse; // Render incrementally
+                // Convert markdown to HTML and sanitize it before rendering
+                const dirtyHtml = marked.parse(fullResponse);
+                const cleanHtml = DOMPurify.sanitize(dirtyHtml);
+                botMessageContainer.innerHTML = cleanHtml;
+
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
             
@@ -538,8 +543,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderChatHistory();
 
         } catch (error) {
-            messageParagraph.textContent = "Sorry, I encountered an error trying to respond. Please check your connection and try again.";
-            messageParagraph.classList.add('text-red-400');
+            botMessageContainer.innerHTML = `<p class="text-red-400">Sorry, I encountered an error trying to respond. Please check your connection and try again.</p>`;
         }
     }
 
@@ -547,12 +551,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageElement = document.createElement('div');
         messageElement.className = `flex items-start gap-2.5 sm:gap-3 justify-${sender === 'user' ? 'end' : 'start'} message-fade-in ${customClass}`;
         
-        const sanitizedMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        let messageContent;
+
+        if (sender === 'bot') {
+            // For bot messages, parse Markdown and sanitize the HTML
+            const dirtyHtml = marked.parse(message);
+            messageContent = DOMPurify.sanitize(dirtyHtml);
+        } else {
+            // For user messages, just escape HTML to prevent injection
+            const sanitizedMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            messageContent = `<p class="text-primary-text break-words">${sanitizedMessage}</p>`;
+        }
 
         if (sender === 'user') {
-            messageElement.innerHTML = `<div class="bg-accent rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]"><p class="text-primary-text break-words">${sanitizedMessage}</p></div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-text-secondary"></i></div>`;
+            messageElement.innerHTML = `<div class="bg-accent rounded-2xl rounded-br-none p-3 sm:p-4 max-w-[80%]">${messageContent}</div><div class="flex-shrink-0 w-8 h-8 rounded-full bg-bg-surface flex items-center justify-center"><i data-lucide="user" class="w-5 h-5 text-text-secondary"></i></div>`;
         } else {
-            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%]"><p class="text-text-main break-words">${sanitizedMessage}</p></div>`;
+            // The 'prose' classes from Tailwind will style the rendered HTML. We remove the <p> wrapper as marked.js adds its own.
+            messageElement.innerHTML = `<div class="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center"><i data-lucide="sparkles" class="w-5 h-5 text-accent"></i></div><div class="bg-bg-surface rounded-2xl rounded-tl-none p-3 sm:p-4 max-w-[80%] prose prose-sm prose-invert text-text-main break-words">${messageContent}</div>`;
         }
         
         chatWindow.appendChild(messageElement);
@@ -1096,10 +1111,23 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('username');
         apiToken = null;
+
+        // Clear sensitive user data from state
         state.isLoggedIn = false;
+        state.files = [];
+        state.chatHistory = [];
+        state.activeFileId = null;
+
+        // Clear UI elements
+        sidebarFileList.innerHTML = '';
+        manageFilesList.innerHTML = '';
+        chatHistoryList.innerHTML = '';
+        chatWindow.innerHTML = '';
+
         settingsModal.classList.add('hidden');
         showToast('You have been logged out.', 'info');
         updateUI();
+        addMessage("You have been logged out. Log in to continue.", 'bot', false, 'logout-message');
     }
 
     function checkInitialAuth() {
@@ -1271,9 +1299,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setupBackgroundAnimation(); 
 
-        await loadChatHistory();
         if (state.isLoggedIn) {
+            await loadChatHistory();
             await loadFiles();
+        } else {
+            // If not logged in, just show the welcome message.
+            addMessage("Hello! I'm the Starlight RAG assistant. How can I help you today?", 'bot', false, 'welcome-message');
         }
         
         updateUI();
