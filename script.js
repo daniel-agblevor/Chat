@@ -302,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const data = await apiRequest('/api/chat/v1/files');
             
-            state.files = data.files || [];
+            state.files = data || [];
             if (!state.activeFileId && state.files.length > 0) {
                 state.activeFileId = state.files[0].id;
             }
@@ -316,13 +316,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderFiles() {
         sidebarFileList.innerHTML = '';
         manageFilesList.innerHTML = '';
-        const fileIconMap = { 'pdf': 'file-text', 'docx': 'file-text', 'txt': 'file-text', 'md': 'file-text', 'sql': 'file-code-2', 'default': 'file' };
-        const fileColorMap = { 'default': 'text-accent' }; // Use a single accent color for all icons
 
         state.files.forEach(file => {
-            const extension = file.name.split('.').pop();
-            const icon = fileIconMap[extension] || fileIconMap['default'];
-            const color = fileColorMap[extension] || fileColorMap['default'];
+            // Use icon and color directly from the API response, with fallbacks.
+            const icon = file.icon || 'file'; 
+            const color = file.color || 'text-accent';
+
             const sidebarLi = document.createElement('li');
             sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 hover:bg-accent/20 text-text-secondary">
                 <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
