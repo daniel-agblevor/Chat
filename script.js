@@ -323,10 +323,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const extension = file.name.split('.').pop();
             const icon = fileIconMap[extension] || fileIconMap['default'];
             const color = fileColorMap[extension] || fileColorMap['default'];
-            const isActive = file.id === state.activeFileId;
-
             const sidebarLi = document.createElement('li');
-            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 ${isActive ? 'bg-accent text-primary-text font-semibold' : 'hover:bg-accent/20 text-text-secondary'}">
+            sidebarLi.innerHTML = `<a href="#" data-file-id="${file.id}" class="flex items-center gap-3 p-2 rounded-md transition-colors duration-200 hover:bg-accent/20 text-text-secondary">
                 <i data-lucide="${icon}" class="h-5 w-5 ${color}"></i><span>${file.name}</span></a>`;
             sidebarFileList.appendChild(sidebarLi);
 
@@ -500,7 +498,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Create a new bot message element to append chunks to
         const botMessageContainer = addMessage('', 'bot', false);
-        const messageParagraph = botMessageContainer.querySelector('p');
 
         try {
             const headers = { 'Content-Type': 'application/json' };
@@ -511,7 +508,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, { method: 'POST', headers, body: JSON.stringify({ message: userMessage }) });
 
             if (!response.ok) {
-                // Handle HTTP errors like 401, 403, 500 etc.
+                // If the error is 401 Unauthorized and we think we are logged in, the token is bad.
+                if (response.status === 401 && state.isLoggedIn) {
+                    handleLogout();
+                    // Add a specific message for this case and stop processing
+                    addMessage("Your session has expired. Please log in again to access your documents.", 'bot', false);
+                    return; 
+                }
+                // Handle other HTTP errors like 403, 500 etc.
                 const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' }));
                 const errorMessage = errorData.detail || `Server responded with status ${response.status}.`;
                 throw new Error(errorMessage);
@@ -530,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Convert markdown to HTML and sanitize it before rendering
                 const dirtyHtml = marked.parse(fullResponse);
                 const cleanHtml = DOMPurify.sanitize(dirtyHtml);
-                messageParagraph.innerHTML = cleanHtml;
+                botMessageContainer.innerHTML = cleanHtml;
 
                 chatWindow.scrollTop = chatWindow.scrollHeight;
             }
@@ -540,8 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderChatHistory();
 
         } catch (error) {
-            messageParagraph.textContent = "Sorry, I encountered an error trying to respond. Please check your connection and try again.";
-            messageParagraph.classList.add('text-red-400');
+            botMessageContainer.innerHTML = `<p class="text-red-400">Sorry, I encountered an error trying to respond. Please check your connection and try again.</p>`;
         }
     }
 
