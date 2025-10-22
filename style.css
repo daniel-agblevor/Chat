@@ -27,7 +27,7 @@
     /* Blob Animation Colors */
     --blob-color-1: #fbb02d; 
     --blob-color-2: #5c8001; 
-    --blob-color-3: #7cb518; 
+    --blob-color-3: #fb0fff; 
     --blob-color-4: #f3de2c; 
     --blob-color-5: #fb6107; 
 }
@@ -533,7 +533,7 @@ body.light-mode {
     --icon-color: var(--primary-text);
 
     /* Light Theme Adjustments */
-    --button-bg-light: #b9caff; /* light grey */
+    --button-bg-light: #b9caff;
     --button-text-light: #000000; /* dark text */
     --correct-answer-bg-light: #90EE90; /* light green */
     --incorrect-answer-bg-light: #F08080; /* light coral */
@@ -542,7 +542,7 @@ body.light-mode {
     /* Blob Animation Colors */
     --blob-color-1: #072ac8; 
     --blob-color-2: #1e96fc; 
-    --blob-color-3: #a2d6f9; 
+    --blob-color-3: #0a0908; 
     --blob-color-4: #fcf300; 
     --blob-color-5: #ffc600; 
 }
