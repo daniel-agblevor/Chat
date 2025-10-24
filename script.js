@@ -77,6 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const openLeftSidebarHandle = document.getElementById('open-left-sidebar-handle');
     const logoutButton = document.getElementById('logout-button');
     const userUsername = document.getElementById('user-username');
+    const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+    const closeDeleteModal = document.getElementById('close-delete-modal');
+    const cancelDeleteButton = document.getElementById('cancel-delete-button');
+    const confirmDeleteButton = document.getElementById('confirm-delete-button');
 
     // --- App State ---
     let state = {
@@ -336,15 +340,40 @@ document.addEventListener('DOMContentLoaded', () => {
         safeCreateIcons();
     }
 
+    function confirmDeletion(fileName) {
+        return new Promise((resolve) => {
+            const messageEl = deleteConfirmModal.querySelector('#delete-confirm-message');
+            messageEl.innerHTML = `Are you sure you want to delete <strong>${fileName}</strong>? This action cannot be undone.`;
+            deleteConfirmModal.classList.remove('hidden');
+
+            const cleanupAndResolve = (result) => {
+                deleteConfirmModal.classList.add('hidden');
+                confirmDeleteButton.removeEventListener('click', onConfirm);
+                cancelDeleteButton.removeEventListener('click', onCancel);
+                closeDeleteModal.removeEventListener('click', onCancel);
+                resolve(result);
+            };
+
+            const onConfirm = () => cleanupAndResolve(true);
+            const onCancel = () => cleanupAndResolve(false);
+
+            confirmDeleteButton.addEventListener('click', onConfirm);
+            cancelDeleteButton.addEventListener('click', onCancel);
+            closeDeleteModal.addEventListener('click', onCancel);
+        });
+    }
+
     async function deleteFile(fileId) {
-        if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+        const fileName = state.files.find(f => f.id === fileId)?.name || 'this file';
+        const confirmed = await confirmDeletion(fileName);
+
+        if (!confirmed) {
             return;
         }
 
         try {
             await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
 
-            const fileName = state.files.find(f => f.id === fileId)?.name || 'Unknown file';
             state.files = state.files.filter(f => f.id !== fileId);
             
             if (state.activeFileId === fileId) {
