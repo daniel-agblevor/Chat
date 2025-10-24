@@ -334,9 +334,18 @@ document.addEventListener('DOMContentLoaded', () => {
             manageLi.className = 'flex items-center justify-between bg-bg-surface p-2.5 rounded-lg';
             manageLi.dataset.fileId = file.id;
             manageLi.innerHTML = `<div class="flex items-center gap-3"><i data-lucide="${icon}" class="h-5 w-5 ${color} flex-shrink-0"></i><span class="text-sm text-slate-200 truncate">${file.name}</span></div>
-                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`;
+                <button class="delete-file-button p-2 rounded-md text-slate-400 hover:bg-red-500/20 hover:text-red-400" aria-label="Delete ${file.name}"><i data-lucide="trash-2" class="h-4 w-4"></i></button>`;
             manageFilesList.appendChild(manageLi);
         });
+
+        // Re-attach the listener here to ensure it's on the current list
+        manageFilesList.onclick = (e) => {
+            const deleteButton = e.target.closest('.delete-file-button');
+            if (deleteButton) {
+                const fileId = deleteButton.closest('li').dataset.fileId;
+                deleteFile(fileId);
+            }
+        };
         safeCreateIcons();
     }
 
@@ -364,7 +373,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function deleteFile(fileId) {
-        const fileName = state.files.find(f => f.id === fileId)?.name || 'this file';
+        const fileName = state.files.find(f => f.id === fileId)?.name;
+        
+        if (!fileName) {
+            showToast('File not found. The file list may be out of sync.', 'error');
+            return;
+        }
+
         const confirmed = await confirmDeletion(fileName);
 
         if (!confirmed) {
@@ -374,39 +389,31 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
 
+            // The filename was already captured before the confirmation, so we can reuse it here.
             state.files = state.files.filter(f => f.id !== fileId);
             
             if (state.activeFileId === fileId) {
                 state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
+                // Clear all views that depend on the active file
                 chatWindow.innerHTML = '';
-                renderChatHistory();
+                // Reset learning tools state
+                state.currentFlashcards = [];
+                state.currentQuiz = [];
+                state.currentFlashcardIndex = 0;
+                state.currentQuizIndex = 0;
+                state.quizScore = 0;
+                loadFlashcard(0);
+                loadQuizQuestion();
+                loadChatHistory(); // Reload chat history for the new active file (or show empty state)
             }
             
             renderFiles();
-            showToast(`File "${fileName}" has been deleted.`, 'success');
+            showToast(`File "<strong>${fileName}</strong>" has been deleted.`, 'success');
         } catch (error) {
             console.error(`Failed to delete file ${fileId}:`, error);
             showToast('Failed to delete the file. Please check your connection or try again.', 'error');
         }
     }
-
-    manageFilesList.addEventListener('click', (e) => {
-        const deleteButton = e.target.closest('.delete-file-button');
-        if (deleteButton) {
-            const fileId = deleteButton.closest('li').dataset.fileId;
-            deleteFile(fileId);
-        }
-    });
-
-    sidebarFileList.addEventListener('click', async (e) => {
-        const fileItem = e.target.closest('a');
-        if (fileItem) {
-            e.preventDefault();
-            const fileId = fileItem.dataset.fileId;
-            state.activeFileId = fileId;
-            renderFiles();
-        }
-    });
 
     // --- Upload handling ---
     if (uploadFileButton && fileInput) {
@@ -1371,6 +1378,18 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!localStorage.getItem('theme')) {
             const newTheme = event.matches ? 'light' : 'dark';
             applyTheme(newTheme);
+        }
+    });
+
+    sidebarFileList.addEventListener('click', async (e) => {
+        const fileItem = e.target.closest('a');
+        if (fileItem) {
+            e.preventDefault();
+            const fileId = fileItem.dataset.fileId;
+            state.activeFileId = fileId;
+            // When a file is selected, we should also load its specific data
+            await loadChatHistory(); // This will now use the new activeFileId
+            renderFiles(); // Re-render to show active state
         }
     });
 
