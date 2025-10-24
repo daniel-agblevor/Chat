@@ -350,70 +350,78 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function confirmDeletion(fileName) {
-        return new Promise((resolve) => {
-            const messageEl = deleteConfirmModal.querySelector('#delete-confirm-message');
-            messageEl.innerHTML = `Are you sure you want to delete <strong>${fileName}</strong>? This action cannot be undone.`;
-            deleteConfirmModal.classList.remove('hidden');
-
-            const cleanupAndResolve = (result) => {
-                deleteConfirmModal.classList.add('hidden');
-                confirmDeleteButton.removeEventListener('click', onConfirm);
-                cancelDeleteButton.removeEventListener('click', onCancel);
-                closeDeleteModal.removeEventListener('click', onCancel);
-                resolve(result);
-            };
-
-            const onConfirm = () => cleanupAndResolve(true);
-            const onCancel = () => cleanupAndResolve(false);
-
-            confirmDeleteButton.addEventListener('click', onConfirm);
-            cancelDeleteButton.addEventListener('click', onCancel);
-            closeDeleteModal.addEventListener('click', onCancel);
-        });
-    }
-
-    async function deleteFile(fileId) {
-        const fileName = state.files.find(f => f.id === fileId)?.name;
+    return new Promise((resolve) => {
+        const messageEl = deleteConfirmModal.querySelector('#delete-confirm-message');
         
-        if (!fileName) {
-            showToast('File not found. The file list may be out of sync.', 'error');
-            return;
-        }
+        // Sanitize fileName before inserting into HTML to prevent XSS
+        const sanitizedFileName = fileName.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        
+        messageEl.innerHTML = `Are you sure you want to delete <strong>${sanitizedFileName}</strong>? This action cannot be undone.`;
+        deleteConfirmModal.classList.remove('hidden');
 
-        const confirmed = await confirmDeletion(fileName);
+        const cleanupAndResolve = (result) => {
+            deleteConfirmModal.classList.add('hidden');
+            confirmDeleteButton.removeEventListener('click', onConfirm);
+            cancelDeleteButton.removeEventListener('click', onCancel);
+            closeDeleteModal.removeEventListener('click', onCancel);
+            resolve(result);
+        };
 
-        if (!confirmed) {
-            return;
-        }
+        const onConfirm = () => cleanupAndResolve(true);
+        const onCancel = () => cleanupAndResolve(false);
 
-        try {
-            await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
+        confirmDeleteButton.addEventListener('click', onConfirm);
+        cancelDeleteButton.addEventListener('click', onCancel);
+        closeDeleteModal.addEventListener('click', onCancel);
+    });
+}
 
-            // The filename was already captured before the confirmation, so we can reuse it here.
-            state.files = state.files.filter(f => f.id !== fileId);
-            
-            if (state.activeFileId === fileId) {
-                state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
-                // Clear all views that depend on the active file
-                chatWindow.innerHTML = '';
-                // Reset learning tools state
-                state.currentFlashcards = [];
-                state.currentQuiz = [];
-                state.currentFlashcardIndex = 0;
-                state.currentQuizIndex = 0;
-                state.quizScore = 0;
-                loadFlashcard(0);
-                loadQuizQuestion();
-                loadChatHistory(); // Reload chat history for the new active file (or show empty state)
-            }
-            
-            renderFiles();
-            showToast(`File "<strong>${fileName}</strong>" has been deleted.`, 'success');
-        } catch (error) {
-            console.error(`Failed to delete file ${fileId}:`, error);
-            showToast('Failed to delete the file. Please check your connection or try again.', 'error');
-        }
+async function deleteFile(fileId) {
+    const fileIdAsNumber = parseInt(fileId, 10);
+    const file = state.files.find(f => f.id === fileIdAsNumber);
+    if (!file) {
+        showToast('File not found. The list might be out of sync.', 'error');
+        await loadFiles(); // Refresh the list
+        return;
     }
+
+    const confirmed = await confirmDeletion(file.name);
+    if (!confirmed) {
+        return;
+    }
+
+    try {
+        await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
+        showToast(`File "<strong>${file.name}</strong>" has been deleted.`, 'success');
+
+        // After deletion, reload the file list from the server to ensure consistency.
+        await loadFiles();
+
+        // If the deleted file was the active one, reset relevant parts of the UI.
+        if (state.activeFileId === fileId) {
+            state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
+            
+            // Clear views and reset tools
+            chatWindow.innerHTML = '';
+            state.currentFlashcards = [];
+            state.currentQuiz = [];
+            state.currentFlashcardIndex = 0;
+            state.currentQuizIndex = 0;
+            state.quizScore = 0;
+
+            // Reload data based on the new active file (or lack thereof)
+            loadFlashcard(0);
+            loadQuizQuestion();
+            await loadChatHistory();
+        }
+        
+        // The `loadFiles` function already calls `renderFiles`, so calling it again is redundant.
+        // renderFiles(); 
+    } catch (error) {
+        console.error(`Failed to delete file ${fileId}:`, error);
+        showToast('Failed to delete the file. Please check your connection or try again.', 'error');
+    }
+}
 
     // --- Upload handling ---
     if (uploadFileButton && fileInput) {
