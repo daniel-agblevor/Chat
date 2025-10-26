@@ -1019,6 +1019,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${AUTH_API_BASE_URL}/login/`, {
                 method: 'POST',
+                mode: 'cors', // Explicitly set mode for cross-origin requests
                 headers: {
                     'Content-Type': 'application/json',
                 },
@@ -1069,6 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${AUTH_API_BASE_URL}/register/`, {
                 method: 'POST',
+                mode: 'cors', // Explicitly set mode for cross-origin requests
                 headers: {
                     'Content-Type': 'application/json',
                 },
