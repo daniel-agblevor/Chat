@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_BASE_URL = 'https://starlight-ai-129919759539.europe-west1.run.app';
+    const API_BASE_URL = 'https://starlight-ai-zosyx5biiq-ew.a.run.app';
     const AUTH_API_BASE_URL = `${API_BASE_URL}/api/accounts`; // For login/register
     const CHAT_API_BASE_URL = `${API_BASE_URL}/api/chat/v1`; // For chat
 
