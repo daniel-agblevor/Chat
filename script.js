@@ -242,12 +242,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- API Helper ---
     async function apiRequest(endpoint, options = {}) {
-        const { method = 'GET', body = null, timeout = 30000 } = options; // 30-second timeout
+        const { method = 'GET', body = null, isStreaming = false, timeout = 30000 } = options;
         
         const controller = new AbortController();
         const id = setTimeout(() => controller.abort(), timeout);
 
-        const headers = {};
+        const headers = { 'Content-Type': 'application/json' };
         if (apiToken) {
             headers['Authorization'] = `Bearer ${apiToken}`;
         }
@@ -257,8 +257,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            // Use the full URL for auth endpoints, otherwise construct from base
+            const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+
+            const response = await fetch(url, {
                 method,
+                mode: 'cors', // Ensure all requests are CORS-enabled
                 headers,
                 body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null,
                 signal: controller.signal
@@ -266,9 +270,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             clearTimeout(id);
 
+            // For streaming responses, return the raw response object
+            if (isStreaming) return response;
+
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({ error: { message: 'An unknown API error occurred.' } }));
-                throw new Error(errorData.error.message || `API request failed with status ${response.status}`);
+                const errorData = await response.json().catch(() => ({ detail: 'An unknown API error occurred.' }));
+                throw new Error(Object.values(errorData).flat().join(' ') || `API request failed with status ${response.status}`);
             }
 
             if (response.status === 204) return null;
@@ -494,29 +501,18 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage(userMessage, 'user');
         messageInput.value = '';
 
-        // Create a new bot message element to append chunks to
-        const botMessageContainer = addMessage('', 'bot', false);
+        const botMessageContainer = addMessage('', 'bot', false); // Create placeholder
 
         try {
-            const headers = { 'Content-Type': 'application/json' };
-            if (apiToken) {
-                headers['Authorization'] = `Bearer ${apiToken}`;
-            }
-
-            const response = await fetch(`${CHAT_API_BASE_URL}/chat/`, { method: 'POST', headers, body: JSON.stringify({ message: userMessage }) });
+            const response = await apiRequest(`${CHAT_API_BASE_URL}/chat/`, {
+                method: 'POST',
+                body: { message: userMessage },
+                isStreaming: true
+            });
 
             if (!response.ok) {
-                // If the error is 401 Unauthorized and we think we are logged in, the token is bad.
-                if (response.status === 401 && state.isLoggedIn) {
-                    handleLogout();
-                    // Add a specific message for this case and stop processing
-                    addMessage("Your session has expired. Please log in again to access your documents.", 'bot', false);
-                    return; 
-                }
-                // Handle other HTTP errors like 403, 500 etc.
-                const errorData = await response.json().catch(() => ({ detail: 'An unknown error occurred.' }));
-                const errorMessage = errorData.detail || `Server responded with status ${response.status}.`;
-                throw new Error(errorMessage);
+                const errorData = await response.json().catch(() => ({ detail: 'Streaming failed.' }));
+                throw new Error(errorData.detail || `Server responded with status ${response.status}`);
             }
 
             const reader = response.body.getReader();
@@ -538,11 +534,16 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             // Add final message to state
-            state.chatHistory.push({ sender: 'bot', message: fullResponse, created_at: new Date().toISOString() });
-            renderChatHistory();
+            // state.chatHistory.push({ sender: 'bot', message: fullResponse, created_at: new Date().toISOString() });
+            // renderChatHistory(); // This might be too slow/frequent, consider updating history less often
 
         } catch (error) {
-            botMessageContainer.innerHTML = `<p class="text-red-400">Sorry, I encountered an error trying to respond. Please check your connection and try again.</p>`;
+            if (error.message.includes('401')) {
+                handleLogout();
+                botMessageContainer.innerHTML = `<p class="text-red-400">Your session has expired. Please log in again.</p>`;
+            } else {
+                botMessageContainer.innerHTML = `<p class="text-red-400">Sorry, I encountered an error: ${error.message}</p>`;
+            }
         }
     }
 
@@ -1017,24 +1018,13 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDiv.textContent = '';
 
         try {
-            const response = await fetch(`${AUTH_API_BASE_URL}/login/`, {
+            const data = await apiRequest(`${AUTH_API_BASE_URL}/login/`, {
                 method: 'POST',
-                mode: 'cors', // Explicitly set mode for cross-origin requests
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
+                body: { username, password }
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.error || 'Invalid credentials');
-            }
 
             localStorage.setItem('accessToken', data.access);
             localStorage.setItem('refreshToken', data.refresh);
-            localStorage.setItem('username', data.username);
             apiToken = data.access;
             state.isLoggedIn = true;
 
@@ -1068,25 +1058,14 @@ document.addEventListener('DOMContentLoaded', () => {
         errorDiv.textContent = '';
 
         try {
-            const response = await fetch(`${AUTH_API_BASE_URL}/register/`, {
+            const data = await apiRequest(`${AUTH_API_BASE_URL}/register/`, {
                 method: 'POST',
-                mode: 'cors', // Explicitly set mode for cross-origin requests
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, email, password, password2 }),
+                body: { username, email, password, password2 }
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                // Extract and display the first error message
-                const errorMessage = Object.values(data).flat().join(' ');
-                throw new Error(errorMessage || 'Registration failed.');
-            }
 
             // After successful registration, the backend should return tokens
             // just like the login endpoint does.
+            // The username is now part of the JWT, so we don't need it separately.
             localStorage.setItem('accessToken', data.access);
             localStorage.setItem('refreshToken', data.refresh);
             localStorage.setItem('username', data.username);
@@ -1109,7 +1088,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleLogout() {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        localStorage.removeItem('username');
         apiToken = null;
 
         // Clear sensitive user data from state
