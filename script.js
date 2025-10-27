@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- API Configuration ---
-    const API_BASE_URL = 'https://daniel-agblevor.github.io';
+    const API_BASE_URL = 'https://starlight-ai-129919759539.europe-west1.run.app';
     const AUTH_API_BASE_URL = `${API_BASE_URL}/api/accounts`; // For login/register
     const CHAT_API_BASE_URL = `${API_BASE_URL}/api/chat/v1`; // For chat
 
@@ -248,8 +248,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = setTimeout(() => controller.abort(), timeout);
 
         const headers = {};
-        if (apiToken) {
-            headers['Authorization'] = `Bearer ${apiToken}`;
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
         }
 
         if (body && !(body instanceof FormData)) {
@@ -257,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            const response = await fetch(`${CHAT_API_BASE_URL}${endpoint}`, {
                 method,
                 headers,
                 body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null,
@@ -266,9 +267,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
             clearTimeout(id);
 
+            if (response.status === 401) {
+                await refreshToken();
+                // Retry the request with the new token
+                const newToken = localStorage.getItem('accessToken');
+                if (newToken) {
+                    headers['Authorization'] = `Bearer ${newToken}`;
+                    const retryResponse = await fetch(`${CHAT_API_BASE_URL}${endpoint}`, {
+                        method,
+                        headers,
+                        body: body ? (body instanceof FormData ? body : JSON.stringify(body)) : null,
+                    });
+                    if (!retryResponse.ok) {
+                        throw new Error(`API request failed with status ${retryResponse.status}`);
+                    }
+                    if (retryResponse.status === 204) return null;
+                    return await retryResponse.json();
+                } else {
+                    handleLogout();
+                    throw new Error('Session expired. Please log in again.');
+                }
+            }
+
+
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({ error: { message: 'An unknown API error occurred.' } }));
-                throw new Error(errorData.error.message || `API request failed with status ${response.status}`);
+                throw new Error(errorData.detail || errorData.error.message || `API request failed with status ${response.status}`);
             }
 
             if (response.status === 204) return null;
@@ -296,11 +320,92 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- File Management ---
-    async function loadFiles() {
+    async function registerUser(username, email, password) {
+        const response = await fetch('https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                email: email,
+                password: password,
+                password2: password,
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            console.log('User registered successfully:', data);
+            showToast('Registration successful! Please log in.', 'success');
+            registerModal.classList.add('hidden');
+            loginModal.classList.remove('hidden');
+        } else {
+            const errorData = await response.json();
+            const errorMessage = Object.values(errorData).flat().join(' ');
+            showToast(`Registration failed: ${errorMessage}`, 'error');
+            console.error('Registration failed:', response.statusText);
+        }
+    }
+
+    async function loginUser(username, password) {
+        const response = await fetch('https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/login/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: username,
+                password: password,
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Store the access and refresh tokens in local storage
+            localStorage.setItem('accessToken', data.access);
+            localStorage.setItem('refreshToken', data.refresh);
+            localStorage.setItem('username', username);
+            apiToken = data.access;
+            state.isLoggedIn = true;
+            console.log('User logged in successfully');
+            showToast('Login successful!', 'success');
+            loginModal.classList.add('hidden');
+            initializeLoggedInState();
+        } else {
+            showToast('Login failed: Invalid credentials', 'error');
+            console.error('Login failed:', response.statusText);
+        }
+    }
+
+    async function refreshToken() {
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) return;
+        const response = await fetch('https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/token/refresh/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                refresh: refreshToken,
+            }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            // Store the new access token
+            localStorage.setItem('accessToken', data.access);
+            apiToken = data.access;
+            console.log('Token refreshed successfully');
+        } else {
+            console.error('Token refresh failed:', response.statusText);
+            handleLogout();
+        }
+    }
+
+    async function getFiles() {
         try {
-            const data = await apiRequest('/api/chat/v1/files');
-            
+            const data = await apiRequest('/files');
             state.files = data || [];
             if (!state.activeFileId && state.files.length > 0) {
                 state.activeFileId = state.files[0].id;
@@ -308,9 +413,126 @@ document.addEventListener('DOMContentLoaded', () => {
             renderFiles();
         } catch (error) {
             console.error("Failed to load files:", error);
-            showToast("Could not load your files. Please try again later.", "error");
         }
     }
+
+    async function uploadFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            await apiRequest('/files', { method: 'POST', body: formData });
+            showToast('File uploaded successfully.', 'success');
+            getFiles();
+        } catch (err) {
+            console.error('File upload failed:', err);
+            showToast('File upload failed.', 'error');
+        }
+    }
+
+    async function deleteFileApi(fileId) {
+        if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
+            return;
+        }
+
+        try {
+            await apiRequest(`/files/${fileId}`, { method: 'DELETE' });
+            showToast('File deleted successfully.', 'success');
+            getFiles();
+        } catch (error) {
+            console.error(`Failed to delete file ${fileId}:`, error);
+            showToast('Failed to delete the file.', 'error');
+        }
+    }
+
+    async function sendMessage(message) {
+        try {
+            const data = await apiRequest('/chat/', {
+                method: 'POST',
+                body: { message: message },
+            });
+            return data.response;
+        } catch (error) {
+            console.error('Failed to send message:', error);
+            return "Sorry, I couldn't send your message.";
+        }
+    }
+
+    async function updateSettings(settings) {
+        try {
+            const data = await apiRequest('/settings', {
+                method: 'POST',
+                body: settings,
+            });
+            console.log('Settings updated successfully:', data);
+            showToast('Settings updated.', 'success');
+        } catch (error) {
+            console.error('Failed to update settings:', error);
+            showToast('Failed to update settings.', 'error');
+        }
+    }
+
+    async function submitFeedbackApi(feedback) {
+        try {
+            const data = await apiRequest('/feedback', {
+                method: 'POST',
+                body: feedback,
+            });
+            console.log('Feedback submitted successfully:', data);
+            showToast('Thank you for your feedback!', 'success');
+            feedbackModal.classList.add('hidden');
+        } catch (error) {
+            console.error('Failed to submit feedback:', error);
+            showToast('Failed to submit feedback.', 'error');
+        }
+    }
+
+    // --- Event Listeners ---
+    loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = loginForm.querySelector('#login-username').value;
+        const password = loginForm.querySelector('#password').value;
+        loginUser(username, password);
+    });
+
+    registerForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const username = registerForm.querySelector('#register-username').value;
+        const email = registerForm.querySelector('#register-email').value;
+        const password = registerForm.querySelector('#register-password').value;
+        const password2 = registerForm.querySelector('#register-password-confirm').value;
+        if (password !== password2) {
+            showToast("Passwords do not match", "error");
+            return;
+        }
+        registerUser(username, email, password);
+    });
+
+    logoutButton.addEventListener('click', handleLogout);
+
+    function handleLogout() {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('username');
+        apiToken = null;
+        state.isLoggedIn = false;
+        state.files = [];
+        updateUI();
+    }
+
+    function initializeLoggedInState() {
+        const token = localStorage.getItem('accessToken');
+        const username = localStorage.getItem('username');
+        if (token && username) {
+            apiToken = token;
+            state.isLoggedIn = true;
+            userUsername.textContent = username;
+            getFiles();
+        }
+        updateUI();
+    }
+    
+    initializeLoggedInState();
 
     function renderFiles() {
         sidebarFileList.innerHTML = '';
@@ -340,25 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!confirm('Are you sure you want to delete this file? This action cannot be undone.')) {
             return;
         }
-
-        try {
-            await apiRequest(`/api/chat/v1/files/${fileId}`, { method: 'DELETE' });
-
-            const fileName = state.files.find(f => f.id === fileId)?.name || 'Unknown file';
-            state.files = state.files.filter(f => f.id !== fileId);
-            
-            if (state.activeFileId === fileId) {
-                state.activeFileId = state.files.length > 0 ? state.files[0].id : null;
-                chatWindow.innerHTML = '';
-                renderChatHistory();
-            }
-            
-            renderFiles();
-            showToast(`File "${fileName}" has been deleted.`, 'success');
-        } catch (error) {
-            console.error(`Failed to delete file ${fileId}:`, error);
-            showToast('Failed to delete the file. Please check your connection or try again.', 'error');
-        }
+        await deleteFileApi(fileId);
     }
 
     manageFilesList.addEventListener('click', (e) => {
@@ -392,16 +596,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function uploadFiles(files) {
-        const formData = new FormData();
-        files.forEach(f => formData.append('file', f));
-
-        try {
-            await apiRequest('/api/chat/v1/files', { method: 'POST', body: formData });
-            showToast('Files uploaded successfully and are being processed.', 'success');
-            await loadFiles();
-        } catch (err) {
-            console.error('File upload failed:', err);
-            showToast('File upload failed. Please ensure the file is a supported format and try again.', 'error');
+        for (const file of files) {
+            await uploadFile(file);
         }
     }
     
@@ -487,7 +683,10 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        await streamChatResponse(userMessage);
+        addMessage(userMessage, 'user');
+        messageInput.value = '';
+        const botResponse = await sendMessage(userMessage);
+        addMessage(botResponse, 'bot');
     });
 
     async function streamChatResponse(userMessage) {
@@ -871,28 +1070,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         feedbackValidation.classList.add('hidden');
         
-        try {
-            await apiRequest('/api/feedback', { 
-                method: 'POST', 
-                body: { 
-                    rating, 
-                    comments, 
-                    fileId: state.activeFileId 
-                } 
-            });
-            showToast('Thank you for your feedback!', 'success');
-        } catch (err) {
-            console.error('Failed to submit feedback:', err);
-            showToast('Failed to submit feedback. Please try again later.', 'error');
-            return;
-        }
-
-        feedbackModal.classList.add('hidden');
-        
-        feedbackComments.value = '';
-        Array.from(feedbackRating.children).forEach(star => {
-            star.classList.remove('active');
-        });
+        await submitFeedbackApi({ rating, comments });
     }
 
     submitFeedbackButton.addEventListener('click', submitFeedback);
@@ -969,14 +1147,28 @@ document.addEventListener('DOMContentLoaded', () => {
         setupMobileSidebarClickOutside();
     });
 
-    // --- Modal and Auth Logic ---
-    openSettingsButton.addEventListener('click', () => {
-        if (state.isLoggedIn) {
-            settingsModal.classList.remove('hidden');
-        } else {
-            loginModal.classList.remove('hidden');
+        const specialInstructions = document.getElementById('special-instructions');
+        if(openSettingsButton){
+            openSettingsButton.addEventListener('click', () => {
+                settingsModal.classList.remove('hidden');
+            });
         }
-    });
+
+        if(closeSettingsModal){
+            closeSettingsModal.addEventListener('click', () => {
+                settingsModal.classList.add('hidden');
+            });
+        }
+        
+        const saveSettingsButton = document.getElementById('save-settings-button');
+        if (saveSettingsButton) {
+            saveSettingsButton.addEventListener('click', () => {
+                const settings = {
+                    special_instructions: specialInstructions.value,
+                };
+                updateSettings(settings);
+            });
+        }
 
     loginSignupButton.addEventListener('click', () => {
         loginModal.classList.remove('hidden');

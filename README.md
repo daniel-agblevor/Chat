@@ -2,9 +2,9 @@
 
 This project is a web-based chat application called "Starlight RAG". It provides a user-friendly interface to interact with a Retrieval-Augmented Generation (RAG) assistant, allowing users to chat with their own data. The frontend is fully implemented and connects to a backend API.
 
-## Current Status: Polished Frontend Demonstration
+## Current Status: Live and Operational
 
-**This is a frontend-only demonstration.** The UI is fully built, interactive, and has been professionally polished. However, it is **not connected to a live backend**. Key functionalities like file processing, chat responses, and user authentication are simulated to showcase the user interface.
+**The frontend is fully implemented and connected to a live backend API.** All features, including file processing, chat responses, and user authentication, are fully functional.
 
 ## Features
 
@@ -34,24 +34,28 @@ This project is a web-based chat application called "Starlight RAG". It provides
 
 ## How to Use
 
-Because modern browsers restrict features on pages loaded directly from the local filesystem (`file:///...`), this application requires a local web server to function correctly.
-
-1.  **Prerequisites:** You need a local web server. If you are using VS Code, the **Live Server** extension is a great option.
-2.  **Start the Server:** Right-click the `index.html` file and select "Open with Live Server".
-3.  **Using the Demo:**
-    *   The application will open in your browser.
-    *   The login is simulated. Click the login button to see the authenticated UI.
-    *   You can simulate uploading documents and interacting with the UI. **Note that no data is being saved or processed.**
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/daniel-agblevor/Chat.git
+    ```
+2.  **Navigate to the frontend directory:**
+    ```bash
+    cd Chat/frontend
+    ```
+3.  **Open `index.html` in your browser.** No local server is required as the application communicates with a remote backend.
 
 ## API Integration
 
-The frontend is built to integrate with the API specification defined in `docs/api_specifications.md`. The client-side code for making API calls is in place, but it **requires a functional backend to work**. All data is designed to be fetched from and managed by the backend.
+The frontend is fully integrated with the backend API. The client-side code for making API calls is in `script.js`.
 
-### Key API Endpoints (Pending Backend Implementation):
+### Key API Endpoints:
 
-*   `GET /files`, `POST /files`, `DELETE /files/{fileId}`
-*   `GET /files/{fileId}/chat`, `POST /files/{fileId}/chat`
-*   `POST /files/{fileId}/flashcards}`, `POST /files/{fileId}/quizzes`
-*   `POST /feedback`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/register/`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/login/`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/accounts/token/refresh/`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/chat/v1/files`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/chat/v1/chat/`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/chat/v1/settings`
+*   `https://starlight-ai-129919759539.europe-west1.run.app/api/chat/v1/feedback`
 
 For detailed request/response schemas, please see the [API Specification document](./docs/api_specifications.md).

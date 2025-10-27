@@ -12,17 +12,17 @@ This document provides a comprehensive specification for the Starlight RAG RESTf
 All API endpoints are prefixed with the following base URL:
 
 ```
-https://api.starlightrag.com/v1
+https://starlight-ai-129919759539.europe-west1.run.app
 ```
 
 ### 1.2. Authentication
 
-The API uses bearer token authentication. All requests must include an `Authorization` header containing the user's API token.
+The API uses JSON Web Tokens (JWT) for authentication. All protected requests must include an `Authorization` header with a bearer token.
 
 **Header Example:**
-`Authorization: Bearer <YOUR_API_TOKEN>`
+`Authorization: Bearer <YOUR_ACCESS_TOKEN>`
 
-Unauthenticated requests will receive a `401 Unauthorized` response.
+The API has endpoints for user registration, login, and token refreshing.
 
 ### 1.3. Standard Response Formats
 
